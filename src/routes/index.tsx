@@ -2,6 +2,7 @@ import { Title } from "@solidjs/meta";
 import Counter from "~/components/Counter";
 import BaseButton from "~/components/baseComponents/BaseButton";
 import BaseCard from "~/components/baseComponents/BaseCard";
+import Circle from "~/components/atoms/PieChart";
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
         </a>{" "}
         to learn how to build SolidStart apps.
       </BaseCard>
+        <Circle/>
     </main>
   );
 }
