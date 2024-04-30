@@ -10,14 +10,16 @@ export default function Home() {
       <Title>Hello World</Title>
       <h1>Hello world!</h1>
       <Counter />
-        <BaseButton variant="outline-secondary" size="sm">Hi</BaseButton>
+      <BaseButton variant="outline-secondary" size="sm">
+        Hi
+      </BaseButton>
       <BaseCard>
         <a href="https://start.solidjs.com" target="_blank">
           start.solidjs.com
         </a>{" "}
         to learn how to build SolidStart apps.
       </BaseCard>
-        <Circle/>
+      <Circle />
     </main>
   );
 }
