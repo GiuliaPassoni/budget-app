@@ -11,10 +11,6 @@ interface ModalProps {
 
 export default function BaseModal( props: ModalProps) {
   const { ...rest } = props;
-  // const [show, setShow] = createSignal(false);
-  // const handleOpen = () => setShow(true);
-  // const handleClose = () => setShow(false);
-
   return (
     <Modal show={props.showModal} onHide={props.handleClose} {...rest}>
       <Modal.Header closeButton>
