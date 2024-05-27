@@ -3,15 +3,14 @@ import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
 import "./app.css";
+import NavBar from "~/components/organisms/NavBar";
 
 export default function App() {
   return (
     <Router
       root={(props) => (
         <MetaProvider>
-          <Title>SolidStart - Basic</Title>
-          <a href="/">Index</a>
-          <a href="/overview">Overview</a>
+          <NavBar/>
           <Suspense>{props.children}</Suspense>
         </MetaProvider>
       )}
