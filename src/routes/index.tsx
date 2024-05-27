@@ -1,29 +1,25 @@
 import { Title } from "@solidjs/meta";
-import Counter from "~/components/Counter";
-import BaseButton from "~/components/baseComponents/BaseButton";
-import BaseCard from "~/components/baseComponents/BaseCard";
-import PieChart from "~/components/atoms/PieChart";
-import { ErrorBoundary } from "solid-js";
+import { createSignal, ErrorBoundary, Show } from "solid-js";
 
 export default function Home() {
+  const randomNumber = Number((Math.random()*1000).toFixed(2))
+  const [totalAccount, setTotalAccount] = createSignal(randomNumber)
+  const [defaultCurrency, setDefaultCurrency] = createSignal("EUR")
+  const [defaultCurrencySymbol, setDefaultCurrencySymbol] = createSignal("€")
+  // const currencySymbols = [{ "EUR": "€", "USD": "$"}]
+
+
   return (
     <ErrorBoundary
       fallback={(err, reset) => <div onClick={reset}>Error: {err.toString()}</div>}
     >
       <main>
-        <Title>Hello World</Title>
-        <h1>Hello world!</h1>
-        <Counter />
-        <BaseButton variant="outline-secondary" size="sm">
-          Hi
-        </BaseButton>
-        <BaseCard>
-          <a href="https://start.solidjs.com" target="_blank">
-            start.solidjs.com
-          </a>{" "}
-          to learn how to build SolidStart apps.
-        </BaseCard>
-        <PieChart w={10} h={10} r={100} />
+        <Title>Your Account Overview</Title>
+        <h1>Your Account</h1>
+        <h3>You have <strong>{defaultCurrencySymbol()} {totalAccount()}</strong> in your account.</h3>
+        <Show when={totalAccount()>0}>
+          <div>Congratulations! You're rich!</div>
+        </Show>
       </main>
     </ErrorBoundary>
   );
