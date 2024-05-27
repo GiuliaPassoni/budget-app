@@ -19,6 +19,7 @@ export default function Home() {
         <h3>You have <strong>{defaultCurrencySymbol()} {totalAccount()}</strong> in your account.</h3>
         <Show when={totalAccount()>0}>
           <div>Congratulations! You're rich!</div>
+          <img loading="lazy" style={"width: 30vw; margin-left: auto; margin-right: auto;"} src="src/assets/images/rich_cat.jpg"/>
         </Show>
       </main>
     </ErrorBoundary>
