@@ -5,7 +5,7 @@ import { Suspense } from "solid-js";
 import "./app.css";
 import NavBar from "~/components/organisms/NavBar";
 
-function App() {
+export default function App() {
 	return (
 		<Router
 			root={(props) => (
