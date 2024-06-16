@@ -4,6 +4,7 @@ import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
 import "./app.css";
 import NavBar from "~/components/organisms/NavBar";
+import "flowbite";
 
 export default function App() {
 	return (
