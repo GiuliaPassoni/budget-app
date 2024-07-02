@@ -12,8 +12,10 @@ function getRandomColor() {
 }
 
 export default function PieChart(props: { w: number; h: number; r: number }) {
+	const randomNumber = (Math.random() * 100).toFixed(0),
+		divId = "my_dataviz" + randomNumber;
 	onMount(() => {
-		const svg = select("div#my_dataviz")
+		const svg = select(`div#${divId}`)
 			.append("svg")
 			.attr("viewBox", "0 0 100 100")
 			.attr("width", props.w)
@@ -24,5 +26,5 @@ export default function PieChart(props: { w: number; h: number; r: number }) {
 			.attr("cy", "50")
 			.attr("r", props.r);
 	});
-	return <div id="my_dataviz"></div>;
+	return <div id={divId} class="max-w-10 mx-auto"></div>;
 }
