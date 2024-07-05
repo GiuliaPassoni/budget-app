@@ -24,7 +24,7 @@ export default function PlusIconButton({ handleClick, title, ...rest }: any) {
 					d="M5 12h14m-7 7V5"
 				/>
 			</svg>
-			<span class="sr-only"></span>
+			<span class="sr-only">Add</span>
 		</button>
 	);
 }

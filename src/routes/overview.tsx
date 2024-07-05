@@ -4,8 +4,11 @@ import BaseButton from "~/components/baseComponents/BaseButton";
 import BaseCard from "~/components/baseComponents/BaseCard";
 import PieChart from "~/components/atoms/PieChart";
 import PlusIconButton from "~/components/baseComponents/PlusIconButton";
+import { createSignal } from "solid-js";
+import NewTransactionModal from "~/components/molecules/NewTransactionModal";
 
 export default function Overview() {
+	const [showModal, setShowModal] = createSignal(false);
 	return (
 		<main>
 			<Title>Overview</Title>
@@ -14,7 +17,14 @@ export default function Overview() {
 				<BaseCard title="Date Picker"></BaseCard>
 				<PlusIconButton
 					title="Record transaction"
-					handleClick={() => console.debug("hi")}
+					handleClick={() => {
+						setShowModal(true);
+					}}
+				/>
+				<NewTransactionModal
+					showModal={showModal()}
+					handleClose={() => setShowModal(false)}
+					onSubmit={() => setShowModal(false)}
 				/>
 				<div class="grid grid-cols-3 md:grid-cols-3 gap-4">
 					<ChartCard title="Pie Chart">
