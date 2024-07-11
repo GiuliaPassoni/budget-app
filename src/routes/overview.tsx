@@ -16,6 +16,7 @@ export default function Overview() {
 			<section class="max-w-6xl mx-auto">
 				<BaseCard title="Date Picker"></BaseCard>
 				<PlusIconButton
+					type="button"
 					title="Record transaction"
 					handleClick={() => {
 						setShowModal(true);
