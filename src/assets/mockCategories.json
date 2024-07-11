@@ -1,0 +1,20 @@
+[
+  {
+    "name": "groceries",
+    "icon": "shopping",
+    "type": "expense",
+    "total": "0"
+  },
+  {
+    "name": "holiday",
+    "icon": "boat",
+    "type": "expense",
+    "total": "0"
+  },
+  {
+    "name": "paycheck",
+    "icon": "money",
+    "type": "income",
+    "total": "0"
+  }
+]
