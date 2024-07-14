@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .card-with-icon-link {
+    @apply block max-w-100px p-2 m-2 px-auto bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700;
+    h4 {
+      @apply my-1 mx-auto w-fit text-gray-900 dark:text-white
+    }
+    p {
+      @apply mb-3 font-normal text-gray-500 dark:text-gray-400
+    }
+  }
+}
+
