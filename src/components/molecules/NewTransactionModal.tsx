@@ -10,7 +10,7 @@ import { toast, Toaster } from "solid-toast";
 interface ModalProps {
 	showModal: boolean;
 	handleClose: () => void;
-	// onSubmit: () => void;
+	onSubmit: () => void;
 	// title?: string;
 	// body: any;
 	// footer: any;
