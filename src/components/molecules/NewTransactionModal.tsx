@@ -65,10 +65,6 @@ export default function NewTransactionModal(props: ModalProps) {
 		}),
 	];
 
-	createEffect(() => {
-		console.debug("cur", currency());
-	});
-
 	return (
 		<Show when={props.showModal}>
 			<div id="default-styled-tab-content">
@@ -188,20 +184,16 @@ export default function NewTransactionModal(props: ModalProps) {
 												Currency
 											</label>
 											<select
+												onChange={(e) => {
+													setCurrency(e.target.value);
+												}}
 												required={true}
 												id="category"
 												class="bg-transparent border-none text-left text-gray-500 text-sm focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 											>
 												<For each={allCurrencies}>
 													{(i) => (
-														<option
-															value={i.currency_code}
-															onSelect={() => {
-																// this doesn't work
-																setCurrency(i.currency_code);
-																console.debug(i.currency_code);
-															}}
-														>
+														<option value={i.currency_code}>
 															{i.currency_code} ({i.country})
 														</option>
 													)}
