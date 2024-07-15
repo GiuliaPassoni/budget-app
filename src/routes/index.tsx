@@ -1,5 +1,6 @@
 import { Title } from "@solidjs/meta";
 import { createSignal, ErrorBoundary, Show } from "solid-js";
+import { toast, Toaster } from "solid-toast";
 
 export default function Home() {
 	const randomNumber = Number((Math.random() * 1000).toFixed(2));
@@ -16,6 +17,7 @@ export default function Home() {
 		>
 			<main>
 				<Title>Your Account Overview</Title>
+				<button onClick={() => toast.success("Successfully saved!")}>HI</button>
 				<h1>Your Account</h1>
 				<h3>
 					You have{" "}
@@ -33,6 +35,7 @@ export default function Home() {
 						alt="Rich cat swimming in money"
 					/>
 				</Show>
+				<Toaster />
 			</main>
 		</ErrorBoundary>
 	);
