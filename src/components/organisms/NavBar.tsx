@@ -1,5 +1,31 @@
 // the component itself can't have the same name as the bootstrap <Navbar> component
+import { onAuthStateChanged } from "firebase/auth";
+import { createSignal, Show } from "solid-js";
+import { auth } from "~/firebase";
+import SignOutButton from "~/components/molecules/SignOutButton";
+
 export default function NavBar() {
+	const [user, setUser] = createSignal<any>();
+	const [loginLink, setLoginLink] = createSignal("Log In");
+
+	onAuthStateChanged(auth, (firebaseUser) => {
+		if (firebaseUser !== null) {
+			const name = firebaseUser.displayName;
+			setUser(name);
+			setLoginLink("Sign out");
+		}
+	});
+
+	const currentUser = auth.currentUser;
+	if (currentUser) {
+		setUser(currentUser.email);
+	}
+
+	if (user()) {
+		setLoginLink("Sign out");
+	} else {
+		setLoginLink("Sign In");
+	}
 	return (
 		<nav class="bg-white border-gray-200 dark:bg-gray-900">
 			<div class="flex flex-wrap items-center justify-between mx-auto p-0">
@@ -12,7 +38,7 @@ export default function NavBar() {
 							<a
 								href="/#"
 								class="block py-2 px-3 text-blue bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500"
-								aria-current="page"
+								// aria-current="page"
 							>
 								Home
 							</a>
@@ -27,19 +53,21 @@ export default function NavBar() {
 						</li>
 						<li>
 							<a
-								href="#"
+								href="/categories"
 								class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
 							>
-								Help
+								Your Categories
 							</a>
 						</li>
-						<li class="hidden lg:flex lg:flex-1 lg:justify-end">
-							<a
-								href="/login"
-								class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
-							>
-								Log in <span aria-hidden="true">&rarr;</span>
-							</a>
+						<li class="lg:flex lg:flex-1 lg:justify-end">
+							<Show when={!user()} fallback={<SignOutButton />}>
+								<a
+									href="/signup"
+									class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+								>
+									{loginLink()}
+								</a>
+							</Show>
 						</li>
 					</ul>
 				</div>
