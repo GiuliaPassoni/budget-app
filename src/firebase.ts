@@ -9,7 +9,7 @@ import { getAuth } from "firebase/auth";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-	apiKey: "AIzaSyC4laW_8yNr-StZDOONA3vb-KgTAMfFZH4",
+	apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
 	authDomain: "budget-c4388.firebaseapp.com",
 	projectId: "budget-c4388",
 	storageBucket: "budget-c4388.appspot.com",
@@ -25,7 +25,7 @@ const db = getFirestore(app);
 // Initialize Firebase Authentication and get a reference to the service
 const auth = getAuth(app);
 
-export { app, auth };
+export { app, auth, db };
 
 // export default async function hello() {
 // 	try {
