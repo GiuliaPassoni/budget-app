@@ -1,31 +1,21 @@
 // the component itself can't have the same name as the bootstrap <Navbar> component
 import { onAuthStateChanged } from "firebase/auth";
-import { createSignal, Show } from "solid-js";
-import { auth } from "~/firebase";
+import { createEffect, createSignal, Show } from "solid-js";
+import { currentUser, setCurrentUser } from "~/firebase";
 import SignOutButton from "~/components/molecules/SignOutButton";
 
 export default function NavBar() {
-	const [user, setUser] = createSignal<any>();
 	const [loginLink, setLoginLink] = createSignal("Log In");
 
-	onAuthStateChanged(auth, (firebaseUser) => {
-		if (firebaseUser !== null) {
-			const name = firebaseUser.displayName;
-			setUser(name);
-			setLoginLink("Sign out");
+	createEffect(() => {
+		console.debug(currentUser());
+		if (currentUser()) {
+			console.debug("User logged in");
+		} else {
+			console.debug("No user");
 		}
-	});
+	}, [currentUser()]);
 
-	const currentUser = auth.currentUser;
-	if (currentUser) {
-		setUser(currentUser.email);
-	}
-
-	if (user()) {
-		setLoginLink("Sign out");
-	} else {
-		setLoginLink("Sign In");
-	}
 	return (
 		<nav class="bg-white border-gray-200 dark:bg-gray-900">
 			<div class="flex flex-wrap items-center justify-between mx-auto p-0">
@@ -60,10 +50,13 @@ export default function NavBar() {
 							</a>
 						</li>
 						<li class="lg:flex lg:flex-1 lg:justify-end">
-							<Show when={!user()} fallback={<SignOutButton />}>
+							<Show when={!currentUser()} fallback={<SignOutButton />}>
 								<a
 									href="/signup"
-									class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+									class="block py-2 px-3 md:p-0
+									text-gray-900 dark:text-white
+									hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent
+									rounded dark:border-gray-700"
 								>
 									{loginLink()}
 								</a>

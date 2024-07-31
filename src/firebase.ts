@@ -1,7 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs, addDoc } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { createSignal } from "solid-js";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -25,45 +26,15 @@ const db = getFirestore(app);
 // Initialize Firebase Authentication and get a reference to the service
 const auth = getAuth(app);
 
+const [currentUser, setCurrentUser] = createSignal<any>();
+
 export { app, auth, db };
 
-// export default async function hello() {
-// 	try {
-// 		const docRef = await addDoc(collection(db, "users"), {
-// 			first: "Ada",
-// 			last: "Lovelace",
-// 			born: 1815,
-// 		});
-// 		console.log("Document written with ID: ", docRef.id);
-// 	} catch (e) {
-// 		console.error("Error adding document: ", e);
-// 	}
-//
-// 	const querySnapshot = await getDocs(collection(db, "users"));
-// 	querySnapshot.forEach((doc) => {
-// 		const m = { ...doc.data() };
-// 		console.log(`${doc.id} => ${m}`);
-// 	});
-// }
+export { currentUser, setCurrentUser };
 
-export async function addUser(props: { name: any; email: any }) {
-	try {
-		const docRef = await addDoc(collection(db, "users"), {
-			name: props.name,
-			email: props.email,
-		});
-		console.log("Document written with ID: ", docRef.id);
-	} catch (e) {
-		console.error("Error adding document: ", e);
+onAuthStateChanged(auth, (firebaseUser) => {
+	if (firebaseUser !== null) {
+		console.debug("state changed", firebaseUser.uid);
+		setCurrentUser(firebaseUser.uid);
 	}
-}
-
-export async function getUsers() {
-	let allUsers: any[] = [];
-	const querySnapshot = await getDocs(collection(db, "users"));
-	querySnapshot.forEach((doc) => {
-		const m = { ...doc.data() };
-		allUsers.push(`${doc.id} => ${m}`);
-	});
-	return allUsers;
-}
+});

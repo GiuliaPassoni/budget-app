@@ -3,7 +3,7 @@ import { Match, Switch } from "solid-js";
 interface IProps {
 	email?: string | null;
 	name?: string | null;
-	pic?: string | undefined;
+	pic?: string | null | undefined;
 }
 export default function Avatar({ email, name, pic }: IProps) {
 	// @ts-ignore

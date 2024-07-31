@@ -1,10 +1,10 @@
 import BaseButton from "~/components/baseComponents/BaseButton";
-import { auth } from "~/firebase";
-import { handleLogOut } from "~/components/organisms/Authentication/login_helpers";
 import { Toaster } from "solid-toast";
 import Avatar from "~/components/atoms/Avatar";
 import { Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
+import { handleLogOut } from "~/helpers/auth_helpers";
+import { auth } from "~/firebase";
 
 export default function SignOutButton() {
 	const user = auth.currentUser;
@@ -17,10 +17,10 @@ export default function SignOutButton() {
 				pic={user?.photoURL}
 			/>
 			<BaseButton
-				text="Sign out"
+				text="Sign out button"
 				onClick={() => {
-					handleLogOut({ auth, userName: user?.email });
 					navigate("/overview");
+					handleLogOut({ userName: user?.email });
 				}}
 			></BaseButton>
 			<Toaster />

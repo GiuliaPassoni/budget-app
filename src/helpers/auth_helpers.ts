@@ -4,46 +4,56 @@ import {
 	onAuthStateChanged,
 } from "firebase/auth";
 import { toast } from "solid-toast";
+import { auth, setCurrentUser } from "~/firebase";
 
 interface SignUpPropsI {
-	auth: any;
 	email: string;
 	password: string;
 }
 
-async function handleSignUp({ auth, email, password }: SignUpPropsI) {
-	return createUserWithEmailAndPassword(auth, email, password)
-		.then((userCredential) => {
-			// Signed up
-			const user = userCredential.user;
-			console.debug(
-				"User",
-				user,
-				"has signed up, with credentials",
-				userCredential,
-			);
-			toast.success("User signed up successfully");
-		})
-		.catch((error) => {
-			const errorCode = error.code;
-			const errorMessage = error.message;
-			toast.error(errorMessage);
-		});
+async function handleSignUp({ email, password }: SignUpPropsI) {
+	const userCredential = await createUserWithEmailAndPassword(
+		auth,
+		email,
+		password,
+	);
+	try {
+		// 	// Signed up
+		const user = userCredential.user;
+		console.debug(
+			"User",
+			user,
+			"has signed up, with credentials",
+			userCredential,
+		);
+		toast.success("User signed up successfully");
+	} catch (error: any) {
+		const errorCode = error.code;
+		const errorMessage = error.message;
+		toast.error(errorMessage);
+	}
+	// then - catch !== async - await + try and catch
+	// .then((userCredential) => {
+
+	// 	toast.success("User signed up successfully");
+	// })
+	// .catch((error) => {
+
+	// });
 }
 
 interface SignInProps {
-	auth: any;
 	email: string;
 	password: string;
 }
 
-async function handleSignIn({ auth, email, password }: SignInProps) {
-	return signInWithEmailAndPassword(auth, email, password)
+function handleSignIn({ email, password }: SignInProps) {
+	signInWithEmailAndPassword(auth, email, password)
 		.then((userCredential) => {
 			// Signed in
 			const user = userCredential.user;
 			console.debug("User", user, "has signed in");
-			toast.success(`User ${user} has signed in`);
+			toast.success(`User ${user.uid} has signed in`);
 		})
 		.catch((error) => {
 			const errorCode = error.code;
@@ -52,16 +62,16 @@ async function handleSignIn({ auth, email, password }: SignInProps) {
 		});
 }
 
-interface ILogOut {
-	auth: any;
-	userName: string | null | undefined;
-}
+interface ILogOut {}
 
-function handleLogOut({ auth, userName }: ILogOut) {
+function handleLogOut({}: ILogOut) {
+	console.debug("log out called");
 	auth
 		.signOut()
 		.then(() => {
 			toast.success("User logged out");
+			console.debug("User logged out");
+			setCurrentUser(null);
 		})
 		.catch((error: Error) => {
 			const errorMessage = error.message;
