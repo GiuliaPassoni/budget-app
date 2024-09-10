@@ -18,19 +18,13 @@ async function handleSignUp({ email, password }: SignUpPropsI) {
 		password,
 	);
 	try {
-		// 	// Signed up
 		const user = userCredential.user;
-		console.debug(
-			"User",
-			user,
-			"has signed up, with credentials",
-			userCredential,
-		);
 		toast.success("User signed up successfully");
+		return user;
 	} catch (error: any) {
 		const errorCode = error.code;
 		const errorMessage = error.message;
-		toast.error(errorMessage);
+		toast.error(errorMessage, errorCode);
 	}
 	// then - catch !== async - await + try and catch
 	// .then((userCredential) => {
