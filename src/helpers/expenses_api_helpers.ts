@@ -8,7 +8,7 @@ import {
 import { toast } from 'solid-toast';
 import { currentUser, db } from '~/firebase';
 
-interface TransactionI {
+export interface TransactionI {
   id?: string;
   amount: number;
   currency: string;
@@ -35,6 +35,25 @@ export async function addExpense(expense: TransactionI) {
   } catch (e) {
     console.error('Error adding expense: ', e);
     toast.error('Error adding expense');
+  }
+}
+
+export async function getExpenses() {
+  try {
+    let allExpenses: TransactionI[] = [];
+    const querySnapshot = await getDocs(
+      collection(db, 'users', currentUser(), `expenses`),
+    );
+    querySnapshot.forEach((doc) => {
+      const data = doc.data() as TransactionI; // Type assertion
+      allExpenses.push(data);
+    });
+    return allExpenses;
+  } catch (e) {
+    console.error(
+      'Error retrieving expenses: ',
+      e instanceof Error ? e.message : e,
+    );
   }
 }
 
@@ -78,14 +97,4 @@ export async function updateExpense({
     console.error('Error updating expense: ', e);
     toast.error('Error updating expense');
   }
-}
-
-export async function getExpenses(db: any) {
-  let allExpenses: any[] = [];
-  const querySnapshot = await getDocs(collection(db, 'expenses'));
-  querySnapshot.forEach((doc) => {
-    const m = { ...doc.data() };
-    allExpenses.push(`${doc.id} => ${m}`);
-  });
-  return allExpenses;
 }
