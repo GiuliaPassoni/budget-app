@@ -8,10 +8,10 @@ import {
 import { toast } from 'solid-toast';
 import { currentUser, db } from '~/firebase';
 
-export interface ExpenseI {
-  // expense_id: string;
-  exp_amount: number;
-  exp_currency: string;
+interface TransactionI {
+  id?: string;
+  amount: number;
+  currency: string;
   exchange_to_default: number;
   notes: string;
   date: any;
@@ -19,11 +19,9 @@ export interface ExpenseI {
   ctg_name: string;
 }
 
-interface AddExpensePropsI {
-  expense: ExpenseI;
-}
+// TODO add date to type and methods
 
-export async function addExpense({ expense }: AddExpensePropsI) {
+export async function addExpense(expense: TransactionI) {
   try {
     const docRef = await addDoc(
       collection(db, 'users', currentUser(), `expenses`),
@@ -40,6 +38,24 @@ export async function addExpense({ expense }: AddExpensePropsI) {
   }
 }
 
+export async function addIncome(income: TransactionI) {
+  try {
+    const docRef = await addDoc(
+      collection(db, 'users', currentUser(), `income`),
+      {
+        ...income,
+        user_id: currentUser(),
+      },
+    );
+    toast.success('Income logged');
+    console.debug('Document written with ID: ', docRef.id);
+  } catch (e) {
+    console.error('Error adding income: ', e);
+    toast.error('Error adding income');
+  }
+}
+
+// TODO update all the below when implementation is needed
 interface UpdateExpensePropsI {
   db: any;
   expenseId: string;

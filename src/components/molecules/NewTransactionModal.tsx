@@ -41,14 +41,12 @@ export default function NewTransactionModal(props: ModalProps) {
       }
       if (method() === 'expenses') {
         await addExpense({
-          expense: {
-            exp_amount: amount(),
-            exp_currency: currency(),
-            exchange_to_default: exchange(),
-            notes: note(),
-            date: new Date(),
-            ctg_name: category(),
-          },
+          amount: amount(),
+          currency: currency(),
+          exchange_to_default: exchange(),
+          notes: note(),
+          date: new Date(),
+          ctg_name: category(),
         });
       } else if (method() === 'income') {
         console.debug('income!');
@@ -57,6 +55,8 @@ export default function NewTransactionModal(props: ModalProps) {
       toast.error('Missing input');
     }
   }
+
+  // TODO add datepicker to transaction and modal
 
   return (
     <Show when={props.showModal}>
