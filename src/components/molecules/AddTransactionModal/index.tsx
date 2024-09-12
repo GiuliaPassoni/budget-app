@@ -1,12 +1,12 @@
 import { createSignal, For, Show } from 'solid-js';
 import CloseModalIconButton from '~/components/atoms/CloseModalIconButton';
-import * as categories from './../../assets/mockCategories.json';
-import PlusIconButton from '~/components/baseComponents/PlusIconButton';
-import CardWithIcon from '~/components/atoms/CardWithIcon';
+import * as categories from './../../../assets/mockCategories.json';
 import StarIcon from '~/components/atoms/icons/StarIcon';
 import { toast, Toaster } from 'solid-toast';
 import { addExpense, addIncome } from '~/helpers/expenses_api_helpers';
 import allCurrencies from '~/helpers/mock_values_helpers';
+import PlusIconButton from '~/components/atoms/PlusIconButton';
+import CardWithIcon from '~/components/molecules/CardWithIcon';
 
 interface ModalProps {
   showModal: boolean;
@@ -16,7 +16,7 @@ interface ModalProps {
 
 type MethodType = 'expenses' | 'income';
 
-export default function NewTransactionModal(props: ModalProps) {
+export default function AddTransactionModal(props: ModalProps) {
   const [method, setMethod] = createSignal('expense');
   const [amount, setAmount] = createSignal(0);
   const [currency, setCurrency] = createSignal('EUR');
@@ -60,7 +60,7 @@ export default function NewTransactionModal(props: ModalProps) {
     <Show when={props.showModal}>
       <div id="default-styled-tab-content">
         <div
-          aria-hidden={props.showModal}
+          // aria-hidden={props.showModal}
           class="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
         >
           <div class="relative p-4 w-full h-full max-w-md max-h-full m-auto">
