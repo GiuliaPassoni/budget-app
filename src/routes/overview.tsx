@@ -3,11 +3,14 @@ import ChartCard from '~/components/molecules/ChartCard';
 import BaseButton from '~/components/baseComponents/BaseButton';
 import PieChart from '~/components/atoms/PieChart';
 import PlusIconButton from '~/components/baseComponents/PlusIconButton';
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 import NewTransactionModal from '~/components/molecules/NewTransactionModal';
 import Table from '~/components/molecules/Table';
 import { getExpenses, TransactionI } from '~/helpers/expenses_api_helpers';
 import { Toaster } from 'solid-toast';
+import { onSnapshot } from 'firebase/firestore';
+import { currentUser, db } from '~/firebase';
+import { collection } from 'firebase/firestore';
 
 export default function Overview() {
   const [showModal, setShowModal] = createSignal(false);
@@ -17,25 +20,47 @@ export default function Overview() {
     TransactionI[] | undefined
   >([]);
   const [loading, setLoading] = createSignal(true);
-  const [error, setError] = createSignal(null);
+  const [error, setError] = createSignal('');
+
+  // Function to handle real-time updates
+  function listenForExpenses() {
+    const userId = currentUser(); // Get the current user ID
+
+    if (!userId) {
+      setError('User not logged in');
+      setLoading(false);
+      return;
+    }
+
+    const expensesCollection = collection(db, 'users', userId, `expenses`);
+
+    const unsubscribe = onSnapshot(
+      expensesCollection,
+      (snapshot) => {
+        const expensesList = snapshot.docs.map((doc) => {
+          const data = doc.data() as TransactionI; // Explicitly cast to TransactionI
+          return {
+            ...data,
+            id: doc.id,
+          };
+        });
+        setTransactions(expensesList);
+        setLoading(false);
+      },
+      (err) => {
+        setError('Failed to load expenses');
+        console.error(err);
+        setLoading(false);
+      },
+    );
+
+    // Cleanup listener on component unmount
+    onCleanup(() => unsubscribe());
+  }
 
   createEffect(() => {
-    // the try-catch doesn't work, bc of the async keyword needed
-    // try {
-    //   const res = await getExpenses();
-    //   setTransactions(res);
-    // } catch (e) {
-    //   toast.error('Error fetching transactions data');
-    // }
-    getExpenses()
-      .then((data) => {
-        setTransactions(data); // Once data is fetched, update the signal
-        console.debug(transactions());
-      })
-      .catch((error) => {
-        console.error('Failed to load expenses:', error);
-      });
-  }, [transactions()]);
+    listenForExpenses(); // Set up real-time listener
+  });
 
   return (
     <main>
@@ -50,7 +75,7 @@ export default function Overview() {
           }}
         />
         {loading() && <p>Loading...</p>}
-        {error() && <p>Error: {error()}</p>}
+        {/*{error() && <p>Error: {error()}</p>}*/}
         {!loading() && !error() && <Table array={transactions()} />}
         <NewTransactionModal
           showModal={showModal()}
