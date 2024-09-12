@@ -8,6 +8,7 @@ import allCurrencies from '~/helpers/mock_values_helpers';
 import PlusIconButton from '~/components/atoms/PlusIconButton';
 import CardWithIcon from '~/components/molecules/CardWithIcon';
 import { TransactionType } from '~/components/types';
+import TabButton from '~/components/atoms/TabButton';
 
 interface ModalProps {
   showModal: boolean;
@@ -78,31 +79,23 @@ export default function AddTransactionModal(props: ModalProps) {
                   data-tabs-inactive-classes="dark:border-transparent text-gray-500 hover:text-gray-600 dark:text-gray-400 border-gray-100 hover:border-gray-300 dark:border-gray-700 dark:hover:text-gray-300"
                   role="tablist"
                 >
-                  <li class="w-1/2" role="presentation">
-                    <button
-                      class="inline-block p-2 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                      id="expense-styled-tab"
-                      data-tabs-target="#styled-expense"
-                      role="tab"
-                      aria-controls="expense"
-                      onClick={() => handleTabClick('expenses')}
-                    >
-                      Expense
-                    </button>
+                  <li class="w-1/3" role="presentation">
+                    <TabButton
+                      label="Expense"
+                      handleClick={() => handleTabClick('expenses')}
+                    />
                   </li>
-                  <li class="w-1/2" role="presentation">
-                    <button
-                      class="inline-block p-2 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                      id="income-styled-tab"
-                      data-tabs-target="#styled-income"
-                      type="button"
-                      role="tab"
-                      aria-controls="income"
-                      aria-selected="false"
-                      onClick={() => handleTabClick('income')}
-                    >
-                      Income
-                    </button>
+                  <li class="w-1/3" role="presentation">
+                    <TabButton
+                      label="Income"
+                      handleClick={() => handleTabClick('income')}
+                    />
+                  </li>
+                  <li class="w-1/3" role="presentation">
+                    <TabButton
+                      label="Investment"
+                      handleClick={() => handleTabClick('investments')}
+                    />
                   </li>
                 </ul>
               </div>
