@@ -1,6 +1,5 @@
-import { createEffect, createSignal, For, Show } from 'solid-js';
+import { createSignal, For, Show } from 'solid-js';
 import CloseModalIconButton from '~/components/atoms/CloseModalIconButton';
-import * as currencies from './../../assets/currencies.json';
 import * as categories from './../../assets/mockCategories.json';
 import PlusIconButton from '~/components/baseComponents/PlusIconButton';
 import CardWithIcon from '~/components/atoms/CardWithIcon';
@@ -13,9 +12,6 @@ interface ModalProps {
   showModal: boolean;
   handleClose: () => void;
   onSubmit: () => void;
-  // title?: string;
-  // body: any;
-  // footer: any;
 }
 
 type MethodType = 'expenses' | 'income';
@@ -217,6 +213,7 @@ export default function NewTransactionModal(props: ModalProps) {
                     handleClick={async (e: Event) => {
                       e.preventDefault();
                       await handleSubmit();
+                      props.handleClose();
                     }}
                     title="Add new transaction"
                   />
