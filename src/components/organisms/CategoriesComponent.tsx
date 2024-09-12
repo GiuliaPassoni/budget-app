@@ -1,8 +1,8 @@
-import CardWithIcon from '~/components/atoms/CardWithIcon';
 import StarIcon from '~/components/atoms/icons/StarIcon';
 import MoonIcon from '~/components/atoms/icons/MoonIcon';
 import SunIcon from '~/components/atoms/icons/SunIcon';
 import Card from '~/components/atoms/Card';
+import CardWithIcon from '~/components/molecules/CardWithIcon';
 
 export default function CategoriesComponent() {
   return (
