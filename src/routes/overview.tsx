@@ -3,7 +3,7 @@ import ChartCard from '~/components/molecules/ChartCard';
 import PieChart from '~/components/atoms/PieChart';
 import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 import Table from '~/components/molecules/Table';
-import { getExpenses, TransactionI } from '~/helpers/expenses_api_helpers';
+import { TransactionI } from '~/helpers/expenses_api_helpers';
 import { Toaster } from 'solid-toast';
 import { onSnapshot } from 'firebase/firestore';
 import { currentUser, db } from '~/firebase';
@@ -11,8 +11,10 @@ import { collection } from 'firebase/firestore';
 import Button from '~/components/atoms/Button';
 import PlusIconButton from '~/components/atoms/PlusIconButton';
 import AddTransactionModal from '~/components/molecules/AddTransactionModal';
+import { TransactionType } from '~/components/types';
 
 export default function Overview() {
+  const [database, setDatabase] = createSignal<TransactionType>('expenses');
   const [showModal, setShowModal] = createSignal(false);
   const [showFullPageModal, setShowFullPageModal] = createSignal(true);
 
@@ -23,7 +25,7 @@ export default function Overview() {
   const [error, setError] = createSignal('');
 
   // Function to handle real-time updates
-  function listenForExpenses() {
+  function listenForTransactionsUpdates() {
     const userId = currentUser(); // Get the current user ID
 
     if (!userId) {
@@ -32,10 +34,10 @@ export default function Overview() {
       return;
     }
 
-    const expensesCollection = collection(db, 'users', userId, `expenses`);
+    const transactionsCollection = collection(db, 'users', userId, database());
 
     const unsubscribe = onSnapshot(
-      expensesCollection,
+      transactionsCollection,
       (snapshot) => {
         const expensesList = snapshot.docs.map((doc) => {
           const data = doc.data() as TransactionI; // Explicitly cast to TransactionI
@@ -59,7 +61,7 @@ export default function Overview() {
   }
 
   createEffect(() => {
-    listenForExpenses(); // Set up real-time listener
+    listenForTransactionsUpdates(); // Set up real-time listener
   });
 
   return (
@@ -74,10 +76,35 @@ export default function Overview() {
             setShowModal(true);
           }}
         />
-        <section></section>
-        {loading() && <p>Loading...</p>}
-        {/*{error() && <p>Error: {error()}</p>}*/}
-        {!loading() && !error() && <Table array={transactions()} />}
+        <section>
+          <div>
+            <Button
+              text="Show Expenses"
+              onClick={() => {
+                setDatabase('expenses');
+              }}
+            ></Button>
+            <Button
+              text="Show Income"
+              onClick={() => {
+                setDatabase('income');
+              }}
+            ></Button>
+            <Button
+              class="disabled"
+              text="Show Investments"
+              onClick={() => {
+                setDatabase('investments');
+              }}
+            ></Button>
+          </div>
+          <div class="font-bold">{database().toUpperCase()}</div>
+          <div>
+            {loading() && <p>Loading...</p>}
+            {/*{error() && <p>Error: {error()}</p>}*/}
+            {!loading() && !error() && <Table array={transactions()} />}
+          </div>
+        </section>
         <AddTransactionModal
           showModal={showModal()}
           handleClose={() => setShowModal(false)}

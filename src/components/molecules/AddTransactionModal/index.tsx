@@ -3,10 +3,11 @@ import CloseModalIconButton from '~/components/atoms/CloseModalIconButton';
 import * as categories from './../../../assets/mockCategories.json';
 import StarIcon from '~/components/atoms/icons/StarIcon';
 import { toast, Toaster } from 'solid-toast';
-import { addExpense, addIncome } from '~/helpers/expenses_api_helpers';
+import { addNewTransaction } from '~/helpers/expenses_api_helpers';
 import allCurrencies from '~/helpers/mock_values_helpers';
 import PlusIconButton from '~/components/atoms/PlusIconButton';
 import CardWithIcon from '~/components/molecules/CardWithIcon';
+import { TransactionType } from '~/components/types';
 
 interface ModalProps {
   showModal: boolean;
@@ -14,10 +15,8 @@ interface ModalProps {
   onSubmit: () => void;
 }
 
-type MethodType = 'expenses' | 'income';
-
 export default function AddTransactionModal(props: ModalProps) {
-  const [method, setMethod] = createSignal('expense');
+  const [method, setMethod] = createSignal<TransactionType>('expenses');
   const [amount, setAmount] = createSignal(0);
   const [currency, setCurrency] = createSignal('EUR');
   const [exchange, setExchange] = createSignal(1);
@@ -26,7 +25,7 @@ export default function AddTransactionModal(props: ModalProps) {
   // @ts-ignore
   const allCategories: any = categories['default'];
 
-  function handleTabClick(prop: MethodType) {
+  function handleTabClick(prop: TransactionType) {
     setMethod(prop);
   }
 
@@ -43,11 +42,8 @@ export default function AddTransactionModal(props: ModalProps) {
       };
       if (!method) {
         toast.error('Please specify transaction type');
-      }
-      if (method() === 'expenses') {
-        await addExpense(transaction);
-      } else if (method() === 'income') {
-        await addIncome(transaction);
+      } else {
+        await addNewTransaction({ transactionType: method(), transaction });
       }
     } else {
       toast.error('Missing input');

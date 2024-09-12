@@ -7,6 +7,7 @@ import {
 } from 'firebase/firestore';
 import { toast } from 'solid-toast';
 import { currentUser, db } from '~/firebase';
+import { TransactionType } from '~/components/types';
 
 export interface TransactionI {
   id?: string;
@@ -15,26 +16,34 @@ export interface TransactionI {
   exchange_to_default: number;
   notes: string;
   date: any;
-  // date: typeof Date;
   ctg_name: string;
 }
 
 // TODO add date to type and methods
+interface PropsI {
+  transactionType: TransactionType;
+  transaction: TransactionI;
+}
 
-export async function addExpense(expense: TransactionI) {
+/* todo record lesson learnt:
+ * sept 24. I thought initially that there should be a separate method set for expenses, income, and investments.
+ * However, I've realised that the method would look the same for all 3 - it makes more sense to have one method, with associated types,
+ * that can cover each with a specific prop,
+ * */
+
+export async function addNewTransaction(props: PropsI) {
   try {
-    const docRef = await addDoc(
-      collection(db, 'users', currentUser(), `expenses`),
+    await addDoc(
+      collection(db, 'users', currentUser(), props.transactionType),
       {
-        ...expense,
+        ...props.transaction,
         user_id: currentUser(),
       },
     );
-    toast.success('Expense logged');
-    console.debug('Document written with ID: ', docRef.id);
+    toast.success('Transaction logged');
   } catch (e) {
-    console.error('Error adding expense: ', e);
-    toast.error('Error adding expense');
+    console.error('Error adding transaction: ', e);
+    toast.error('Error adding transaction');
   }
 }
 
@@ -57,23 +66,6 @@ export async function getExpenses() {
   }
 }
 
-export async function addIncome(income: TransactionI) {
-  try {
-    const docRef = await addDoc(
-      collection(db, 'users', currentUser(), `income`),
-      {
-        ...income,
-        user_id: currentUser(),
-      },
-    );
-    toast.success('Income logged');
-    console.debug('Document written with ID: ', docRef.id);
-  } catch (e) {
-    console.error('Error adding income: ', e);
-    toast.error('Error adding income');
-  }
-}
-
 // TODO update all the below when implementation is needed
 interface UpdateExpensePropsI {
   db: any;
@@ -89,7 +81,7 @@ export async function updateExpense({
 }: UpdateExpensePropsI) {
   try {
     const updatedRef = doc(db, 'expenses', expenseId);
-    const docRef = await updateDoc(updatedRef, {
+    await updateDoc(updatedRef, {
       [key]: updatedValue,
     });
     toast.success('Expense updated');
