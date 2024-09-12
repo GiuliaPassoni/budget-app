@@ -16,6 +16,7 @@
 		"@solidjs/start": "^1.0.0-rc.0",
 		"@types/d3": "^7.4.3",
 		"d3": "^7.9.0",
+		"date-fns": "^3.6.0",
 		"firebase": "^10.12.2",
 		"flowbite": "^2.3.0",
 		"husky": "^9.0.11",
