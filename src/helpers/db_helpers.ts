@@ -1,4 +1,4 @@
-import { addDoc, collection } from 'firebase/firestore';
+import { setDoc, doc } from 'firebase/firestore';
 import { toast } from 'solid-toast';
 import { db } from '~/firebase';
 
@@ -8,12 +8,11 @@ type Props = {
 
 export default async function addUser({ user }: Props) {
   try {
-    const docRef = await addDoc(collection(db, 'users'), {
+    await setDoc(doc(db, 'users', user.uid), {
       auth_uid: user.uid,
       email: user.email,
     });
-    toast.success('user in db');
-    console.debug('Document written with ID: ', docRef.id);
+    toast.success('User added to db');
   } catch (e) {
     console.error('Error adding user: ', e);
     toast.error('Error adding user to db');
