@@ -7,7 +7,7 @@ import {
 } from 'firebase/firestore';
 import { toast } from 'solid-toast';
 import { currentUser, db } from '~/firebase';
-import { TransactionType } from '~/components/types';
+import { TransactionType } from '~/helpers/types';
 
 export interface TransactionI {
   id?: string;

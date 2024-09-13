@@ -7,8 +7,8 @@ import { addNewTransaction } from '~/helpers/expenses_api_helpers';
 import allCurrencies from '~/helpers/mock_values_helpers';
 import PlusIconButton from '~/components/atoms/PlusIconButton';
 import CardWithIcon from '~/components/molecules/CardWithIcon';
-import { TransactionType } from '~/components/types';
 import TabButton from '~/components/atoms/TabButton';
+import { TransactionType } from '~/helpers/types';
 
 interface ModalProps {
   showModal: boolean;
