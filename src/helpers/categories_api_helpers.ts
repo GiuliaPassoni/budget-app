@@ -5,6 +5,7 @@ import { CategoryI } from '~/helpers/types';
 
 interface PropsI {
   category: CategoryI;
+  //   todo: should there be a MethodType entry here, to distinguish the categories?
 }
 
 export async function addNewCategory(props: PropsI) {
