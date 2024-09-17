@@ -1,14 +1,10 @@
-import { createEffect, createSignal, For, Show } from 'solid-js';
-import CardWithIcon from '~/components/molecules/CardWithIcon';
-import StarIcon from '~/components/atoms/icons/StarIcon';
+import { createSignal, For, Show } from 'solid-js';
 import PlusIconButton from '~/components/atoms/PlusIconButton';
-import * as categories from '~/assets/mockCategories.json';
-import { CategoryI } from '~/helpers/types';
-import { getCategories } from '~/helpers/categories_api_helpers';
+import { TransactionType } from '~/helpers/types';
 import CloseModalIconButton from '~/components/atoms/CloseModalIconButton';
-import TabButton from '~/components/atoms/TabButton';
-import allCurrencies from '~/helpers/mock_values_helpers';
-import { Toaster } from 'solid-toast';
+import { toast, Toaster } from 'solid-toast';
+import colors from 'tailwindcss/colors.js';
+import { addNewCategory } from '~/helpers/categories_api_helpers';
 
 interface ModalProps {
   showModal: boolean;
@@ -20,9 +16,6 @@ type colourType = {
   name: string;
   colourClass: string;
 };
-
-// Resolve the default Tailwind configuration
-import colors from 'tailwindcss/colors.js';
 
 function getShades(shade: number | string) {
   const container: colourType[] = [];
@@ -144,14 +137,31 @@ const pastelColors = [
 ];
 export default function AddCategoryModal(props: ModalProps) {
   const [name, setName] = createSignal('');
+  const [type, setType] = createSignal<TransactionType>('expenses');
+  const [icon, setIcon] = createSignal('');
   const [selectedColour, setSelectedColour] = createSignal('');
-  const [categories, setCategories] = createSignal<CategoryI>();
 
-  const types = ['expense', 'income', 'investment'];
+  const types = ['expenses', 'income', 'investments'];
+
+  const icons = ['star', 'moon', 'sun'];
 
   // createEffect(() => {
   //   setCategories(getCategories());
   // });
+
+  async function handleSubmit() {
+    if (name() && selectedColour() && icon() && type()) {
+      const category = {
+        name: name(),
+        colour: selectedColour(),
+        iconName: icon(),
+        type: type(),
+      };
+      return await addNewCategory({ category: category });
+    } else {
+      toast.error('Missing input');
+    }
+  }
 
   return (
     <Show when={props.showModal}>
@@ -246,7 +256,7 @@ export default function AddCategoryModal(props: ModalProps) {
                                 {/*todo but does a button have a value? Or is the below on onclick enough?*/}
                                 <button
                                   id="inline-radio"
-                                  class={`rounded-full w-10 h-10 col-end-1 ${colour.colourClass} border-2`}
+                                  class={`rounded-full w-8 h-8 col-end-1 ${colour.colourClass} border-2`}
                                   onClick={() => console.debug(colour.name)}
                                 />
                               </div>
@@ -255,24 +265,39 @@ export default function AddCategoryModal(props: ModalProps) {
                         </div>
                       </div>
                     </div>
-                    <div class="row w-full mx-3 p-2 border-red-950 border-solid border-4">
+                    <div class="row max-w-[512px] mx-3">
                       <label
                         for="category"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                        class="block mb-2 font-medium text-gray-900 dark:text-white"
                       >
                         Icon
                       </label>
-                      {/*  checkbox to select colour or icon*/}
+                      <div class="flex">
+                        <div class="grid grid-cols-12 gap-2 mx-auto w-full">
+                          <For each={pastelColors}>
+                            {(colour) => (
+                              <div class="col-span-2">
+                                {/*todo but does a button have a value? Or is the below on onclick enough?*/}
+                                <button
+                                  id="inline-radio"
+                                  class={`rounded-full w-8 h-8 col-end-1 ${colour.colourClass} border-2`}
+                                  onClick={() => console.debug(colour.name)}
+                                />
+                              </div>
+                            )}
+                          </For>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   {/*tooltip doesn't work, may be hiding behind modal*/}
                   <PlusIconButton
                     type="submit"
-                    // handleClick={async (e: Event) => {
-                    //   e.preventDefault();
-                    //   await handleSubmit();
-                    //   props.handleClose();
-                    // }}
+                    handleClick={async (e: Event) => {
+                      e.preventDefault();
+                      await handleSubmit();
+                      props.handleClose();
+                    }}
                     title="Add new transaction"
                   />
                 </form>
