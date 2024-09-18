@@ -1,7 +1,7 @@
 import { Title } from '@solidjs/meta';
 import ChartCard from '~/components/molecules/ChartCard';
 import PieChart from '~/components/atoms/PieChart';
-import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
+import { createEffect, createSignal, onCleanup } from 'solid-js';
 import Table from '~/components/molecules/Table';
 import { TransactionI } from '~/helpers/expenses_api_helpers';
 import { Toaster } from 'solid-toast';
@@ -11,12 +11,13 @@ import { collection } from 'firebase/firestore';
 import Button from '~/components/atoms/Button';
 import PlusIconButton from '~/components/atoms/PlusIconButton';
 import AddTransactionModal from '~/components/molecules/AddTransactionModal';
-import { TransactionType } from '~/components/types';
+import AddCategoryModal from '~/components/molecules/AddCategoryModal';
+import { TransactionType } from '~/helpers/types';
 
 export default function Overview() {
   const [database, setDatabase] = createSignal<TransactionType>('expenses');
-  const [showModal, setShowModal] = createSignal(false);
-  const [showFullPageModal, setShowFullPageModal] = createSignal(true);
+  const [showTransactionModal, setShowTransactionModal] = createSignal(false);
+  const [showCategModal, setShowCategModal] = createSignal(false);
 
   const [transactions, setTransactions] = createSignal<
     TransactionI[] | undefined
@@ -71,9 +72,18 @@ export default function Overview() {
       <section class="max-w-6xl mx-auto">
         <PlusIconButton
           type="button"
+          variant="primary"
           title="Record transaction"
           handleClick={() => {
-            setShowModal(true);
+            setShowTransactionModal(true);
+          }}
+        />
+        <PlusIconButton
+          variant="secondary"
+          type="button"
+          title="Add category"
+          handleClick={() => {
+            setShowCategModal(true);
           }}
         />
         <section>
@@ -105,10 +115,15 @@ export default function Overview() {
             {!loading() && !error() && <Table array={transactions()} />}
           </div>
         </section>
+        <AddCategoryModal
+          showModal={showCategModal()}
+          handleClose={() => setShowCategModal(false)}
+          onSubmit={() => setShowCategModal(false)}
+        />
         <AddTransactionModal
-          showModal={showModal()}
-          handleClose={() => setShowModal(false)}
-          onSubmit={() => setShowModal(false)}
+          showModal={showTransactionModal()}
+          handleClose={() => setShowTransactionModal(false)}
+          onSubmit={() => setShowTransactionModal(false)}
         />
         <div class="grid grid-cols-3 md:grid-cols-3 gap-4">
           <ChartCard title="Pie Chart">
