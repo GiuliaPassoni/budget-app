@@ -3,158 +3,31 @@ import PlusIconButton from '~/components/atoms/PlusIconButton';
 import { TransactionType } from '~/helpers/types';
 import CloseModalIconButton from '~/components/atoms/CloseModalIconButton';
 import { toast, Toaster } from 'solid-toast';
-import colors from 'tailwindcss/colors.js';
 import { addNewCategory } from '~/helpers/categories_api_helpers';
+import { pastelColors } from '~/helpers/colour_helpers';
+import { iconMap } from '~/components/atoms/icons/helpers';
 
 interface ModalProps {
   showModal: boolean;
   handleClose: () => void;
   onSubmit: () => void;
 }
-
-type colourType = {
-  name: string;
-  colourClass: string;
-};
-
-function getShades(shade: number | string) {
-  const container: colourType[] = [];
-  Object.entries(colors).forEach(([colourName, colourShade]) => {
-    container.push({
-      name: colourName,
-      colourClass: `bg-${colourName}-${shade}`,
-    });
-  });
-  return container;
-}
-
-const testColours = getShades(400);
-console.debug(testColours);
-// todo: fix the colour mess
-
-// Get all 400-grade colors
-const pastelColors = [
-  {
-    name: 'black',
-    colourClass: 'bg-black',
-  },
-  {
-    name: 'white',
-    colourClass: 'bg-white',
-  },
-  {
-    name: 'gray',
-    colourClass: 'bg-gray-400',
-  },
-  {
-    name: 'red',
-    colourClass: 'bg-red-400',
-  },
-  {
-    name: 'orange',
-    colourClass: 'bg-orange-400',
-  },
-  {
-    name: 'amber',
-    colourClass: 'bg-amber-400',
-  },
-  {
-    name: 'yellow',
-    colourClass: 'bg-yellow-400',
-  },
-  {
-    name: 'lime',
-    colourClass: 'bg-lime-400',
-  },
-  {
-    name: 'green',
-    colourClass: 'bg-green-400',
-  },
-  {
-    name: 'emerald',
-    colourClass: 'bg-emerald-400',
-  },
-  {
-    name: 'teal',
-    colourClass: 'bg-teal-400',
-  },
-  {
-    name: 'cyan',
-    colourClass: 'bg-cyan-400',
-  },
-  {
-    name: 'sky',
-    colourClass: 'bg-sky-400',
-  },
-  {
-    name: 'blue',
-    colourClass: 'bg-blue-400',
-  },
-  {
-    name: 'indigo',
-    colourClass: 'bg-indigo-400',
-  },
-  {
-    name: 'violet',
-    colourClass: 'bg-violet-400',
-  },
-  {
-    name: 'purple',
-    colourClass: 'bg-purple-400',
-  },
-  {
-    name: 'fuchsia',
-    colourClass: 'bg-fuchsia-400',
-  },
-  {
-    name: 'pink',
-    colourClass: 'bg-pink-400',
-  },
-  {
-    name: 'rose',
-    colourClass: 'bg-rose-400',
-  },
-  {
-    name: 'lightBlue',
-    colourClass: 'bg-lightBlue-400',
-  },
-  {
-    name: 'warmGray',
-    colourClass: 'bg-warmGray-400',
-  },
-  {
-    name: 'trueGray',
-    colourClass: 'bg-trueGray-400',
-  },
-  {
-    name: 'coolGray',
-    colourClass: 'bg-coolGray-400',
-  },
-  {
-    name: 'blueGray',
-    colourClass: 'bg-blueGray-400',
-  },
-];
 export default function AddCategoryModal(props: ModalProps) {
   const [name, setName] = createSignal('');
   const [type, setType] = createSignal<TransactionType>('expenses');
-  const [icon, setIcon] = createSignal('');
+  const [iconName, setIconName] = createSignal('');
   const [selectedColour, setSelectedColour] = createSignal('');
 
   const types = ['expenses', 'income', 'investments'];
 
-  const icons = ['star', 'moon', 'sun'];
-
-  // createEffect(() => {
-  //   setCategories(getCategories());
-  // });
+  const iconNames = ['star', 'moon', 'sun'];
 
   async function handleSubmit() {
-    if (name() && selectedColour() && icon() && type()) {
+    if (name() && selectedColour() && iconName() && type()) {
       const category = {
         name: name(),
         colour: selectedColour(),
-        iconName: icon(),
+        iconName: iconName(),
         type: type(),
       };
       return await addNewCategory({ category: category });
@@ -183,7 +56,7 @@ export default function AddCategoryModal(props: ModalProps) {
               {/*Modal body*/}
               <div id="default-styled-tab-content">
                 <form class="">
-                  <div class="grid gap-4">
+                  <div class="grid gap-4 my-2">
                     <div class="row-span-1 row-start-1">
                       <label
                         for="price"
@@ -224,6 +97,7 @@ export default function AddCategoryModal(props: ModalProps) {
                                 type="radio"
                                 value={type}
                                 name="type-group"
+                                onClick={() => setType(type as TransactionType)}
                                 class="
                                   w-4 h-4
                                   text-blue-600 bg-gray-100 border-gray-300
@@ -253,11 +127,13 @@ export default function AddCategoryModal(props: ModalProps) {
                           <For each={pastelColors}>
                             {(colour) => (
                               <div class="col-span-2">
-                                {/*todo but does a button have a value? Or is the below on onclick enough?*/}
                                 <button
                                   id="inline-radio"
                                   class={`rounded-full w-8 h-8 col-end-1 ${colour.colourClass} border-2`}
-                                  onClick={() => console.debug(colour.name)}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setSelectedColour(colour.name);
+                                  }}
                                 />
                               </div>
                             )}
@@ -274,15 +150,18 @@ export default function AddCategoryModal(props: ModalProps) {
                       </label>
                       <div class="flex">
                         <div class="grid grid-cols-12 gap-2 mx-auto w-full">
-                          <For each={pastelColors}>
-                            {(colour) => (
-                              <div class="col-span-2">
-                                {/*todo but does a button have a value? Or is the below on onclick enough?*/}
+                          <For each={iconNames}>
+                            {(icon) => (
+                              <div class="col-span-4">
                                 <button
                                   id="inline-radio"
-                                  class={`rounded-full w-8 h-8 col-end-1 ${colour.colourClass} border-2`}
-                                  onClick={() => console.debug(colour.name)}
-                                />
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setIconName(icon);
+                                  }}
+                                >
+                                  {icon ? iconMap[icon]?.() : ''}
+                                </button>
                               </div>
                             )}
                           </For>
@@ -293,12 +172,13 @@ export default function AddCategoryModal(props: ModalProps) {
                   {/*tooltip doesn't work, may be hiding behind modal*/}
                   <PlusIconButton
                     type="submit"
+                    variant="secondary"
                     handleClick={async (e: Event) => {
                       e.preventDefault();
                       await handleSubmit();
                       props.handleClose();
                     }}
-                    title="Add new transaction"
+                    title="Add new category"
                   />
                 </form>
               </div>
