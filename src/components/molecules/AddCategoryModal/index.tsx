@@ -12,6 +12,8 @@ interface ModalProps {
   handleClose: () => void;
   onSubmit: () => void;
 }
+
+// todo reusable modal component...
 export default function AddCategoryModal(props: ModalProps) {
   const [name, setName] = createSignal('');
   const [type, setType] = createSignal<TransactionType>('expenses');
