@@ -1,4 +1,4 @@
-import { createSignal, For, Show } from 'solid-js';
+import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 import CloseModalIconButton from '~/components/atoms/CloseModalIconButton';
 import * as categories from './../../../assets/mockCategories.json';
 import StarIcon from '~/components/atoms/icons/StarIcon';
@@ -8,7 +8,11 @@ import allCurrencies from '~/helpers/mock_values_helpers';
 import PlusIconButton from '~/components/atoms/PlusIconButton';
 import CardWithIcon from '~/components/molecules/CardWithIcon';
 import TabButton from '~/components/atoms/TabButton';
-import { TransactionType } from '~/helpers/types';
+import { CategoryI, TransactionType } from '~/helpers/types';
+import { getCategories } from '~/helpers/categories_api_helpers';
+import { currentUser, db } from '~/firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
+import AddCategoryModal from '~/components/molecules/AddCategoryModal';
 
 interface ModalProps {
   showModal: boolean;
@@ -23,11 +27,15 @@ export default function AddTransactionModal(props: ModalProps) {
   const [exchange, setExchange] = createSignal(1);
   const [category, setCategory] = createSignal('');
   const [note, setNote] = createSignal('');
-  // @ts-ignore
-  const allCategories: any = categories['default'];
 
+  const [showCategModal, setShowCategModal] = createSignal<boolean>(false);
   function handleTabClick(prop: TransactionType) {
     setMethod(prop);
+    test();
+  }
+
+  async function test() {
+    return await getCategories();
   }
 
   async function handleSubmit() {
@@ -50,6 +58,52 @@ export default function AddTransactionModal(props: ModalProps) {
       toast.error('Missing input');
     }
   }
+
+  const [categories, setCategories] = createSignal<CategoryI[] | undefined>([]);
+  // todo use errors and loading states
+  // todo write cleaner code instead of copy-pasting solution from overview page
+  const [loading, setLoading] = createSignal(true);
+  const [error, setError] = createSignal('');
+
+  // Function to handle real-time updates
+  function listenForCategoryUpdates() {
+    const userId = currentUser(); // Get the current user ID
+
+    if (!userId) {
+      setError('User not logged in');
+      setLoading(false);
+      return;
+    }
+
+    const categoriesCollection = collection(db, 'users', userId, 'categories');
+
+    const unsubscribe = onSnapshot(
+      categoriesCollection,
+      (snapshot) => {
+        const categoriesList = snapshot.docs.map((doc) => {
+          const data = doc.data() as CategoryI; // Explicitly cast to TransactionI
+          return {
+            ...data,
+            id: doc.id,
+          };
+        });
+        setCategories(categoriesList);
+        setLoading(false);
+      },
+      (err) => {
+        setError('Failed to load categories');
+        console.error(err);
+        setLoading(false);
+      },
+    );
+
+    // Cleanup listener on component unmount
+    onCleanup(() => unsubscribe());
+  }
+
+  createEffect(() => {
+    listenForCategoryUpdates(); // Set up real-time listener
+  });
 
   // TODO add datepicker to transaction and modal
 
@@ -155,28 +209,28 @@ export default function AddTransactionModal(props: ModalProps) {
                         Category
                       </label>
                       <div class="grid grid-cols-3 md:grid-cols-3 gap-0">
-                        <For each={allCategories}>
+                        <For each={categories()}>
                           {(i) => (
                             <CardWithIcon
                               title={i.name}
                               icon={<StarIcon />}
                               handleClick={() => {
                                 setCategory(i.name);
-                                console.debug(category());
                               }}
                             />
                           )}
                         </For>
-                        <CardWithIcon
-                          title="Add category"
-                          icon={
-                            <PlusIconButton
-                              type="submit"
-                              handleClick={props.onSubmit}
-                              title="Add category"
-                            />
-                          }
-                        />
+                        <div class="col-span-12 my-2">
+                          {/*todo connect category modal, or handle the flow otherwise*/}
+                          <PlusIconButton
+                            variant="secondary"
+                            type="submit"
+                            handleClick={() => {
+                              showCategModal();
+                            }}
+                            title="Add category"
+                          />
+                        </div>
                       </div>
                     </div>
                     <div class="col-span-2">
@@ -199,6 +253,7 @@ export default function AddTransactionModal(props: ModalProps) {
                   {/*tooltip doesn't work, may be hiding behind modal*/}
                   <PlusIconButton
                     type="submit"
+                    variant="primary"
                     handleClick={async (e: Event) => {
                       e.preventDefault();
                       await handleSubmit();
@@ -212,6 +267,11 @@ export default function AddTransactionModal(props: ModalProps) {
           </div>
         </div>
       </div>
+      <AddCategoryModal
+        showModal={showCategModal()}
+        handleClose={() => setShowCategModal(false)}
+        onSubmit={() => setShowCategModal(false)}
+      />
       <Toaster />
     </Show>
   );
