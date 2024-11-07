@@ -1,7 +1,9 @@
 import { Show } from "solid-js";
+import { pastelColors } from "~/helpers/colour_helpers";
 
 interface IProps {
 	icon: any;
+	colour: string;
 	title: string;
 	children?: any;
 	handleClick?(): void;
@@ -9,24 +11,26 @@ interface IProps {
 
 export default function CardWithIcon({
 	icon,
+	colour,
 	title,
 	children,
 	handleClick,
 }: IProps) {
+	const bgColour = pastelColors.find((i) => i.name == colour);
 	return (
 		<a
 			href="#"
 			onClick={handleClick}
-			class="
+			class={`
 			col-span-4
 			block
 			max-w-100px
 			m-2
 			p-2 px-auto
-			bg-white border border-gray-200
+			${bgColour?.colourClass} border border-gray-200
 			rounded-lg
 			shadow dark:bg-gray-800 dark:border-gray-700
-			"
+			`}
 		>
 			<div class="block mx-auto w-fit">{icon}</div>
 			<h4 class="my-1 mx-auto w-fit text-gray-900 dark:text-white">{title}</h4>

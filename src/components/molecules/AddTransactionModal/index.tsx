@@ -211,6 +211,7 @@ export default function AddTransactionModal(props: ModalProps) {
 												<For each={categories()}>
 													{(i) => (
 														<CardWithIcon
+															colour={i.colour}
 															title={i.name}
 															icon={i.iconName ? iconMap[i.iconName]?.() : ""}
 															handleClick={() => {
