@@ -17,7 +17,16 @@ export default function CardWithIcon({
 		<a
 			href="#"
 			onClick={handleClick}
-			class="block max-w-100px p-2 m-2 px-auto bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+			class="
+			col-span-4
+			block
+			max-w-100px
+			m-2
+			p-2 px-auto
+			bg-white border border-gray-200
+			rounded-lg
+			shadow dark:bg-gray-800 dark:border-gray-700
+			"
 		>
 			<div class="block mx-auto w-fit">{icon}</div>
 			<h4 class="my-1 mx-auto w-fit text-gray-900 dark:text-white">{title}</h4>
