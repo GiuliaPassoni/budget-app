@@ -25,10 +25,12 @@ export default function OverviewPage() {
 	const [error, setError] = createSignal("");
 
 	// Function to handle real-time updates
+	// todo this only partially works. It doesn't work on first render.
 	function listenForTransactionsUpdates() {
 		const userId = currentUser(); // Get the current user ID
 
 		if (!userId) {
+			// fixme this page is available regardless of sign-in. Need to add guard.
 			setError("User not logged in");
 			setLoading(false);
 			return;
