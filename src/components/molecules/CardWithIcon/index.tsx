@@ -3,7 +3,7 @@ import { pastelColors } from "~/helpers/colour_helpers";
 
 interface IProps {
 	icon: any;
-	colour: string;
+	colour?: string;
 	title: string;
 	children?: any;
 	handleClick?(): void;
