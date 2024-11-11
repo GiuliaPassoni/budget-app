@@ -4,6 +4,7 @@ import colors from "tailwindcss/colors.js";
 export default {
 	content: [
 		"./src/**/*.{js,jsx,ts,tsx}",
+		"./src/index.html",
 		"./node_modules/flowbite/**/*.js", // configure the Flowbite JS source template paths
 	],
 	darkMode: "class", // you can also just use the “media” option to automatically set the dark or light theme based on the browser’s color scheme preference.
@@ -16,10 +17,12 @@ export default {
 			xl: "1440px",
 		},
 		colors: {
-			gray: colors.coolGray,
-			blue: colors.lightBlue,
-			red: colors.rose,
-			pink: colors.fuchsia,
+			primary: colors.teal,
+			gray: {
+				300: "#E2E8F0",
+				500: "hsla(240, 5%, 34%, 1)",
+				700: "#4A5568",
+			},
 		},
 		fontFamily: {
 			sans: ["Graphik", "sans-serif"],
