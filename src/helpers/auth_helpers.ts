@@ -6,7 +6,7 @@ import {
 import { toast } from "solid-toast";
 import { auth, setCurrentUser } from "~/firebase";
 
-interface SignUpPropsI {
+export interface SignUpPropsI {
 	email: string;
 	password: string;
 }
@@ -36,12 +36,13 @@ async function handleSignUp({ email, password }: SignUpPropsI) {
 	// });
 }
 
-interface SignInProps {
+export interface SignInProps {
 	email: string;
 	password: string;
 }
 
 function handleSignIn({ email, password }: SignInProps) {
+	console.debug("sign in called");
 	signInWithEmailAndPassword(auth, email, password)
 		.then((userCredential) => {
 			// Signed in
@@ -50,7 +51,6 @@ function handleSignIn({ email, password }: SignInProps) {
 			toast.success(`User ${user.uid} has signed in`);
 		})
 		.catch((error) => {
-			const errorCode = error.code;
 			const errorMessage = error.message;
 			toast.error(errorMessage);
 		});
@@ -73,8 +73,7 @@ function handleLogOut({}: ILogOut) {
 		});
 }
 
-// the below doesn't work atm (15/07/24)
-function getUserInfo(auth: any) {
+function getUserInfo() {
 	return onAuthStateChanged(auth, (user) => {
 		if (user) {
 			// User is signed in, see docs for a list of available properties

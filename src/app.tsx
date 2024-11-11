@@ -8,9 +8,8 @@ import "flowbite";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import { SolidQueryDevtools } from "@tanstack/solid-query-devtools";
 
-const queryClient = new QueryClient();
-
 export default function App() {
+	const queryClient = new QueryClient();
 	return (
 		<QueryClientProvider client={queryClient}>
 			<Router
