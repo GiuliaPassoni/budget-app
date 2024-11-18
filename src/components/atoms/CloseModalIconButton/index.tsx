@@ -1,4 +1,11 @@
-export default function CloseModalIconButton({ handleClick }: any) {
+interface IProps {
+	handleClick(): void;
+}
+
+export default function CloseModalIconButton(props: IProps) {
+	const handleClick = () => {
+		return props.handleClick(); //todo check if this still works, and compare with the Button implementation. Else, revert to props.onClick
+	};
 	return (
 		<button
 			type="button"

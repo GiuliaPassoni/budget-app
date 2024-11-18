@@ -4,6 +4,7 @@
 import { Show } from "solid-js";
 
 type Variant = "primary" | "secondary";
+
 interface PropsI {
 	handleClick: (e: Event) => void | Promise<void>;
 	title: string;
