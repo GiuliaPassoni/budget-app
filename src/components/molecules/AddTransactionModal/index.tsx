@@ -18,14 +18,45 @@ interface ModalProps {
 	handleClose: () => void;
 	onSubmit: () => void;
 }
+// todo what about using the <dialog> feature for modals? Do some research
 
 export default function AddTransactionModal(props: ModalProps) {
+	const showModal = () => props.showModal;
+
 	const [method, setMethod] = createSignal<TransactionType>("expenses");
 	const [amount, setAmount] = createSignal(0);
 	const [currency, setCurrency] = createSignal("EUR");
 	const [exchange, setExchange] = createSignal(1);
 	const [category, setCategory] = createSignal("");
 	const [note, setNote] = createSignal("");
+
+	/*
+	 * 11.11.24 mutations and queries may only be used in the component, but only at the component's scope level, not nested.
+	 * If used within e.g. a function declared within the component, e.g. handleSubmit(), the queryClient isn't available within the
+	 * handleSubmit scope, even though it should (and is) available globally.
+	 * For example, the below will log and execute correctly:
+	 * console.debug(
+		"hello",
+		createMutation(() => ({
+			mutationKey: ["add-transaction"],
+			mutationFn: () => {
+				return addNewTransaction({
+					transactionType: "expenses",
+					transaction: {
+						id: "string",
+						amount: 1,
+						currency: "string",
+						exchange_to_default: 1,
+						notes: "string",
+						date: new Date(),
+						ctg_name: "string",
+					},
+				});
+			},
+		})),
+	);
+	 * But the same declaration inside a function handleSubmit(){} declaration will not work.
+	 *  */
 
 	const [showCategModal, setShowCategModal] = createSignal<boolean>(false);
 	function handleTabClick(prop: TransactionType) {
@@ -51,7 +82,9 @@ export default function AddTransactionModal(props: ModalProps) {
 			if (!method) {
 				toast.error("Please specify transaction type");
 			} else {
-				await addNewTransaction({ transactionType: method(), transaction });
+				props.onSubmit
+					? props.onSubmit()
+					: await addNewTransaction({ transactionType: method(), transaction });
 			}
 		} else {
 			toast.error("Missing input");
@@ -107,10 +140,10 @@ export default function AddTransactionModal(props: ModalProps) {
 	// TODO add datepicker to transaction and modal
 
 	return (
-		<Show when={props.showModal}>
+		<div class={`${showModal() ? "flex" : "hidden"}`}>
 			<div id="default-styled-tab-content">
 				<div
-					// aria-hidden={props.showModal}
+					// aria-hidden={showModal()}
 					class="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
 				>
 					<div class="relative p-4 w-full h-full max-w-md max-h-full m-auto">
@@ -267,12 +300,14 @@ export default function AddTransactionModal(props: ModalProps) {
 					</div>
 				</div>
 			</div>
+			{/*todo try to pass the mutation as a prop from here, since scope is available here - hopefully it maintains the reference */}
 			<AddCategoryModal
 				showModal={showCategModal()}
 				handleClose={() => setShowCategModal(false)}
 				onSubmit={() => setShowCategModal(false)}
 			/>
+			{/*todo update code and publish in repo, then send to Cam for him to play around with*/}
 			<Toaster />
-		</Show>
+		</div>
 	);
 }

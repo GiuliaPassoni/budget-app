@@ -12,6 +12,7 @@ export default function App() {
 	const queryClient = new QueryClient();
 	return (
 		<QueryClientProvider client={queryClient}>
+			<SolidQueryDevtools initialIsOpen={true} buttonPosition="bottom-right" />
 			<Router
 				root={(props) => (
 					<MetaProvider>
@@ -22,7 +23,6 @@ export default function App() {
 			>
 				<FileRoutes />
 			</Router>
-			<SolidQueryDevtools initialIsOpen={true} buttonPosition="bottom-right" />
 		</QueryClientProvider>
 	);
 }

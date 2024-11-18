@@ -4,10 +4,10 @@ import {
 	TransactionPropsI,
 } from "~/helpers/expenses_api_helpers";
 
-export const useAddTransactionsMutation = ({
+export function useAddTransactionsMutation({
 	transactionType,
 	transaction,
-}: TransactionPropsI) => {
+}: TransactionPropsI) {
 	return createMutation(() => ({
 		mutationKey: ["add-transaction", transactionType, transaction],
 		mutationFn: () =>
@@ -16,4 +16,4 @@ export const useAddTransactionsMutation = ({
 				transaction,
 			}),
 	}));
-};
+}
