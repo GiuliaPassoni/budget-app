@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.loading-spinner {
+    @apply w-full h-full flex items-center justify-center;
+}
+
+.loading-spinner svg {
+    @apply animate-spin h-10 w-10;
+}
