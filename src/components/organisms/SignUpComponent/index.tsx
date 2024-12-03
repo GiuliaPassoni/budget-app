@@ -35,8 +35,10 @@ export default function SignUpComponent() {
 	const navigate = useNavigate();
 
 	function handleInput(e: InputI) {
-		setForm({ ...form(), [e.currentTarget.name]: e.currentTarget.value });
+		const { name, value } = e.currentTarget;
+		setForm({ ...form(), [name]: value });
 	}
+	//todo instead of a separate login component, adjust this according to need?
 
 	return (
 		<>
