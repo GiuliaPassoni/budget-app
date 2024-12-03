@@ -4,8 +4,6 @@ import Button from "~/components/atoms/Button";
 import Table from "~/components/molecules/Table";
 import AddCategoryModal from "~/components/molecules/AddCategoryModal";
 import AddTransactionModal from "~/components/molecules/AddTransactionModal";
-import ChartCard from "~/components/molecules/ChartCard";
-import PieChart from "~/components/atoms/PieChart";
 import { Toaster } from "solid-toast";
 import { createEffect, createSignal, onCleanup } from "solid-js";
 import { TransactionType } from "~/helpers/types";
@@ -101,7 +99,6 @@ export default function OverviewPage() {
 							}}
 						></Button>
 						<Button
-							class="disabled"
 							text="Show Investments"
 							onClick={() => {
 								setDatabase("investments");

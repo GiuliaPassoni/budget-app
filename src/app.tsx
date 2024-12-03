@@ -7,10 +7,15 @@ import NavBar from "~/components/organisms/NavBar";
 import "flowbite";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import { SolidQueryDevtools } from "@tanstack/solid-query-devtools";
+import AuthProvider, { useAuthState } from "~/services/provider/auth";
+import Footer from "~/components/organisms/Footer";
 
 export default function App() {
 	const queryClient = new QueryClient();
+	const authState = useAuthState();
+	console.debug(authState);
 	return (
+		// <AuthProvider>
 		<QueryClientProvider client={queryClient}>
 			<SolidQueryDevtools initialIsOpen={true} buttonPosition="bottom-right" />
 			<Router
@@ -18,11 +23,13 @@ export default function App() {
 					<MetaProvider>
 						<NavBar />
 						<Suspense>{props.children}</Suspense>
+						<Footer />
 					</MetaProvider>
 				)}
 			>
 				<FileRoutes />
 			</Router>
 		</QueryClientProvider>
+		// </AuthProvider>
 	);
 }
