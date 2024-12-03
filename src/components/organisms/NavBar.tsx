@@ -3,6 +3,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { createEffect, createSignal, Show } from "solid-js";
 import { currentUser, setCurrentUser } from "~/firebase";
 import SignOutButton from "~/components/molecules/SignOutButton";
+import { A } from "@solidjs/router";
 
 export default function NavBar() {
 	const [loginLink, setLoginLink] = createSignal("Log In");
@@ -25,33 +26,33 @@ export default function NavBar() {
 				>
 					<ul class="flex flex-col font-medium p-4 md:p-0 w-full rounded-lg bg-blue-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 2xl:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
 						<li>
-							<a
+							<A
 								href="/#"
 								class="block py-2 px-3 text-blue bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500"
 								// aria-current="page"
 							>
 								Home
-							</a>
+							</A>
 						</li>
 						<li>
-							<a
-								href="/overview"
+							<A
+								href="/auth/overview"
 								class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
 							>
 								Overview
-							</a>
+							</A>
 						</li>
 						<li>
-							<a
-								href="/categories"
+							<A
+								href="/auth/categories"
 								class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
 							>
 								Your Categories
-							</a>
+							</A>
 						</li>
 						<li class="lg:flex lg:flex-1 lg:justify-end">
 							<Show when={!currentUser()} fallback={<SignOutButton />}>
-								<a
+								<A
 									href="/signup"
 									class="block py-2 px-3 md:p-0
 									text-gray-900 dark:text-white
@@ -59,7 +60,7 @@ export default function NavBar() {
 									rounded dark:border-gray-700"
 								>
 									{loginLink()}
-								</a>
+								</A>
 							</Show>
 						</li>
 					</ul>
