@@ -2,6 +2,8 @@ import { TransactionI } from "~/helpers/expenses_api_helpers";
 import { For } from "solid-js";
 import { format } from "date-fns";
 
+import "./style.css";
+
 interface TableProps {
 	array: TransactionI[] | undefined; // Define the expected prop type
 }
@@ -21,25 +23,29 @@ function firestoreTimestampToDate(timestamp: {
 export default function Table(props: TableProps) {
 	return (
 		<>
-			<div class="relative overflow-x-auto">
-				<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+			<div class="container">
+				<table>
 					<Header />
 					<tbody>
 						{props.array?.length === 0 || !props.array ? (
-							<tr>
-								<td>No data available</td>
-							</tr>
+							<>
+								<tr>
+									<td colSpan={6} class="no-data">
+										No data available
+									</td>
+								</tr>
+							</>
 						) : (
 							<For each={props.array}>
 								{(transaction) => (
-									<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-										<td class="px-6 py-4">{transaction.amount}</td>
-										<td class="px-6 py-4">{transaction.currency}</td>
-										<td class="px-6 py-4">
+									<tr>
+										<td>{transaction.amount}</td>
+										<td>{transaction.currency}</td>
+										<td>
 											{formatDate(firestoreTimestampToDate(transaction.date))}
 										</td>
-										<td class="px-6 py-4">{transaction.ctg_name}</td>
-										<td class="px-6 py-4">{transaction.notes}</td>
+										<td>{transaction.ctg_name}</td>
+										<td>{transaction.notes}</td>
 									</tr>
 								)}
 							</For>
