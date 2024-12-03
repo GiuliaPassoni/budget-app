@@ -7,7 +7,7 @@ import PlusIconButton from "~/components/atoms/PlusIconButton";
 import { createSignal } from "solid-js";
 import AddCategoryModal from "~/components/molecules/AddCategoryModal";
 import { Toaster } from "solid-toast";
-import MainLayout from "~/components/organisms/MainLayout/MainLayout";
+import MainLayout from "~/components/organisms/MainLayout";
 
 import "./style.css";
 

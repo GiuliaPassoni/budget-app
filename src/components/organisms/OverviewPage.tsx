@@ -1,4 +1,3 @@
-import { Title } from "@solidjs/meta";
 import PlusIconButton from "~/components/atoms/PlusIconButton";
 import Button from "~/components/atoms/Button";
 import Table from "~/components/molecules/Table";
@@ -10,7 +9,7 @@ import { TransactionType } from "~/helpers/types";
 import { TransactionI } from "~/helpers/expenses_api_helpers";
 import { currentUser, db } from "~/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
-import MainLayout from "~/components/organisms/MainLayout/MainLayout";
+import MainLayout from "~/components/organisms/MainLayout";
 
 export default function OverviewPage() {
 	const [database, setDatabase] = createSignal<TransactionType>("expenses");
