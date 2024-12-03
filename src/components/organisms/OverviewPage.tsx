@@ -10,6 +10,7 @@ import { TransactionType } from "~/helpers/types";
 import { TransactionI } from "~/helpers/expenses_api_helpers";
 import { currentUser, db } from "~/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
+import MainLayout from "~/components/organisms/MainLayout/MainLayout";
 
 export default function OverviewPage() {
 	const [database, setDatabase] = createSignal<TransactionType>("expenses");
@@ -64,28 +65,28 @@ export default function OverviewPage() {
 		listenForTransactionsUpdates(); // Set up real-time listener
 	});
 	return (
-		<main>
-			<Title>Overview</Title>
-			<h1>Account Overview</h1>
-			<section class="max-w-6xl mx-auto">
-				<PlusIconButton
-					type="button"
-					variant="primary"
-					title="Record transaction"
-					handleClick={() => {
-						setShowTransactionModal(true);
-					}}
-				/>
-				<PlusIconButton
-					variant="secondary"
-					type="button"
-					title="Add category"
-					handleClick={() => {
-						setShowCategModal(true);
-					}}
-				/>
+		<MainLayout title="Overview">
+			<section class="w-full h-full mx-auto border-2 border-red-500">
+				<div class="flex flex-row justify-center">
+					<PlusIconButton
+						type="button"
+						variant="primary"
+						title="Record transaction"
+						handleClick={() => {
+							setShowTransactionModal(true);
+						}}
+					/>
+					<PlusIconButton
+						variant="secondary"
+						type="button"
+						title="Add category"
+						handleClick={() => {
+							setShowCategModal(true);
+						}}
+					/>
+				</div>
 				<section>
-					<div>
+					<div class="flex flex-row w-1/2 mx-auto justify-between">
 						<Button
 							text="Show Expenses"
 							onClick={() => {
@@ -105,7 +106,9 @@ export default function OverviewPage() {
 							}}
 						></Button>
 					</div>
-					<div class="font-bold">{database().toUpperCase()}</div>
+					<div class="w-full my-3 text-center font-bold text-xl">
+						{database().toUpperCase()}
+					</div>
 					<div>
 						{loading() && <p>Loading...</p>}
 						{/*{error() && <p>Error: {error()}</p>}*/}
@@ -151,6 +154,6 @@ export default function OverviewPage() {
 				{/*</div>*/}
 			</section>
 			<Toaster />
-		</main>
+		</MainLayout>
 	);
 }

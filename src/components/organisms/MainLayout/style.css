@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.main-layout{
+    @apply flex flex-col min-h-screen w-screen;
+    @apply bg-white;
+}
+.layout-center{
+    @apply w-3/4 h-full mx-auto my-4;
+    @apply bg-blue-100 border border-gray-400;
+    @apply rounded-2xl;
+}
+
+.title {
+    @apply text-center my-4;
+    @apply text-5xl font-bold;
+}
+
+.main-content {
+    /*@apply w-3/4 mx-auto bg-blue-300;*/
+    @apply p-8;
+    @apply flex flex-col justify-center items-center;
+}
