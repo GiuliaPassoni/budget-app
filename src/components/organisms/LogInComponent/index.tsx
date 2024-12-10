@@ -5,16 +5,8 @@ import { handleSignIn } from "~/helpers/auth_helpers";
 
 import "./style.css";
 import { DOMElement } from "solid-js/jsx-runtime";
+import { InputI } from "~/helpers/types";
 
-type InputI = InputEvent & {
-	currentTarget: HTMLInputElement;
-	target: HTMLInputElement extends
-		| HTMLInputElement
-		| HTMLSelectElement
-		| HTMLTextAreaElement
-		? HTMLInputElement
-		: DOMElement;
-};
 export default function LogInComponent() {
 	const [form, setForm] = createSignal({
 		email: "",

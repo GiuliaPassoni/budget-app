@@ -6,25 +6,26 @@ import addUser from "~/helpers/db_helpers";
 
 import "./style.css";
 import { DOMElement } from "solid-js/jsx-runtime";
+import { createStore } from "solid-js/store";
+import { FormI, InputI } from "~/helpers/types";
+import useForm from "~/hooks/useForm";
 
 interface UserI {
 	id?: string;
-	email: String;
-	password: String;
+	email: string;
+	password: string;
 	isLoggedIn?: boolean;
 }
 
-type InputI = InputEvent & {
-	currentTarget: HTMLInputElement;
-	target: HTMLInputElement extends
-		| HTMLInputElement
-		| HTMLSelectElement
-		| HTMLTextAreaElement
-		? HTMLInputElement
-		: DOMElement;
-};
 export default function SignUpComponent() {
-	const [form, setForm] = createSignal({
+	const {} = useForm<FormI>({
+		name: "",
+		email: "",
+		password: "",
+		confirmPassword: "",
+	});
+
+	const [form, setForm] = createStore<FormI>({
 		name: "",
 		email: "",
 		password: "",
@@ -35,11 +36,25 @@ export default function SignUpComponent() {
 
 	function handleInput(e: InputI) {
 		const { name, value } = e.currentTarget;
-		setForm({ ...form(), [name]: value });
+		setForm(name as keyof FormI, value);
 	}
 	//todo instead of a separate login component, adjust this according to need?
 
-	// function handleSubmit
+	async function handleSubmitSignUp(e: InputI) {
+		e.preventDefault();
+		const signedupuser = await handleSignUp({
+			email: form().email,
+			password: form().password,
+		});
+		await addUser({ user: signedupuser });
+		navigate("/auth/overview");
+	}
+
+	async function handleSubmitSignIn(e: InputI) {
+		e.preventDefault();
+		handleSignIn({ email: form().email, password: form().password });
+		navigate("/overview");
+	}
 
 	return (
 		<>
