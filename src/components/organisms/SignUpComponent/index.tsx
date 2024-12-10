@@ -27,7 +27,6 @@ export default function SignUpComponent() {
 	const [form, setForm] = createSignal({
 		name: "",
 		email: "",
-		avatar: "",
 		password: "",
 		confirmPassword: "",
 	});
@@ -39,6 +38,8 @@ export default function SignUpComponent() {
 		setForm({ ...form(), [name]: value });
 	}
 	//todo instead of a separate login component, adjust this according to need?
+
+	// function handleSubmit
 
 	return (
 		<>

@@ -27,8 +27,9 @@ export default function PlusIconButton({
 	return (
 		<>
 			<button
-				data-tooltip-target="plus-tooltip"
-				data-tooltip-style="light"
+				//fixme tooltip below
+				// data-tooltip-target="plus-tooltip"
+				// data-tooltip-style="light"
 				type={type}
 				onClick={handleClick}
 				class={` 

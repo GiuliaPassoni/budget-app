@@ -2,14 +2,16 @@
 interface IProps {
 	onClick(): void;
 	text: string;
+	disabled?: boolean;
 }
 
 export default function Button(props: IProps) {
 	const text = () => props.text;
-	const handleClick = props.onClick;
+	const disabled = () => props.disabled;
+	// const handleClick = props.onClick;
 	return (
 		<button
-			onClick={handleClick} //todo check if this still works, else, revert to props.onClick
+			onClick={props.onClick} //todo check if this still works, else, revert to props.onClick
 			class="inline-flex items-center px-3 py-2
 			text-sm font-medium text-center text-white
 			bg-blue-700 dark:bg-blue-600
