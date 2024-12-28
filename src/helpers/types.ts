@@ -20,6 +20,11 @@ export type InputI = InputEvent & {
 		: DOMElement;
 };
 
+export type ButtonI = MouseEvent & {
+	currentTarget: HTMLButtonElement;
+	target: Element;
+};
+
 export interface FormI {
 	name: string;
 	email: string;

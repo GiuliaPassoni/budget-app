@@ -2,7 +2,7 @@ import { createStore } from "solid-js/store";
 import { useNavigate } from "@solidjs/router";
 import { handleSignIn, handleSignUp } from "~/helpers/auth_helpers";
 import addUser from "~/helpers/db_helpers";
-import { FormI, InputI } from "~/helpers/types";
+import { ButtonI, FormI, InputI } from "~/helpers/types";
 
 export default function useForm(initialForm: FormI) {
 	const [form, setForm] = createStore<FormI>(initialForm);
@@ -15,20 +15,24 @@ export default function useForm(initialForm: FormI) {
 	}
 	//todo instead of a separate login component, adjust this according to need?
 
-	async function handleSubmitSignUp(e: InputI) {
+	async function handleSubmitSignUp(e: ButtonI) {
 		e.preventDefault();
-		const signedupuser = await handleSignUp({
-			email: form().email,
-			password: form().password,
+		const user = await handleSignUp({
+			email: form.email,
+			password: form.password,
 		});
-		await addUser({ user: signedupuser });
+		await addUser({ user });
 		navigate("/auth/overview");
 	}
 
-	async function handleSubmitSignIn(e: InputI) {
+	async function handleSubmitSignIn(e: ButtonI) {
 		e.preventDefault();
-		handleSignIn({ email: form().email, password: form().password });
-		navigate("/overview");
+		handleSignIn({ email: form.email, password: form.password });
+		navigate("/auth/overview");
 	}
-	return {};
+	return {
+		handleInput,
+		handleSubmitSignUp,
+		handleSubmitSignIn,
+	};
 }
