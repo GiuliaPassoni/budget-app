@@ -42,13 +42,10 @@ export interface SignInProps {
 }
 
 function handleSignIn({ email, password }: SignInProps) {
-	console.debug("sign in called");
 	signInWithEmailAndPassword(auth, email, password)
 		.then((userCredential) => {
-			// Signed in
 			const user = userCredential.user;
-			console.debug("User", user, "has signed in");
-			toast.success(`User ${user.uid} has signed in`);
+			toast.success(`User ${user.email} has signed in`);
 		})
 		.catch((error) => {
 			const errorMessage = error.message;
@@ -59,12 +56,10 @@ function handleSignIn({ email, password }: SignInProps) {
 interface ILogOut {}
 
 function handleLogOut({}: ILogOut) {
-	console.debug("log out called");
 	auth
 		.signOut()
 		.then(() => {
 			toast.success("User logged out");
-			console.debug("User logged out");
 			setCurrentUser(null);
 		})
 		.catch((error: Error) => {
