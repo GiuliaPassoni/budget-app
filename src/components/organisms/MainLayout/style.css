@@ -4,7 +4,8 @@
 
 .main-layout{
     @apply flex flex-col min-h-screen w-screen;
-    @apply bg-white;
+    /*@apply bg-white;*/
+    @apply bg-blue-900;
 }
 .layout-center{
     @apply w-3/4 h-full mx-auto my-4;
