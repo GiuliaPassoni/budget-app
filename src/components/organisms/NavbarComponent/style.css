@@ -21,15 +21,15 @@
     @apply font-medium;
     @apply p-4;
     @apply dark:bg-gray-800 dark:border-gray-700;
-    @apply border-red-500 border-8;
+    /*@apply border-red-500 border-8;*/
 }
 
 .navbar li {
-    @apply w-fit py-2 px-3;
-    /*@apply text-center;*/
-    @apply bg-blue-700;
-    @apply rounded;
-    @apply border-red-500 border-8;
+    @apply w-fit py-2 pl-3;
+    @apply text-center;
+    @apply bg-white;
+    @apply rounded-lg;
+    /*@apply border-blue-300 border;*/
 }
 
 #auth-button-container {
