@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.navbar {
+    @apply bg-blue-700;
+    @apply rounded;
+    @apply dark:bg-gray-900;
+    /*@apply border-red-500 border-8;*/
+}
+
+.container {
+    @apply bg-blue-100 rounded-2xl;
+    @apply flex flex-wrap items-center justify-between mx-auto p-0;
+    /*@apply border-blue-500 border-8;*/
+}
+
+.navbar ul {
+    @apply flex flex-row justify-start gap-3;
+    @apply w-3/4 p-4 rounded-lg;
+    @apply font-medium;
+    @apply p-4;
+    @apply dark:bg-gray-800 dark:border-gray-700;
+    @apply border-red-500 border-8;
+}
+
+.navbar li {
+    @apply w-fit py-2 px-3;
+    /*@apply text-center;*/
+    @apply bg-blue-700;
+    @apply rounded;
+    @apply border-red-500 border-8;
+}
+
+#auth-button-container {
+    @apply flex w-fit mr-2;
+}
+
+/*todo replace below with signinbutton component*/
+#auth-button {
+    @apply block py-2 px-3 md:p-0;
+    @apply text-gray-900 dark:text-white;
+    @apply hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent;
+    @apply rounded dark:border-gray-700;
+}
