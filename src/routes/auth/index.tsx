@@ -4,7 +4,7 @@ import { onMount } from "solid-js";
 export default function AuthLayout(props: RouteSectionProps) {
 	const navigate = useNavigate();
 	onMount(() => {
-		navigate("/giulia/overview1");
+		navigate("/auth/overview");
 		console.debug("hihi");
 	});
 	return (
