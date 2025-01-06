@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.icon-all {
+    @apply  w-6 h-6 text-white;
+}
