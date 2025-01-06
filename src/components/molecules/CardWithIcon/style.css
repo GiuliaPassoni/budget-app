@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.card {
+    @apply col-span-4;
+    @apply block;
+    @apply m-1 p-2;
+    @apply border-0;
+    @apply text-white;
+    @apply dark:bg-gray-800 dark:border-gray-700;
+    max-width:100px;
+}
+
+.icon-container {
+    @apply block mx-auto w-fit rounded-lg p-3;
+}
+
+.description {
+    @apply max-w-20 my-1 mx-auto w-fit;
+    @apply text-gray-900;
+    @apply dark:text-white;
+}
+
+.children {
+    @apply mb-3 font-normal text-gray-500 dark:text-gray-400;
+}
