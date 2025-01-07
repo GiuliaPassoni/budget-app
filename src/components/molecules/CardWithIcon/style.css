@@ -3,21 +3,22 @@
 @tailwind utilities;
 
 .card {
-    @apply col-span-4;
-    @apply block;
-    @apply m-1 p-2;
+    @apply col-span-3;
+    @apply flex align-middle text-center items-center;
+    @apply m-0.5 p-2;
     @apply border-0;
     @apply text-white;
     @apply dark:bg-gray-800 dark:border-gray-700;
-    max-width:100px;
+    max-width:12rem;
 }
 
 .icon-container {
-    @apply block mx-auto w-fit rounded-lg p-3;
+    @apply mx-auto rounded-lg p-3;
 }
 
 .description {
-    @apply max-w-20 my-1 mx-auto w-fit;
+    @apply max-w-24;
+    @apply my-1;
     @apply text-gray-900;
     @apply dark:text-white;
 }
