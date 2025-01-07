@@ -156,17 +156,21 @@ export default function AddTransactionModal(props: ModalProps) {
 							{/*Modal body*/}
 							<div>
 								<form>
-									<div class="transaction-type-container">
-										<label for="type">Type</label>
-										{["expenses", "income", "investments"].map((i) => (
-											<Button
-												text={i.charAt(0).toUpperCase() + i.slice(1)}
-												styleClass="mx-3"
-												onClick={() => handleTabClick(i as TransactionType)}
-											/>
-										))}
-									</div>
 									<div class="amount-details-container">
+										<span id="transaction-type-container">
+											<label for="type">Type</label>
+											<select
+												onChange={(e) => {
+													handleTabClick(e.target.value as TransactionType);
+												}}
+												required={true}
+												id="category"
+											>
+												<For each={["expenses", "income", "investments"]}>
+													{(i) => <option value={i}>{i}</option>}
+												</For>
+											</select>
+										</span>
 										<span>
 											<label for="price">Amount</label>
 											<input

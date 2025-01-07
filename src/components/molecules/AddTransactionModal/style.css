@@ -38,11 +38,11 @@ form {
 }
 
 .amount-details-container {
-    @apply grid grid-cols-2 mx-3 p-2;
+    @apply w-full grid grid-cols-3 p-2 gap-1;
 }
 
 .amount-details-container span{
-    @apply mx-3 p-2;
+    @apply p-2;
 }
 
 .category-grid{
