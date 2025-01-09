@@ -2,42 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-.overlay {
-    @apply w-full h-[calc(100%-1rem)] max-h-full;
-    @apply overflow-y-auto overflow-x-hidden;
-    @apply fixed top-0 right-0 left-0 z-50;
-    @apply justify-center items-center;
-}
-
-.modal-container {
-    @apply relative mx-auto p-4;
-    @apply w-full h-full;
-    @apply max-w-lg max-h-full;
-}
-
-.modal-content {
-    @apply w-full m-auto relative;
-    @apply bg-gray-800;
-    @apply border-gray-700;
-    @apply rounded-2xl;
-}
-
-.header-container {
-    @apply flex items-center justify-between;
-    @apply p-4;
-    @apply rounded-t border-b border-gray-800;
-}
-
-.header {
-    @apply text-lg font-semibold border-b border-gray-800 !important;
-}
 
 .type-container {
     @apply mx-auto px-4;
-}
-
-form {
-    @apply p-4 md:p-5;
 }
 
 .amount-details-container {
@@ -50,28 +17,4 @@ form {
 
 .category-grid{
     @apply grid grid-cols-12 gap-0;
-}
-
-label {
-    @apply block mb-2;
-    @apply text-lg font-medium;
-}
-
-.formElements {
-    @apply bg-gray-800 border border-gray-700 rounded-lg;
-    @apply text-left text-sm;
-    @apply block w-full p-2.5 text-gray-300;
-    @apply focus:ring-2 focus:ring-gray-700 focus:border-gray-800;
-}
-
-input {
-    @apply text-right w-1/2;
-}
-
-textarea#description {
-    @apply block my-2 p-2.5 w-full;
-}
-
-button[type="submit"] {
-    @apply my-3 ml-36;
 }

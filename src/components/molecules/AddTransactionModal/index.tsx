@@ -11,9 +11,9 @@ import { currentUser, db } from "~/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import AddCategoryModal from "~/components/molecules/AddCategoryModal";
 import { iconMap } from "~/components/atoms/icons/helpers";
+import Modal from "~/components/molecules/Modal";
 
 import "./style.css";
-import Button from "~/components/atoms/Button";
 
 interface ModalProps {
 	showModal: boolean;
@@ -142,125 +142,112 @@ export default function AddTransactionModal(props: ModalProps) {
 	// TODO add datepicker to transaction and modal
 
 	return (
-		<div class={`${showModal() ? "flex" : "hidden"}`}>
-			<div id="default-styled-tab-content">
-				<div aria-hidden={showModal()} class="overlay">
-					<div class="modal-container">
-						{/*Modal content*/}
-						<div class="modal-content">
-							{/*Modal header*/}
-							<div class="header-container">
-								<h3 class="header">Add New Transaction</h3>
-								<CloseModalIconButton handleClick={props.handleClose} />
-							</div>
-							{/*Modal body*/}
-							<div>
-								<form>
-									<div class="amount-details-container">
-										<span id="transaction-type-container">
-											<label for="type">Type</label>
-											<select
-												onChange={(e) => {
-													handleTabClick(e.target.value as TransactionType);
-												}}
-												required={true}
-												id="category"
-												class="formElements"
-											>
-												<For each={["expenses", "income", "investments"]}>
-													{(i) => <option value={i}>{i}</option>}
-												</For>
-											</select>
-										</span>
-										<span>
-											<label for="price">Amount</label>
-											<input
-												class="bg-gray-800 border border-gray-700 rounded-lg text-right text-sm focus:ring-2 focus:ring-gray-700 focus:border-gray-800 block w-full p-2.5 text-gray-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-												id="price"
-												type="number"
-												name="price"
-												placeholder="0,00"
-												required={true}
-												onBlur={(e) => {
-													e.preventDefault();
-													setAmount(Number(e.target.value));
-												}}
-											/>
-										</span>
-										<span>
-											<label for="category">Currency</label>
-											<select
-												onChange={(e) => {
-													setCurrency(e.target.value);
-												}}
-												required={true}
-												id="category"
-												class="formElements"
-											>
-												<For each={allCurrencies}>
-													{(i) => (
-														<option value={i.currency_code}>
-															{i.currency_code} ({i.country})
-														</option>
-													)}
-												</For>
-											</select>
-										</span>
-									</div>
-									<div class="category-container">
-										<label for="category">Category</label>
-										<div class="category-grid">
-											<For each={categories()}>
-												{(i) => (
-													<CardWithIcon
-														colour={i.colour}
-														title={i.name}
-														icon={i.iconName ? iconMap[i.iconName]?.() : ""}
-														handleClick={() => {
-															setCategory(i.name);
-														}}
-													/>
-												)}
-											</For>
-											{/*todo connect category modal, or handle the flow otherwise*/}
-											<CardWithIcon
-												colour="green"
-												title="Add category"
-												icon={iconMap["plus"]}
-												handleClick={() => {
-													showCategModal();
-												}}
-											/>
-										</div>
-									</div>
-									<div>
-										<label for="description">Transaction Notes</label>
-										<textarea
-											class="formElements"
-											id="description"
-											rows="1"
-											placeholder=""
-											value={note()}
-											onBlur={(e) => setNote(e.target.value)}
-										></textarea>
-									</div>
-									{/*tooltip doesn't work, may be hiding behind modal*/}
-									<PlusIconButton
-										type="submit"
-										variant="primary"
-										handleClick={async (e: Event) => {
-											e.preventDefault();
-											await handleSubmit();
-											props.handleClose();
-										}}
-										title="Add new transaction"
-									/>
-								</form>
-							</div>
-						</div>
+		<div>
+			<Modal
+				showModal={showModal()}
+				headerTitle="Add Transaction"
+				handleClose={props.handleClose}
+			>
+				<div class="amount-details-container">
+					<span id="transaction-type-container">
+						<label for="type">Type</label>
+						<select
+							onChange={(e) => {
+								handleTabClick(e.target.value as TransactionType);
+							}}
+							required={true}
+							id="category"
+							class="formElements"
+						>
+							<For each={["expenses", "income", "investments"]}>
+								{(i) => <option value={i}>{i}</option>}
+							</For>
+						</select>
+					</span>
+					<span>
+						<label for="price">Amount</label>
+						<input
+							class="bg-gray-800 border border-gray-700 rounded-lg text-right text-sm focus:ring-2 focus:ring-gray-700 focus:border-gray-800 block w-full p-2.5 text-gray-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+							id="price"
+							type="number"
+							name="price"
+							placeholder="0,00"
+							required={true}
+							onBlur={(e) => {
+								e.preventDefault();
+								setAmount(Number(e.target.value));
+							}}
+						/>
+					</span>
+					<span>
+						<label for="category">Currency</label>
+						<select
+							onChange={(e) => {
+								setCurrency(e.target.value);
+							}}
+							required={true}
+							id="category"
+							class="formElements"
+						>
+							<For each={allCurrencies}>
+								{(i) => (
+									<option value={i.currency_code}>
+										{i.currency_code} ({i.country})
+									</option>
+								)}
+							</For>
+						</select>
+					</span>
+				</div>
+				<div class="category-container">
+					<label for="category">Category</label>
+					<div class="category-grid">
+						<For each={categories()}>
+							{(i) => (
+								<CardWithIcon
+									colour={i.colour}
+									title={i.name}
+									icon={i.iconName ? iconMap[i.iconName]?.() : ""}
+									handleClick={() => {
+										setCategory(i.name);
+									}}
+								/>
+							)}
+						</For>
+						{/*todo connect category modal, or handle the flow otherwise*/}
+						<CardWithIcon
+							colour="green"
+							title="Add category"
+							icon={iconMap["plus"]}
+							handleClick={() => {
+								showCategModal();
+							}}
+						/>
 					</div>
 				</div>
-			</div>
+				<div>
+					<label for="description">Transaction Notes</label>
+					<textarea
+						class="formElements"
+						id="description"
+						rows="1"
+						placeholder=""
+						value={note()}
+						onBlur={(e) => setNote(e.target.value)}
+					></textarea>
+				</div>
+				{/*tooltip doesn't work, may be hiding behind modal*/}
+				<PlusIconButton
+					type="submit"
+					variant="primary"
+					handleClick={async (e: Event) => {
+						e.preventDefault();
+						await handleSubmit();
+						props.handleClose();
+					}}
+					title="Add new transaction"
+				/>
+			</Modal>
 			{/*todo try to pass the mutation as a prop from here, since scope is available here - hopefully it maintains the reference */}
 			<AddCategoryModal
 				showModal={showCategModal()}
