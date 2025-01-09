@@ -165,6 +165,7 @@ export default function AddTransactionModal(props: ModalProps) {
 												}}
 												required={true}
 												id="category"
+												class="formElements"
 											>
 												<For each={["expenses", "income", "investments"]}>
 													{(i) => <option value={i}>{i}</option>}
@@ -174,9 +175,10 @@ export default function AddTransactionModal(props: ModalProps) {
 										<span>
 											<label for="price">Amount</label>
 											<input
+												class="bg-gray-800 border border-gray-700 rounded-lg text-right text-sm focus:ring-2 focus:ring-gray-700 focus:border-gray-800 block w-full p-2.5 text-gray-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+												id="price"
 												type="number"
 												name="price"
-												id="price"
 												placeholder="0,00"
 												required={true}
 												onBlur={(e) => {
@@ -193,6 +195,7 @@ export default function AddTransactionModal(props: ModalProps) {
 												}}
 												required={true}
 												id="category"
+												class="formElements"
 											>
 												<For each={allCurrencies}>
 													{(i) => (
@@ -233,6 +236,7 @@ export default function AddTransactionModal(props: ModalProps) {
 									<div>
 										<label for="description">Transaction Notes</label>
 										<textarea
+											class="formElements"
 											id="description"
 											rows="1"
 											placeholder=""

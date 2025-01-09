@@ -6,9 +6,8 @@
     @apply col-span-3;
     @apply flex align-middle text-center items-center;
     @apply m-0.5 p-2;
-    @apply border-0;
+    @apply bg-transparent border-0;
     @apply text-white;
-    @apply dark:bg-gray-800 dark:border-gray-700;
     max-width:12rem;
 }
 
@@ -19,10 +18,8 @@
 .description {
     @apply max-w-24;
     @apply my-1;
-    @apply text-gray-900;
-    @apply dark:text-white;
 }
 
 .children {
-    @apply mb-3 font-normal text-gray-500 dark:text-gray-400;
+    @apply mb-3 font-normal;
 }

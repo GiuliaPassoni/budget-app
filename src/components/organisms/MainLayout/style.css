@@ -4,13 +4,13 @@
 
 .main-layout{
     @apply flex flex-col min-h-screen w-screen;
-    /*@apply bg-white;*/
-    @apply bg-blue-900;
+    @apply bg-gray-900;
 }
 .layout-center{
     @apply w-3/4 h-full mx-auto my-4;
-    @apply bg-blue-100 border border-gray-400;
-    @apply rounded-2xl;
+    /*@apply bg-gray-800;*/
+    /*@apply border-gray-700;*/
+    /*@apply rounded-2xl;*/
 }
 
 .title {

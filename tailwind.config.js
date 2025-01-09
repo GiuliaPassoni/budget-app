@@ -17,11 +17,18 @@ export default {
 			xl: "1440px",
 		},
 		colors: {
-			primary: colors.teal,
+			primary: colors.blue,
+			text: {
+				primary: colors.white,
+				secondary: colors.gray["400"],
+			},
 			gray: {
 				300: "#E2E8F0",
 				500: "hsla(240, 5%, 34%, 1)",
 				700: "#4A5568",
+			},
+			blue: {
+				950: "#172554",
 			},
 		},
 		fontFamily: {

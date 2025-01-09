@@ -3,16 +3,8 @@
 @tailwind utilities;
 
 .navbar {
-    @apply bg-blue-700;
-    @apply rounded;
-    @apply dark:bg-gray-900;
-    /*@apply border-red-500 border-8;*/
-}
-
-.container {
-    @apply bg-blue-100 rounded-2xl;
+    @apply bg-gray-900 border-b-2 border-gray-800;
     @apply flex flex-wrap items-center justify-between mx-auto p-0;
-    /*@apply border-blue-500 border-8;*/
 }
 
 .navbar ul {
@@ -21,15 +13,13 @@
     @apply font-medium;
     @apply p-4;
     @apply dark:bg-gray-800 dark:border-gray-700;
-    /*@apply border-red-500 border-8;*/
 }
 
 .navbar li {
     @apply w-fit py-2 pl-3;
-    @apply text-center;
-    @apply bg-white;
+    @apply text-center text-white;
+    @apply hover:bg-gray-800 hover:text-white;
     @apply rounded-lg;
-    /*@apply border-blue-300 border;*/
 }
 
 #auth-button-container {
@@ -40,6 +30,6 @@
 #auth-button {
     @apply block py-2 px-3 md:p-0;
     @apply text-gray-900 dark:text-white;
-    @apply hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent;
-    @apply rounded dark:border-gray-700;
+    @apply hover:bg-gray-700 hover:text-white;
+    @apply rounded;
 }

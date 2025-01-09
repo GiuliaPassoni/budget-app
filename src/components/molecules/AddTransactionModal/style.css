@@ -12,21 +12,24 @@
 .modal-container {
     @apply relative mx-auto p-4;
     @apply w-full h-full;
-    @apply max-w-xl max-h-full;
+    @apply max-w-lg max-h-full;
 }
 
 .modal-content {
     @apply w-full m-auto relative;
-    @apply bg-white rounded-lg shadow;
-    @apply dark:bg-gray-700;
+    @apply bg-gray-800;
+    @apply border-gray-700;
+    @apply rounded-2xl;
 }
 
 .header-container {
-    @apply flex items-center justify-between p-4 md:p-5 rounded-t dark:border-gray-600;
+    @apply flex items-center justify-between;
+    @apply p-4;
+    @apply rounded-t border-b border-gray-800;
 }
 
 .header {
-    @apply text-lg font-semibold text-gray-900 dark:text-white;
+    @apply text-lg font-semibold border-b border-gray-800 !important;
 }
 
 .type-container {
@@ -51,31 +54,24 @@ form {
 
 label {
     @apply block mb-2;
-    @apply text-lg font-medium text-gray-900 dark:text-white;
+    @apply text-lg font-medium;
+}
+
+.formElements {
+    @apply bg-gray-800 border border-gray-700 rounded-lg;
+    @apply text-left text-sm;
+    @apply block w-full p-2.5 text-gray-300;
+    @apply focus:ring-2 focus:ring-gray-700 focus:border-gray-800;
 }
 
 input {
-    @apply bg-transparent border-none;
-    @apply text-right text-gray-500 text-sm;
-    @apply focus:ring-primary-500 focus:border-primary-500;
-    @apply block w-full p-2.5;
-    @apply dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500;
-}
-
-select {
-    @apply bg-transparent border-none;
-    @apply text-left text-gray-500 text-sm;
-    @apply focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5;
-    @apply dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500;
+    @apply text-right w-1/2;
 }
 
 textarea#description {
     @apply block my-2 p-2.5 w-full;
-    @apply text-sm text-gray-900;
-    @apply bg-gray-50 rounded-lg;
-    @apply border border-gray-300;
-    @apply focus:ring-blue-500 focus:border-blue-500;
-    @apply dark:bg-gray-600 dark:border-gray-500;
-    @apply dark:placeholder-gray-400 dark:text-white;
-    @apply dark:focus:ring-blue-500 dark:focus:border-blue-500;
+}
+
+button[type="submit"] {
+    @apply my-3 ml-36;
 }
