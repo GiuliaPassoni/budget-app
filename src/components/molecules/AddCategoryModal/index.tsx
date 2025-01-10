@@ -14,7 +14,6 @@ interface ModalProps {
 	onSubmit: () => void;
 }
 
-// todo reusable modal component...
 export default function AddCategoryModal(props: ModalProps) {
 	const showModal = () => props.showModal;
 
