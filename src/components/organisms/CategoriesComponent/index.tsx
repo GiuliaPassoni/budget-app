@@ -10,6 +10,7 @@ import { Toaster } from "solid-toast";
 import MainLayout from "~/components/organisms/MainLayout";
 
 import "./style.css";
+import PlusIcon from "~/components/atoms/icons/PlusIcon";
 
 export default function CategoriesComponent() {
 	const [showModal, setShowModal] = createSignal(false);
@@ -19,21 +20,26 @@ export default function CategoriesComponent() {
 				<Card>Tab with income categories</Card>
 				<Card>Tab with expense categories</Card>
 				<Card>Tab with investing categories</Card>
-				<CardWithIcon icon={<StarIcon />} title="Star income" />
-				<CardWithIcon icon={<MoonIcon />} title="Moon income" />
-				<CardWithIcon icon={<SunIcon />} title="Sun income" />
+				{/*todo parse category and make icon card*/}
+				<CardWithIcon colour="yellow" icon={<StarIcon />} title="Star income" />
 				<CardWithIcon
+					colour="blue-500"
+					icon={<MoonIcon />}
+					title="Moon income"
+				/>
+				<CardWithIcon
+					colour="green-300"
+					icon={<SunIcon />}
+					title="Sun income"
+				/>
+				<PlusIconButton
+					variant="secondary"
+					type="submit"
+					handleClick={() => {
+						setShowModal(true);
+					}}
 					title="Add category"
-					icon={
-						<PlusIconButton
-							variant="secondary"
-							type="submit"
-							handleClick={() => {
-								setShowModal(true);
-							}}
-							title="Add category"
-						/>
-					}
+					leftIcon={<PlusIcon />}
 				/>
 				<AddCategoryModal
 					showModal={showModal()}

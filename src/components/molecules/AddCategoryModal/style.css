@@ -10,15 +10,6 @@
     @apply row-span-1 row-start-1;
 }
 
-form {
-    @apply p-4 md:p-5;
-}
-
-label {
-    @apply block mb-2;
-    @apply text-lg font-medium;
-}
-
 .categ-name input {
     @apply bg-gray-800 border border-gray-700 rounded-lg;
     @apply text-left text-sm;
@@ -27,5 +18,28 @@ label {
 }
 
 .first-row {
-    @apply grid grid-cols-2 gap-2;
+    @apply grid grid-cols-2 gap-3;
+}
+
+.colour-div {
+    @apply max-w-[512px] mx-3;
+}
+
+.colour-grid {
+    @apply grid grid-cols-12 gap-2 mx-auto w-full;
+}
+
+.colour-item {
+    @apply space-y-2 grid grid-cols-12 gap-2 mx-auto w-full;
+}
+
+.colour-subitem {
+    @apply flex flex-col gap-2;
+}
+
+.colour-button {
+    @apply w-8 h-8 rounded-full;
+    @apply hover:ring-2 hover:ring-offset-2;
+    @apply focus:ring-2 focus:ring-offset-2;
+    @apply visited:ring-2 visited:ring-offset-2;
 }
