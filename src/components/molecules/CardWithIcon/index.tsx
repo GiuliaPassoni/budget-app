@@ -29,7 +29,6 @@ export default function CardWithIcon(props: IProps) {
 		setShadeClass(`bg-${colour()}`);
 	}
 
-	console.debug(colour(), shadeClass());
 	return (
 		<a href="#" onClick={handleClick} class="card">
 			<div class={`icon-container ${shadeClass()}`}>{icon()}</div>
