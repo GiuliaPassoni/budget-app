@@ -43,8 +43,7 @@ export default function Toast(props: PropsI) {
 			<div
 				class="my-toast-container"
 				role="alert"
-				// tabIndex="-1"
-				inert={showModal()}
+				inert={!showModal()}
 				aria-labelledby={message()}
 			>
 				{type() === "success" && <CheckCircleIcon style={iconColour()} />}
@@ -52,8 +51,7 @@ export default function Toast(props: PropsI) {
 				{type() === "info" && <InfoIcon style={iconColour()} />}
 				{type() === "error" && <XCircleErrorIcon style={iconColour()} />}
 				<div class="message">{capitalise(message())}</div>
-				{/*todo on close doesn't work*/}
-				<CloseModalIconButton handleClick={() => console.debug("hello")} />
+				<CloseModalIconButton handleClick={props.handleClose} />
 			</div>
 		</Show>
 	);
