@@ -79,51 +79,51 @@ export default function AddCategoryModal(props: ModalProps) {
 					</div>
 					<div class="colour-div">
 						<label for="colour">Colour</label>
-						<div class="colour-grid">
+						<div class="grid-selector">
 							<For each={colorOptions}>
 								{(color) => (
-									<div class="colour-item">
-										<div class="colour-subitem">
-											<For each={Object.entries(color.shades)}>
-												{([shade, bgClass]) => (
-													<button
-														class={`colour-button ${bgClass} hover:ring-${color.name}-500 active:ring-${color.name}-500 transition-all`}
-														onClick={(e) => {
-															e.preventDefault();
-															setSelectedColour(`${color.name}-${shade}`);
-														}}
-														title={`${color.name}-${shade}`}
-													/>
-												)}
-											</For>
-										</div>
+									<div class="grid-item-container">
+										<For each={Object.entries(color.shades)}>
+											{([shade, bgClass]) => (
+												<button
+													class={`grid-button ${bgClass} hover:ring-${color.name}-500 transition-all
+														${selectedColour() === `${color.name}-${shade}` ? `ring-2 ring-offset-2 ring-${color.name}-500` : ""}
+														`}
+													onClick={(e) => {
+														e.preventDefault();
+														setSelectedColour(`${color.name}-${shade}`);
+													}}
+													title={`${color.name}-${shade}`}
+												/>
+											)}
+										</For>
 									</div>
 								)}
 							</For>
 						</div>
 					</div>
-					<div class="row max-w-[512px] mx-3">
-						<label for="category" class="block mb-2 font-medium ">
-							Icon
-						</label>
-						<div class="flex">
-							<div class="grid grid-cols-12 gap-2 mx-auto w-full">
-								<For each={iconKeys}>
-									{(icon) => (
-										<div class="col-span-4">
-											<button
-												id="inline-radio"
-												onClick={(e) => {
-													e.preventDefault();
-													setIconName(icon);
-												}}
-											>
-												{icon ? iconMap[icon]?.() : ""}
-											</button>
-										</div>
-									)}
-								</For>
-							</div>
+					<div class="icon-div">
+						<label for="category">Icon</label>
+						<div class="grid-selector">
+							<For each={iconKeys}>
+								{(icon) => (
+									<div class="grid-item-container">
+										<button
+											id="inline-radio"
+											class={`
+												grid-button border-1 border-gray-300 flex items-center justify-center
+												${iconName() === `${icon}` ? `ring-2 ring-offset-2 ring-gray-500` : ""}
+											`}
+											onClick={(e) => {
+												e.preventDefault();
+												setIconName(icon);
+											}}
+										>
+											{icon ? iconMap[icon]?.() : ""}
+										</button>
+									</div>
+								)}
+							</For>
 						</div>
 					</div>
 				</div>

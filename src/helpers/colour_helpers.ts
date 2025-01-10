@@ -6,14 +6,14 @@ type ColorOption = {
 
 // Define all available colors with their shades
 export const colorOptions: ColorOption[] = [
-	{
-		name: "slate",
-		shades: {
-			"300": "bg-slate-300",
-			"500": "bg-slate-500",
-			"700": "bg-slate-700",
-		},
-	},
+	// {
+	// 	name: "slate",
+	// 	shades: {
+	// 		"300": "bg-slate-300",
+	// 		"500": "bg-slate-500",
+	// 		"700": "bg-slate-700",
+	// 	},
+	// },
 	{
 		name: "gray",
 		shades: {
