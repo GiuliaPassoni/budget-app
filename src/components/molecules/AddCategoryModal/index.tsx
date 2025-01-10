@@ -3,8 +3,8 @@ import PlusIconButton from "~/components/atoms/PlusIconButton";
 import { TransactionType } from "~/helpers/types";
 import { toast, Toaster } from "solid-toast";
 import { addNewCategory } from "~/helpers/categories_api_helpers";
-import { pastelColors } from "~/helpers/colour_helpers";
-import { iconMap } from "~/components/atoms/icons/helpers";
+import { colorOptions } from "~/helpers/colour_helpers";
+import { iconKeys, iconMap } from "~/components/atoms/icons/helpers";
 import Modal from "~/components/molecules/Modal";
 import "./style.css";
 
@@ -24,8 +24,6 @@ export default function AddCategoryModal(props: ModalProps) {
 	const [selectedColour, setSelectedColour] = createSignal("");
 
 	const types = ["expenses", "income", "investments"];
-
-	const iconNames = ["star", "moon", "sun"];
 
 	async function handleSubmit() {
 		if (name() && selectedColour() && iconName() && type()) {
@@ -79,25 +77,29 @@ export default function AddCategoryModal(props: ModalProps) {
 							</select>
 						</span>
 					</div>
-					<div class="row max-w-[512px] mx-3">
-						<label for="category">Colour</label>
-						<div class="flex">
-							<div class="grid grid-cols-12 gap-2 mx-auto w-full">
-								<For each={pastelColors}>
-									{(colour) => (
-										<div class="col-span-2">
-											<button
-												id="inline-radio"
-												class={`rounded-full w-8 h-8 col-end-1 ${colour.colourClass} border-2`}
-												onClick={(e) => {
-													e.preventDefault();
-													setSelectedColour(colour.name);
-												}}
-											/>
+					<div class="colour-div">
+						<label for="colour">Colour</label>
+						<div class="colour-grid">
+							<For each={colorOptions}>
+								{(color) => (
+									<div class="colour-item">
+										<div class="colour-subitem">
+											<For each={Object.entries(color.shades)}>
+												{([shade, bgClass]) => (
+													<button
+														class={`colour-button ${bgClass} hover:ring-${color.name}-500 active:ring-${color.name}-500 transition-all`}
+														onClick={(e) => {
+															e.preventDefault();
+															setSelectedColour(`${color.name}-${shade}`);
+														}}
+														title={`${color.name}-${shade}`}
+													/>
+												)}
+											</For>
 										</div>
-									)}
-								</For>
-							</div>
+									</div>
+								)}
+							</For>
 						</div>
 					</div>
 					<div class="row max-w-[512px] mx-3">
@@ -106,7 +108,7 @@ export default function AddCategoryModal(props: ModalProps) {
 						</label>
 						<div class="flex">
 							<div class="grid grid-cols-12 gap-2 mx-auto w-full">
-								<For each={iconNames}>
+								<For each={iconKeys}>
 									{(icon) => (
 										<div class="col-span-4">
 											<button
