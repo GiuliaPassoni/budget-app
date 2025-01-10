@@ -3,6 +3,8 @@ import { For } from "solid-js";
 import { format } from "date-fns";
 
 import "./style.css";
+import Button from "~/components/atoms/Button";
+import EditIcon from "~/components/atoms/icons/EditIcon";
 
 interface TableProps {
 	array: TransactionI[] | undefined; // Define the expected prop type
@@ -21,60 +23,89 @@ function firestoreTimestampToDate(timestamp: {
 }
 
 export default function Table(props: TableProps) {
+	const headers = [
+		"Transaction amount",
+		"Currency",
+		"Date",
+		"Category",
+		"Notes",
+	];
+
+	// todo add filtering
+
 	return (
-		<>
+		<div>
 			<div class="container">
 				<table>
-					<Header />
+					<Header headers={headers} />
 					<tbody>
 						{props.array?.length === 0 || !props.array ? (
-							<>
-								<tr>
-									<td colSpan={6} class="no-data">
-										No data available
-									</td>
-								</tr>
-							</>
+							<tr>
+								<td colSpan={6} class="no-data">
+									No data available
+								</td>
+							</tr>
 						) : (
-							<For each={props.array}>
-								{(transaction) => (
-									<tr>
-										<td>{transaction.amount}</td>
-										<td>{transaction.currency}</td>
-										<td>
-											{formatDate(firestoreTimestampToDate(transaction.date))}
-										</td>
-										<td>{transaction.ctg_name}</td>
-										<td>{transaction.notes}</td>
-									</tr>
-								)}
-							</For>
+							<>
+								<For each={props.array}>
+									{(transaction) => (
+										<tr>
+											<td>{transaction.amount}</td>
+											<td>{transaction.currency}</td>
+											<td>
+												{formatDate(firestoreTimestampToDate(transaction.date))}
+											</td>
+											<td>{transaction.ctg_name}</td>
+											<td>{transaction.notes}</td>
+											<td class="actions-cell">
+												{/*todo add action*/}
+												<Button
+													onClick={() => {}}
+													text={""}
+													leftIcon={<EditIcon />}
+													styleClass="secondary"
+												/>
+											</td>
+										</tr>
+									)}
+								</For>
+								{/*todo add pagination in footer*/}
+								{/*<tr>*/}
+								{/*	<td colSpan={6} class="table-footer-group">*/}
+								{/*		Pagination*/}
+								{/*	</td>*/}
+								{/*</tr>*/}
+							</>
 						)}
 					</tbody>
 				</table>
 			</div>
-		</>
+		</div>
 	);
 }
 
-function Header() {
+interface HeaderPropsI {
+	headers: string[];
+}
+
+function Header(props: HeaderPropsI) {
 	return (
-		<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+		<thead>
 			<tr>
-				<th scope="col" class="px-6 py-3">
+				{/*<For each={props.headers}>*/}
+				{/*	{(i) => <th scope="col">{i}</th>}*/}
+				{/*</For>*/}
+				<th scope="col" class="header-left">
 					Transaction amount
 				</th>
-				<th scope="col" class="px-6 py-3">
-					Currency
-				</th>
+				<th scope="col">Currency</th>
 				<th scope="col" class="px-6 py-3">
 					Date
 				</th>
-				<th scope="col" class="px-6 py-3">
-					Category
-				</th>
-				<th scope="col" class="px-6 py-3">
-					Notes
+				<th scope="col">Category</th>
+				<th scope="col">Notes</th>
+				<th scope="col" class="header-right">
+					Actions
 				</th>
 			</tr>
 		</thead>

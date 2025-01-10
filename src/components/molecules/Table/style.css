@@ -7,15 +7,40 @@
 }
 
 table {
-    @apply w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400;
+    @apply w-full text-sm text-left rtl:text-right text-gray-300;
+}
+
+thead {
+    @apply px-6 py-3;
+    @apply text-xs uppercase;
+    @apply bg-gray-700;
+}
+
+.header-left {
+    @apply rounded-tl-lg;
+}
+
+.header-right {
+    @apply px-1;
+    @apply rounded-tr-lg;
+}
+
+.actions-cell {
+    @apply px-1 text-center text-sm;
+}
+
+thead th {
+    @apply px-6 py-3;
 }
 
 tr {
-    @apply bg-white border-b dark:bg-gray-800 dark:border-gray-700;
+    @apply border-b;
+    @apply hover:bg-gray-700;
 }
 
 td {
     @apply px-6 py-4;
+    @apply border-b border-gray-700 bg-gray-800;
 }
 
 .no-data{
