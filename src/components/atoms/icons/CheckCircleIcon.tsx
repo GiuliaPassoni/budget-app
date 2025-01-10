@@ -1,7 +1,7 @@
 import "./style.css";
 import { IconPropsI } from "~/components/atoms/icons/helpers";
 
-export default function MusicIcon(props: IconPropsI = { style: "" }) {
+export default function CheckCircleIcon(props: IconPropsI = { style: "" }) {
 	return (
 		<svg
 			class={`icon-all ${props.style || ""}`}
@@ -12,7 +12,7 @@ export default function MusicIcon(props: IconPropsI = { style: "" }) {
 		>
 			<path
 				fill-rule="evenodd"
-				d="M12 5a7 7 0 0 0-7 7v1.17c.313-.11.65-.17 1-.17h2a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H6a3 3 0 0 1-3-3v-6a9 9 0 0 1 18 0v6a3 3 0 0 1-3 3h-2a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h2c.35 0 .687.06 1 .17V12a7 7 0 0 0-7-7Z"
+				d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
 				clip-rule="evenodd"
 			/>
 		</svg>

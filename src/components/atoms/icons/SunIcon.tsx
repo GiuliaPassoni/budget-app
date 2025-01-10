@@ -1,11 +1,10 @@
 import "./style.css";
+import { IconPropsI } from "~/components/atoms/icons/helpers";
 
-export default function SunIcon() {
+export default function SunIcon(props: IconPropsI = { style: "" }) {
 	return (
 		<svg
-			class="icon-all"
-			aria-hidden="true"
-			xmlns="http://www.w3.org/2000/svg"
+			class={`icon-all ${props.style || ""}`}
 			width="24"
 			height="24"
 			fill="currentColor"

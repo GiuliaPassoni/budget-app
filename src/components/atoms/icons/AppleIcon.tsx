@@ -1,9 +1,10 @@
 import "./style.css";
+import { IconPropsI } from "~/components/atoms/icons/helpers";
 
-export default function AppleIcon() {
+export default function AppleIcon(props: IconPropsI = { style: "" }) {
 	return (
 		<svg
-			class="icon-all"
+			class={`icon-all ${props.style || ""}`}
 			width="24"
 			height="24"
 			fill="currentColor"

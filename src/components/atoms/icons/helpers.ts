@@ -1,5 +1,9 @@
 import { JSX } from "solid-js";
 
+export interface IconPropsI {
+	style?: string;
+}
+
 const EXCLUDED_ICONS = ["edit", "spinner", "plus"];
 
 // Import all icon components in the current directory
