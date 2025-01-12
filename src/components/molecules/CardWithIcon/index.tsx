@@ -1,6 +1,5 @@
 import { createSignal, Show } from "solid-js";
-import { colorOptions } from "~/helpers/colour_helpers";
-import "./style.css";
+import styles from "./style.module.css";
 
 interface IProps {
 	icon: any;
@@ -30,11 +29,11 @@ export default function CardWithIcon(props: IProps) {
 	}
 
 	return (
-		<a href="#" onClick={handleClick} class="card">
-			<div class={`icon-container ${shadeClass()}`}>{icon()}</div>
-			<h4 class="description">{title()}</h4>
+		<a href="#" onClick={handleClick} class={styles.cardWithIcon}>
+			<div class={`${styles.iconContainer} ${shadeClass()}`}>{icon()}</div>
+			<h4 class={styles.description}>{title()}</h4>
 			<Show when={children()}>
-				<p class="children">{children()}</p>
+				<p class={styles.children}>{children()}</p>
 			</Show>
 		</a>
 	);

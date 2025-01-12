@@ -1,0 +1,23 @@
+.buttonStyle{
+    /*@apply inline-flex items-center;*/
+    @apply px-2 py-2;
+    @apply text-center;
+    @apply rounded-lg;
+    @apply text-white;
+    @apply focus:ring-2 focus:outline-none focus:ring-blue-800;
+}
+
+.primary {
+    @apply bg-blue-700;
+    @apply hover:bg-blue-800;
+}
+
+.secondary {
+    @apply bg-gray-700 border border-gray-400;
+    @apply hover:bg-gray-700;
+}
+
+.selected {
+    @apply bg-red-600;
+    /*@apply bg-gray-600;*/
+}

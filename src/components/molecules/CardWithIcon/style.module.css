@@ -1,17 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-.card {
+.cardWithIcon {
     @apply col-span-3;
-    @apply flex align-middle text-center items-center;
+    @apply flex flex-col align-middle text-center items-center;
     @apply m-0.5 p-2;
     @apply bg-transparent border-0;
     @apply text-white;
     max-width:12rem;
 }
 
-.icon-container {
+.iconContainer {
     @apply mx-auto rounded-lg p-3;
 }
 

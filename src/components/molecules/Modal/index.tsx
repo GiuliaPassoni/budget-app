@@ -1,7 +1,7 @@
 import { JSX } from "solid-js";
 import CloseModalIconButton from "~/components/atoms/CloseModalIconButton";
 
-import "./style.css";
+import styles from "./style.module.css";
 
 interface PropsI {
 	showModal: boolean;
@@ -16,20 +16,18 @@ export default function Modal(props: PropsI) {
 
 	return (
 		<div class={`${showModal() ? "flex" : "hidden"}`}>
-			<div id="default-styled-tab-content">
-				<div aria-hidden={showModal()} class="overlay">
-					<div class="modal-container">
-						{/*Modal content*/}
-						<div class="modal-content">
-							{/*Modal header*/}
-							<div class="header-container">
-								<h3 class="header">{props.headerTitle}</h3>
-								<CloseModalIconButton handleClick={handleClose()} />
-							</div>
-							{/*Modal body*/}
-							<div>
-								<form>{props.children}</form>
-							</div>
+			<div class={styles.overlay}>
+				<div class={styles.modalContainer}>
+					{/*Modal content*/}
+					<div class={styles.modalContent}>
+						{/*Modal header*/}
+						<div class={styles.headerContainer}>
+							<h3 class={styles.header}>{props.headerTitle}</h3>
+							<CloseModalIconButton handleClick={handleClose()} />
+						</div>
+						{/*Modal body*/}
+						<div>
+							<form>{props.children}</form>
 						</div>
 					</div>
 				</div>

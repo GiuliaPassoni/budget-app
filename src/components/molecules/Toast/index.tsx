@@ -1,6 +1,6 @@
 import CheckCircleIcon from "~/components/atoms/icons/CheckCircleIcon";
 import { createMemo, Show } from "solid-js";
-import "./style.css";
+import styles from "./style.module.css";
 import CloseModalIconButton from "~/components/atoms/CloseModalIconButton";
 import InfoIcon from "~/components/atoms/icons/InfoIcon";
 import WarningIcon from "~/components/atoms/icons/WarningIcon";
@@ -20,7 +20,6 @@ function capitalise(string: string) {
 export default function Toast(props: PropsI) {
 	const type = () => props.type;
 	const showModal = () => props.showModal;
-	const handleClose = () => props.handleClose;
 	const message = () => props.message;
 
 	const iconColour = createMemo(() => {
@@ -41,7 +40,7 @@ export default function Toast(props: PropsI) {
 	return (
 		<Show when={showModal()}>
 			<div
-				class="my-toast-container"
+				class={styles.myToastContainer}
 				role="alert"
 				inert={!showModal()}
 				aria-labelledby={message()}
@@ -50,7 +49,7 @@ export default function Toast(props: PropsI) {
 				{type() === "warning" && <WarningIcon style={iconColour()} />}
 				{type() === "info" && <InfoIcon style={iconColour()} />}
 				{type() === "error" && <XCircleErrorIcon style={iconColour()} />}
-				<div class="message">{capitalise(message())}</div>
+				<div class={styles.message}>{capitalise(message())}</div>
 				<CloseModalIconButton handleClick={props.handleClose} />
 			</div>
 		</Show>

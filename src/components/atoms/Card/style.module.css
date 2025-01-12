@@ -1,0 +1,11 @@
+.cardContainer {
+    @apply mx-auto max-w-sm p-6 bg-gray-800 border border-gray-400 rounded-lg shadow;
+}
+
+.cardTitle {
+    @apply mb-2 text-2xl font-bold tracking-tight;
+}
+
+.cardChildren {
+    @apply mb-3 font-normal;
+}
