@@ -4,7 +4,7 @@ export interface IconPropsI {
 	style?: string;
 }
 
-const EXCLUDED_ICONS = ["edit", "spinner", "plus"];
+const EXCLUDED_ICONS = ["edit", "spinner"];
 
 // Import all icon components in the current directory
 const icons = import.meta.glob("./*Icon.tsx", {
