@@ -5,7 +5,6 @@ export default function StarIcon(props: IconPropsI = { style: "" }) {
 	return (
 		<svg
 			class={`icon-all ${props.style || ""}`}
-			aria-hidden="true"
 			width="24"
 			height="24"
 			fill="currentColor"
