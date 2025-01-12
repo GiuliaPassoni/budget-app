@@ -4,7 +4,6 @@ import {
 	createSignal,
 	For,
 	onCleanup,
-	Show,
 } from "solid-js";
 import { toast, Toaster } from "solid-toast";
 import { addNewTransaction } from "~/helpers/expenses_api_helpers";
@@ -20,12 +19,8 @@ import { iconMap } from "~/components/atoms/icons/helpers";
 import Modal from "~/components/molecules/Modal";
 
 import styles from "./style.module.css";
-import Datepicker, {
-	convertDateToPickerValue,
-} from "~/components/atoms/Datepicker";
+import Datepicker from "~/components/atoms/Datepicker";
 import Button from "~/components/atoms/Button";
-import { PickerValue } from "@rnwonder/solid-date-picker";
-import { createStore } from "solid-js/store";
 
 interface ModalProps {
 	showModal: boolean;
@@ -229,10 +224,12 @@ export default function AddTransactionModal(props: ModalProps) {
 				</div>
 				<div class={styles.categoryContainer}>
 					<label for="category">Category</label>
-					<div class={styles.categoryGrid}>
+					{/*//todo fix scrollbar not showing. The issue is the OS.*/}
+					<div class={`${styles.categoryGrid} scrollbar-always`}>
 						<For each={categories()}>
 							{(i) => (
 								<CardWithIcon
+									selected={i.name === category()}
 									colour={i.colour}
 									title={i.name}
 									icon={i.iconName ? iconMap[i.iconName]?.() : ""}
@@ -244,8 +241,8 @@ export default function AddTransactionModal(props: ModalProps) {
 						</For>
 						{/*todo connect category modal, or handle the flow otherwise*/}
 						<CardWithIcon
-							colour="green"
-							title="Add category"
+							colour="gray"
+							title="More"
 							icon={iconMap["plus"]}
 							handleClick={() => {
 								showCategModal();

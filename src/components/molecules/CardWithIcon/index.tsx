@@ -5,6 +5,7 @@ interface IProps {
 	icon: any;
 	colour: string;
 	title: string;
+	selected?: boolean;
 	children?: any;
 	handleClick?(): void;
 }
@@ -29,12 +30,20 @@ export default function CardWithIcon(props: IProps) {
 	}
 
 	return (
-		<a href="#" onClick={handleClick} class={styles.cardWithIcon}>
-			<div class={`${styles.iconContainer} ${shadeClass()}`}>{icon()}</div>
-			<h4 class={styles.description}>{title()}</h4>
+		<button onClick={handleClick} class={`${styles.cardWithIcon}`}>
+			<div
+				class={`${styles.iconContainer} ${shadeClass()} ${props.selected ? styles.selectedCard : ""}`}
+			>
+				{icon()}
+			</div>
+			<h4
+				class={`${styles.description} ${props.selected ? styles.selectedCard : ""}`}
+			>
+				{title()}
+			</h4>
 			<Show when={children()}>
 				<p class={styles.children}>{children()}</p>
 			</Show>
-		</a>
+		</button>
 	);
 }
