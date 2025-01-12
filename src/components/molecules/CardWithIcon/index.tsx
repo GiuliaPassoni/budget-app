@@ -30,7 +30,13 @@ export default function CardWithIcon(props: IProps) {
 	}
 
 	return (
-		<button onClick={handleClick} class={`${styles.cardWithIcon}`}>
+		<button
+			onClick={(e) => {
+				e.preventDefault();
+				handleClick();
+			}}
+			class={`${styles.cardWithIcon}`}
+		>
 			<div
 				class={`${styles.iconContainer} ${shadeClass()} ${props.selected ? styles.selectedCard : ""}`}
 			>
