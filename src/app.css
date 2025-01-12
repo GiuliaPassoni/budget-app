@@ -45,3 +45,25 @@ p {
     max-width: none;
   }
 }
+
+/* to always show scrollbar */
+.scrollbar-always {
+  overflow-y: scroll !important;
+  -ms-overflow-style: scrollbar;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin; /* For Firefox */
+  /* For Webkit browsers (Chrome, Safari) */
+  &::-webkit-scrollbar {
+    width: 8px;
+    display: block !important;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+}

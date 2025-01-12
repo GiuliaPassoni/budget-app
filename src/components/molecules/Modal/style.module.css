@@ -40,6 +40,7 @@
 
 
 .modalContent select,
+.modalContent textarea,
 .modalContent input:not([class="date-picker-input"]) {
     @apply bg-transparent border-0 border-b border-gray-700 rounded-none;
     @apply text-left text-sm;
@@ -53,4 +54,8 @@
 
 .modalContent button[type="submit"] {
     @apply my-3 ml-36;
+}
+
+.modalContent textarea {
+    @apply bg-gray-700 rounded-lg;
 }
