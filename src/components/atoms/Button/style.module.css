@@ -18,6 +18,5 @@
 }
 
 .selected {
-    @apply bg-red-600;
-    /*@apply bg-gray-600;*/
+    @apply bg-blue-600;
 }

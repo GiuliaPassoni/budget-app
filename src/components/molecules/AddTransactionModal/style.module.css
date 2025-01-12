@@ -1,0 +1,20 @@
+.typeContainer {
+    @apply mx-auto px-4;
+}
+
+.amountDetailsContainer {
+    @apply w-full grid grid-cols-3 p-2 gap-1;
+}
+
+.amountDetailsContainer span{
+    @apply p-2;
+}
+
+.categoryGrid{
+    @apply grid grid-cols-12 gap-0;
+}
+
+.dateButtonsContainer {
+    @apply text-sm;
+    @apply w-full flex justify-between items-center;
+}

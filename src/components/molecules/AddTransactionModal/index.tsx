@@ -1,5 +1,11 @@
-import { createEffect, createSignal, For, onCleanup, Show } from "solid-js";
-import CloseModalIconButton from "~/components/atoms/CloseModalIconButton";
+import {
+	createEffect,
+	createMemo,
+	createSignal,
+	For,
+	onCleanup,
+	Show,
+} from "solid-js";
 import { toast, Toaster } from "solid-toast";
 import { addNewTransaction } from "~/helpers/expenses_api_helpers";
 import allCurrencies from "~/helpers/mock_values_helpers";
@@ -13,7 +19,13 @@ import AddCategoryModal from "~/components/molecules/AddCategoryModal";
 import { iconMap } from "~/components/atoms/icons/helpers";
 import Modal from "~/components/molecules/Modal";
 
-import "./style.css";
+import styles from "./style.module.css";
+import Datepicker, {
+	convertDateToPickerValue,
+} from "~/components/atoms/Datepicker";
+import Button from "~/components/atoms/Button";
+import { PickerValue } from "@rnwonder/solid-date-picker";
+import { createStore } from "solid-js/store";
 
 interface ModalProps {
 	showModal: boolean;
@@ -22,49 +34,67 @@ interface ModalProps {
 }
 // todo what about using the <dialog> feature for modals? Do some research
 
+const today = new Date();
+const yesterday = new Date(new Date().setDate(new Date().getDate() - 1));
+const twoDaysAgo = new Date(new Date().setDate(new Date().getDate() - 2));
+
+const isSameDay = (date1: Date, date2: Date) => {
+	return (
+		date1.getFullYear() === date2.getFullYear() &&
+		date1.getMonth() === date2.getMonth() &&
+		date1.getDate() === date2.getDate()
+	);
+};
+
 export default function AddTransactionModal(props: ModalProps) {
 	const showModal = () => props.showModal;
 
 	const [method, setMethod] = createSignal<TransactionType>("expenses");
+	const [date, setDate] = createSignal<Date>(new Date());
 	const [amount, setAmount] = createSignal(0);
 	const [currency, setCurrency] = createSignal("EUR");
 	const [exchange, setExchange] = createSignal(1);
 	const [category, setCategory] = createSignal("");
 	const [note, setNote] = createSignal("");
 
-	/*
-	 * 11.11.24 mutations and queries may only be used in the component, but only at the component's scope level, not nested.
-	 * If used within e.g. a function declared within the component, e.g. handleSubmit(), the queryClient isn't available within the
-	 * handleSubmit scope, even though it should (and is) available globally.
-	 * For example, the below will log and execute correctly:
-	 * console.debug(
-		"hello",
-		createMutation(() => ({
-			mutationKey: ["add-transaction"],
-			mutationFn: () => {
-				return addNewTransaction({
-					transactionType: "expenses",
-					transaction: {
-						id: "string",
-						amount: 1,
-						currency: "string",
-						exchange_to_default: 1,
-						notes: "string",
-						date: new Date(),
-						ctg_name: "string",
-					},
-				});
-			},
-		})),
-	);
-	 * But the same declaration inside a function handleSubmit(){} declaration will not work.
-	 *  */
-
 	const [showCategModal, setShowCategModal] = createSignal<boolean>(false);
 	function handleTabClick(prop: TransactionType) {
 		setMethod(prop);
 		test();
 	}
+
+	const dates = createMemo(() => {
+		// If selected date is not today or yesterday, show it in the third slot
+		const selectedDate = date();
+		const isSelectedTodayOrYesterday =
+			isSameDay(selectedDate, today) || isSameDay(selectedDate, yesterday);
+		const thirdDate = isSelectedTodayOrYesterday ? twoDaysAgo : selectedDate;
+		const thirdLabel = isSelectedTodayOrYesterday ? "2 days ago" : "selected";
+
+		return [
+			{ label: "today", date: today },
+			{ label: "yesterday", date: yesterday },
+			{ label: thirdLabel, date: thirdDate },
+		];
+	});
+
+	const isButtonSelected = (buttonDate: Date) => {
+		const selectedDate = date();
+		const today = new Date();
+		const yesterday = new Date(new Date().setDate(new Date().getDate() - 1));
+
+		// If date is today or yesterday, only those buttons can be selected
+		if (isSameDay(selectedDate, today) || isSameDay(selectedDate, yesterday)) {
+			return isSameDay(selectedDate, buttonDate);
+		}
+
+		// Otherwise, only the third button can be selected
+		return (
+			isSameDay(selectedDate, buttonDate) &&
+			!isSameDay(buttonDate, today) &&
+			!isSameDay(buttonDate, yesterday)
+		);
+	};
 
 	async function test() {
 		return await getCategories();
@@ -136,10 +166,9 @@ export default function AddTransactionModal(props: ModalProps) {
 	}
 
 	createEffect(() => {
+		console.debug("date", date());
 		listenForCategoryUpdates(); // Set up real-time listener
 	});
-
-	// TODO add datepicker to transaction and modal
 
 	return (
 		<div>
@@ -148,7 +177,7 @@ export default function AddTransactionModal(props: ModalProps) {
 				headerTitle="Add Transaction"
 				handleClose={props.handleClose}
 			>
-				<div class="amount-details-container">
+				<div class={styles.amountDetailsContainer}>
 					<span id="transaction-type-container">
 						<label for="type">Type</label>
 						<select
@@ -156,8 +185,8 @@ export default function AddTransactionModal(props: ModalProps) {
 								handleTabClick(e.target.value as TransactionType);
 							}}
 							required={true}
-							id="category"
-							class="formElements"
+							id="typeSelect"
+							class={styles.formElements}
 						>
 							<For each={["expenses", "income", "investments"]}>
 								{(i) => <option value={i}>{i}</option>}
@@ -167,8 +196,7 @@ export default function AddTransactionModal(props: ModalProps) {
 					<span>
 						<label for="price">Amount</label>
 						<input
-							class="bg-gray-800 border border-gray-700 rounded-lg text-right text-sm focus:ring-2 focus:ring-gray-700 focus:border-gray-800 block w-full p-2.5 text-gray-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-							id="price"
+							id="priceInput"
 							type="number"
 							name="price"
 							placeholder="0,00"
@@ -180,14 +208,14 @@ export default function AddTransactionModal(props: ModalProps) {
 						/>
 					</span>
 					<span>
-						<label for="category">Currency</label>
+						<label for="currency">Currency</label>
 						<select
 							onChange={(e) => {
 								setCurrency(e.target.value);
 							}}
 							required={true}
-							id="category"
-							class="formElements"
+							id="currencySelect"
+							class={styles.formElements}
 						>
 							<For each={allCurrencies}>
 								{(i) => (
@@ -199,9 +227,9 @@ export default function AddTransactionModal(props: ModalProps) {
 						</select>
 					</span>
 				</div>
-				<div class="category-container">
+				<div class={styles.categoryContainer}>
 					<label for="category">Category</label>
-					<div class="category-grid">
+					<div class={styles.categoryGrid}>
 						<For each={categories()}>
 							{(i) => (
 								<CardWithIcon
@@ -226,9 +254,32 @@ export default function AddTransactionModal(props: ModalProps) {
 					</div>
 				</div>
 				<div>
+					<label for="date">Transaction Date</label>
+					<div class={styles.dateButtonsContainer}>
+						<For each={dates()}>
+							{(item) => (
+								<Button
+									type="button"
+									styleClass={`secondary w-1/4 ${isButtonSelected(item.date) ? "selected" : ""}`}
+									onClick={() => setDate(item.date)}
+								>
+									<h3>
+										{(item.date as Date).toLocaleDateString("en-GB", {
+											day: "2-digit",
+											month: "2-digit",
+										})}
+									</h3>
+									<p>{item.label}</p>
+								</Button>
+							)}
+						</For>
+						<Datepicker date={date} setDate={setDate} />
+					</div>
+				</div>
+				<div>
 					<label for="description">Transaction Notes</label>
 					<textarea
-						class="formElements"
+						class={styles.formElements}
 						id="description"
 						rows="1"
 						placeholder=""
