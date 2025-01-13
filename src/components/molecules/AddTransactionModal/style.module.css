@@ -10,10 +10,7 @@
     @apply p-2;
 }
 
-.categoryContainer {
-    /*todo fix scrollbar only visible when hovering, it's an OS issue*/
-    @apply overflow-scroll;
-}
+.categoryContainer {}
 
 .categoryGrid{
     @apply grid grid-cols-12 gap-0;
@@ -23,4 +20,8 @@
 .dateButtonsContainer {
     @apply text-sm;
     @apply w-full flex justify-between items-center;
+}
+
+.tagsContainer{
+    @apply grid grid-cols-6;
 }

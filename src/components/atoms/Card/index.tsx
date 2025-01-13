@@ -1,6 +1,12 @@
 import styles from "./style.module.css";
+import { JSX } from "solid-js";
 
-export default function Card(props: any) {
+interface CardPropsI {
+	title?: string;
+	children?: JSX.Element | string;
+}
+
+export default function Card(props: CardPropsI) {
 	return (
 		<>
 			<div class={styles.cardContainer}>
