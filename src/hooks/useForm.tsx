@@ -1,6 +1,6 @@
 import { createStore, produce } from "solid-js/store";
 import { useNavigate } from "@solidjs/router";
-import { handleSignIn, handleSignUp } from "~/helpers/auth_helpers";
+import { handleSignIn, registerUser } from "~/api/auth";
 import addUser from "~/helpers/db_helpers";
 import {
 	ButtonI,
@@ -94,7 +94,7 @@ export default function useForm<T extends FormDataType>(initialForm: T) {
 				return callback(form);
 			}
 			if (type === "signup") {
-				const user = await handleSignUp({
+				const user = await registerUser({
 					email: form.email,
 					password: form.password,
 				});
