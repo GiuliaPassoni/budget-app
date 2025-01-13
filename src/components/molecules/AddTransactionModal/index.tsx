@@ -21,6 +21,7 @@ import Modal from "~/components/molecules/Modal";
 import styles from "./style.module.css";
 import Datepicker from "~/components/atoms/Datepicker";
 import Button from "~/components/atoms/Button";
+import PlusIcon from "~/components/atoms/icons/PlusIcon";
 
 interface ModalProps {
 	showModal: boolean;
@@ -117,6 +118,10 @@ export default function AddTransactionModal(props: ModalProps) {
 			toast.error("Missing input");
 		}
 	}
+
+	// todo hanlde tags in database. for now, use dummy
+	const dummyTags = ["flights", "Lidl", "train", "coffee"];
+	const [tags, setTags] = createSignal(dummyTags);
 
 	const [categories, setCategories] = createSignal<CategoryI[] | undefined>([]);
 	// todo use errors and loading states
@@ -271,6 +276,24 @@ export default function AddTransactionModal(props: ModalProps) {
 							)}
 						</For>
 						<Datepicker date={date} setDate={setDate} />
+					</div>
+				</div>
+				<div>
+					<label for="tags">Tags</label>
+					<div class={styles.tagsContainer}>
+						<For each={tags()}>
+							{(i) => (
+								<Button styleClass="secondary" onClick={() => setTags(i)}>
+									#{i}
+								</Button>
+							)}
+						</For>
+						<Button
+							onClick={(e) => dummyTags.push(e.target.value)}
+							leftIcon={<PlusIcon />}
+						>
+							Add me
+						</Button>
 					</div>
 				</div>
 				<div>
