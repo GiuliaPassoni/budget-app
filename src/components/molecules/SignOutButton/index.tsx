@@ -2,7 +2,7 @@ import { Toaster } from "solid-toast";
 import Avatar from "~/components/atoms/Avatar";
 import { Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
-import { handleLogOut } from "~/helpers/auth_helpers";
+import { handleLogOut } from "~/api/auth";
 import { auth } from "~/firebase";
 import Button from "~/components/atoms/Button";
 

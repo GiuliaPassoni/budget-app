@@ -4,21 +4,22 @@ import {
 	onAuthStateChanged,
 } from "firebase/auth";
 import { toast } from "solid-toast";
-import { auth, setCurrentUser } from "~/firebase";
+import { auth, db, setCurrentUser } from "~/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
-export interface SignUpPropsI {
+export interface RegisterPropsI {
 	email: string;
 	password: string;
 }
 
-async function handleSignUp({ email, password }: SignUpPropsI) {
-	const userCredential = await createUserWithEmailAndPassword(
+async function registerUser({ email, password }: RegisterPropsI) {
+	const userCredentials = await createUserWithEmailAndPassword(
 		auth,
 		email,
 		password,
 	);
 	try {
-		const user = userCredential.user;
+		const user = userCredentials.user;
 		toast.success("User signed up successfully");
 		return user;
 	} catch (error: any) {
@@ -83,4 +84,11 @@ function getUserInfo() {
 	});
 }
 
-export { handleSignUp, handleSignIn, handleLogOut, getUserInfo };
+export const getUsers = async () => {
+	const usersCollec = collection(db, "users"),
+		userSnap = await getDocs(usersCollec),
+		usersList = userSnap.docs.map((doc) => doc.data());
+	return usersList;
+};
+
+export { registerUser, handleSignIn, handleLogOut, getUserInfo };

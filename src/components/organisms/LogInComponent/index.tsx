@@ -1,7 +1,7 @@
 import { createSignal } from "solid-js";
 import { Toaster } from "solid-toast";
 import { useNavigate } from "@solidjs/router";
-import { handleSignIn } from "~/helpers/auth_helpers";
+import { handleSignIn } from "~/api/auth";
 
 import "./style.css";
 import { DOMElement } from "solid-js/jsx-runtime";
