@@ -30,7 +30,10 @@ export default function Button(props: IProps) {
 		<button
 			id={id() ?? ""}
 			type={type() ?? undefined}
-			onClick={props.onClick} //todo check if this still works, else, revert to props.onClick
+			onClick={(e) => {
+				e.preventDefault();
+				props.onClick();
+			}}
 			class={`${styles.buttonStyle} ${classParser}`}
 			disabled={disabled()}
 		>

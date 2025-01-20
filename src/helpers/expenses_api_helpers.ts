@@ -17,6 +17,7 @@ export interface TransactionI {
 	notes: string;
 	date: any;
 	ctg_name: string;
+	tags?: string[];
 }
 
 // TODO add date to type and methods

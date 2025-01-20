@@ -1,15 +1,16 @@
 import { createStore, produce } from "solid-js/store";
 import { useNavigate } from "@solidjs/router";
-import { handleSignIn, registerUser } from "~/api/auth";
-import addUser from "~/helpers/db_helpers";
+import { handleAuthenticate, handleLogIn, handleRegister } from "~/api/auth";
+import addUser from "~/api/auth";
 import {
-	ButtonI,
 	InputI,
 	FormDataType,
 	SubmitCallback,
 	FormErrors,
 	ValidatorType,
 	ValidatorFieldConfig,
+	RegisterForm,
+	AuthForm,
 } from "~/helpers/forms/formTypes";
 import JSX from "solid-js";
 
@@ -23,7 +24,6 @@ declare module "solid-js/jsx-runtime" {
 }
 
 interface PropsI<T extends FormDataType> {
-	e: ButtonI;
 	type: "signup" | "login";
 	callback?: SubmitCallback<T>;
 }
@@ -68,11 +68,8 @@ export default function useForm<T extends FormDataType>(initialForm: T) {
 
 	function checkValidity({ element, validators }: ValidatorFieldConfig) {
 		setErrors(element.name, []);
-		console.debug("checkValidity", element.name, errors[element.name]);
-
 		for (const validator of validators) {
 			const errorMessage = validator(element);
-			console.log("errorMessage", errorMessage);
 			if (!!errorMessage) {
 				setErrors(
 					produce((errors) => {
@@ -83,8 +80,10 @@ export default function useForm<T extends FormDataType>(initialForm: T) {
 		}
 	}
 
-	async function handleSubmit({ e, type, callback }: PropsI<FormDataType>) {
-		e.preventDefault();
+	async function handleSubmit({
+		type,
+		callback,
+	}: PropsI<FormDataType | RegisterForm | AuthForm>) {
 		for (const field in validatorFields) {
 			const config = validatorFields[field];
 			checkValidity(config);
@@ -93,15 +92,14 @@ export default function useForm<T extends FormDataType>(initialForm: T) {
 			if (callback) {
 				return callback(form);
 			}
-			if (type === "signup") {
-				const user = await registerUser({
-					email: form.email,
-					password: form.password,
-				});
-				await addUser({ user });
-			} else {
-				await handleSignIn({ email: form.email, password: form.password });
-			}
+
+			await handleAuthenticate({ form, type });
+			// if (type === "signup") {
+			// 	const user = await handleRegister(form as unknown as RegisterForm);
+			//		addUser(user)
+			// } else {
+			// 	await handleLogIn(form as unknown as AuthForm);
+			// }
 			navigate("/auth/overview");
 		}
 	}
