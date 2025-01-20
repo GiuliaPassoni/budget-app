@@ -15,16 +15,9 @@ export default function SignOutButton() {
 			<Button
 				styleClass="secondary"
 				text="Sign out button"
-				leftIcon={
-					<Avatar
-						email={user?.email}
-						name={user?.displayName}
-						pic={user?.photoURL}
-					/>
-				}
-				onClick={() => {
-					navigate("/overview");
-					handleLogOut({ userName: user?.email });
+				onClick={async () => {
+					await handleLogOut();
+					navigate("/auth/overview");
 				}}
 			/>
 			<Toaster />
