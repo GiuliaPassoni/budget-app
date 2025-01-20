@@ -8,3 +8,7 @@ export interface CategoryI {
 	iconName?: keyof typeof iconMap;
 	type: TransactionType;
 }
+
+export interface CategoryWithId extends CategoryI {
+	id: string;
+}

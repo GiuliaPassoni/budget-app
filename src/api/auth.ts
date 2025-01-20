@@ -29,6 +29,7 @@ async function handleRegister(form: RegisterForm) {
 		// save user in db
 		await setDoc(doc(db, "users", registeredUser.uid), user);
 		await addUser({ user });
+		setCurrentUser(user);
 		toast.success("User signed up successfully");
 		return registeredUser;
 	} catch (error: any) {

@@ -6,11 +6,14 @@ import {
 	onCleanup,
 } from "solid-js";
 import { toast, Toaster } from "solid-toast";
-import { addNewTransaction } from "~/helpers/expenses_api_helpers";
+import {
+	addNewTransaction,
+	TransactionI,
+} from "~/helpers/expenses_api_helpers";
 import allCurrencies from "~/helpers/mock_values_helpers";
 import PlusIconButton from "~/components/atoms/PlusIconButton";
 import CardWithIcon from "~/components/molecules/CardWithIcon";
-import { CategoryI, TransactionType } from "~/helpers/types";
+import { CategoryI, CategoryWithId, TransactionType } from "~/helpers/types";
 import { getCategories } from "~/helpers/categories_api_helpers";
 import { currentUser, db } from "~/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
@@ -21,7 +24,8 @@ import Modal from "~/components/molecules/Modal";
 import styles from "./style.module.css";
 import Datepicker from "~/components/atoms/Datepicker";
 import Button from "~/components/atoms/Button";
-import PlusIcon from "~/components/atoms/icons/PlusIcon";
+import { createStore } from "solid-js/store";
+import { useFirebaseCollection } from "~/hooks/useFirebaseCollection";
 
 interface ModalProps {
 	showModal: boolean;
@@ -45,17 +49,18 @@ const isSameDay = (date1: Date, date2: Date) => {
 export default function AddTransactionModal(props: ModalProps) {
 	const showModal = () => props.showModal;
 
-	const [method, setMethod] = createSignal<TransactionType>("expenses");
 	const [date, setDate] = createSignal<Date>(new Date());
-	const [amount, setAmount] = createSignal(0);
-	const [currency, setCurrency] = createSignal("EUR");
-	const [exchange, setExchange] = createSignal(1);
-	const [category, setCategory] = createSignal("");
-	const [note, setNote] = createSignal("");
-
+	const [transaction, setTransaction] = createStore<Pick<TransactionI, any>>({
+		method: "expenses",
+		amount: 0,
+		currency: "EUR",
+		exchange: 1,
+		category: "",
+		notes: "",
+	});
 	const [showCategModal, setShowCategModal] = createSignal<boolean>(false);
 	function handleTabClick(prop: TransactionType) {
-		setMethod(prop);
+		setTransaction("method", prop);
 		test();
 	}
 
@@ -98,77 +103,43 @@ export default function AddTransactionModal(props: ModalProps) {
 
 	async function handleSubmit() {
 		// TODO refactor the below to be all props of one single signal-object
-		if (amount() && currency() && exchange() && category()) {
-			const transaction = {
-				amount: amount(),
-				currency: currency(),
-				exchange_to_default: exchange(),
-				notes: note(),
+		const { amount, currency, exchange, category, method } = transaction;
+		if (amount && currency && exchange && category) {
+			const newTransaction = {
+				amount,
+				currency,
+				exchange_to_default: exchange,
+				notes: transaction.notes,
 				date: new Date(),
-				ctg_name: category(),
+				ctg_name: category,
 			};
 			if (!method) {
 				toast.error("Please specify transaction type");
 			} else {
-				props.onSubmit
-					? props.onSubmit()
-					: await addNewTransaction({ transactionType: method(), transaction });
+				if (props.onSubmit) {
+					props.onSubmit;
+				}
+				await addNewTransaction({
+					transactionType: method,
+					transaction: newTransaction,
+				});
+				props.handleClose();
 			}
 		} else {
 			toast.error("Missing input");
 		}
 	}
 
-	// todo hanlde tags in database. for now, use dummy
-	const dummyTags = ["flights", "Lidl", "train", "coffee"];
-	const [tags, setTags] = createSignal(dummyTags);
+	// // todo hanlde tags in database. for now, use dummy
+	// const dummyTags = ["flights", "Lidl", "train", "coffee"];
+	// const [tags, setTags] = createSignal(dummyTags);
 
-	const [categories, setCategories] = createSignal<CategoryI[] | undefined>([]);
-	// todo use errors and loading states
-	// todo write cleaner code instead of copy-pasting solution from overview page
-	const [loading, setLoading] = createSignal(true);
-	const [error, setError] = createSignal("");
-
-	// Function to handle real-time updates
-	function listenForCategoryUpdates() {
-		const userId = currentUser(); // Get the current user ID
-
-		if (!userId) {
-			setError("User not logged in");
-			setLoading(false);
-			return;
-		}
-
-		const categoriesCollection = collection(db, "users", userId, "categories");
-
-		const unsubscribe = onSnapshot(
-			categoriesCollection,
-			(snapshot) => {
-				const categoriesList = snapshot.docs.map((doc) => {
-					const data = doc.data() as CategoryI; // Explicitly cast to TransactionI
-					return {
-						...data,
-						id: doc.id,
-					};
-				});
-				setCategories(categoriesList);
-				setLoading(false);
-			},
-			(err) => {
-				setError("Failed to load categories");
-				console.error(err);
-				setLoading(false);
-			},
-		);
-
-		// Cleanup listener on component unmount
-		onCleanup(() => unsubscribe());
-	}
-
-	createEffect(() => {
-		console.debug("date", date());
-		listenForCategoryUpdates(); // Set up real-time listener
-	});
+	const { data: categories } = useFirebaseCollection<CategoryWithId, CategoryI>(
+		{
+			db,
+			collectionPath: [`users/${currentUser()}/categories`],
+		},
+	);
 
 	return (
 		<div>
@@ -203,15 +174,16 @@ export default function AddTransactionModal(props: ModalProps) {
 							required={true}
 							onBlur={(e) => {
 								e.preventDefault();
-								setAmount(Number(e.target.value));
+								setTransaction("amount", Number(e.target.value));
 							}}
 						/>
 					</span>
 					<span>
 						<label for="currency">Currency</label>
+						{/*todo add exchange api*/}
 						<select
 							onChange={(e) => {
-								setCurrency(e.target.value);
+								setTransaction("currency", e.target.value);
 							}}
 							required={true}
 							id="currencySelect"
@@ -234,12 +206,12 @@ export default function AddTransactionModal(props: ModalProps) {
 						<For each={categories()}>
 							{(i) => (
 								<CardWithIcon
-									selected={i.name === category()}
+									selected={i.name === transaction.category}
 									colour={i.colour}
 									title={i.name}
 									icon={i.iconName ? iconMap[i.iconName]?.() : ""}
 									handleClick={() => {
-										setCategory(i.name);
+										setTransaction("category", i.name);
 									}}
 								/>
 							)}
@@ -278,24 +250,24 @@ export default function AddTransactionModal(props: ModalProps) {
 						<Datepicker date={date} setDate={setDate} />
 					</div>
 				</div>
-				<div>
-					<label for="tags">Tags</label>
-					<div class={styles.tagsContainer}>
-						<For each={tags()}>
-							{(i) => (
-								<Button styleClass="secondary" onClick={() => setTags(i)}>
-									#{i}
-								</Button>
-							)}
-						</For>
-						<Button
-							onClick={(e) => dummyTags.push(e.target.value)}
-							leftIcon={<PlusIcon />}
-						>
-							Add me
-						</Button>
-					</div>
-				</div>
+				{/*<div>*/}
+				{/*	<label for="tags">Tags</label>*/}
+				{/*	<div class={styles.tagsContainer}>*/}
+				{/*		<For each={tags()}>*/}
+				{/*			{(i) => (*/}
+				{/*				<Button styleClass="secondary" onClick={() => setTags(i)}>*/}
+				{/*					#{i}*/}
+				{/*				</Button>*/}
+				{/*			)}*/}
+				{/*		</For>*/}
+				{/*		<Button*/}
+				{/*			onClick={(e) => dummyTags.push(e.target.value)}*/}
+				{/*			leftIcon={<PlusIcon />}*/}
+				{/*		>*/}
+				{/*			Add me*/}
+				{/*		</Button>*/}
+				{/*	</div>*/}
+				{/*</div>*/}
 				<div>
 					<label for="description">Transaction Notes</label>
 					<textarea
@@ -303,8 +275,7 @@ export default function AddTransactionModal(props: ModalProps) {
 						id="description"
 						rows="1"
 						placeholder=""
-						value={note()}
-						onBlur={(e) => setNote(e.target.value)}
+						onBlur={(e) => setTransaction("notes", e.target.value)}
 					></textarea>
 				</div>
 				{/*tooltip doesn't work, may be hiding behind modal*/}
@@ -314,7 +285,6 @@ export default function AddTransactionModal(props: ModalProps) {
 					handleClick={async (e: Event) => {
 						e.preventDefault();
 						await handleSubmit();
-						props.handleClose();
 					}}
 					title="Add new transaction"
 				/>
