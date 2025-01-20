@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.container{
+    /*@apply grid grid-cols-3 md:grid-cols-3 gap-4;*/
+}
+
+.categoryGrid{
+    @apply grid grid-cols-12 gap-0;
+}
