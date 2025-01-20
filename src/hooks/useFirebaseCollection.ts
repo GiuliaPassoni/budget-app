@@ -1,11 +1,4 @@
-// First, make sure your CategoryI interface includes id
-interface CategoryI {
-	id: string; // Required by the hook
-	name: string;
-	// ... other properties
-}
-
-import { createSignal, onCleanup } from "solid-js";
+import { createSignal, createEffect, onCleanup } from "solid-js";
 import {
 	collection,
 	onSnapshot,
@@ -19,10 +12,10 @@ import {
 	Firestore,
 } from "firebase/firestore";
 
-// Modified to handle both input and output types
 interface UseFirebaseCollectionProps<TInput, TOutput extends { id: string }> {
 	db: Firestore;
-	collectionPath: string[];
+	collectionPath: () => string[] | undefined; // Now accepts a function that returns path segments
+	requireAuth?: boolean;
 	transform?: (data: DocumentData & { id: string }) => TOutput;
 }
 
@@ -42,6 +35,7 @@ export function useFirebaseCollection<
 >({
 	db,
 	collectionPath,
+	requireAuth = true,
 	transform = (data) => ({ ...data }) as TOutput,
 }: UseFirebaseCollectionProps<TInput, TOutput>): UseFirebaseCollectionReturn<
 	TInput,
@@ -50,28 +44,48 @@ export function useFirebaseCollection<
 	const [data, setData] = createSignal<TOutput[]>([]);
 	const [loading, setLoading] = createSignal(true);
 	const [error, setError] = createSignal<string | null>(null);
+	let unsubscribe: (() => void) | undefined;
 
-	const getCollectionRef = (): CollectionReference<DocumentData> => {
-		let ref: CollectionReference<DocumentData> = collection(
-			db,
-			collectionPath[0],
-		);
-		for (let i = 1; i < collectionPath.length; i++) {
-			ref = collection(ref, collectionPath[i]);
-		}
-		return ref;
+	const getCollectionRef = (): CollectionReference<DocumentData> | null => {
+		const path = collectionPath();
+		if (!path) return null;
+
+		const fullPath = path.join("/");
+		return collection(db, fullPath);
 	};
 
-	const getDocRef = (id: string): DocumentReference<DocumentData> => {
-		return doc(getCollectionRef(), id);
+	const getDocRef = (id: string): DocumentReference<DocumentData> | null => {
+		const collectionRef = getCollectionRef();
+		if (!collectionRef) return null;
+		return doc(collectionRef, id);
 	};
 
 	const setupListener = () => {
 		setLoading(true);
 		setError(null);
 
+		// Cleanup previous listener if it exists
+		if (unsubscribe) {
+			unsubscribe();
+		}
+
+		const path = collectionPath();
+		if (!path) {
+			if (requireAuth) {
+				setError("User not authenticated");
+			}
+			setLoading(false);
+			return;
+		}
+
 		const collectionRef = getCollectionRef();
-		const unsubscribe = onSnapshot(
+		if (!collectionRef) {
+			setError("Invalid collection path");
+			setLoading(false);
+			return;
+		}
+
+		unsubscribe = onSnapshot(
 			collectionRef,
 			(snapshot) => {
 				const items = snapshot.docs.map((doc) => {
@@ -81,18 +95,19 @@ export function useFirebaseCollection<
 				setLoading(false);
 			},
 			(err) => {
-				setError(`Failed to load ${collectionPath.join("/")}: ${err.message}`);
+				setError(`Failed to load collection: ${err.message}`);
 				console.error(err);
 				setLoading(false);
 			},
 		);
-
-		onCleanup(() => unsubscribe());
 	};
 
 	const add = async (item: TInput): Promise<string> => {
+		const collectionRef = getCollectionRef();
+		if (!collectionRef) throw new Error("Invalid collection reference");
+
 		try {
-			const docRef = await addDoc(getCollectionRef(), item);
+			const docRef = await addDoc(collectionRef, item);
 			return docRef.id;
 		} catch (err) {
 			const error = err as Error;
@@ -102,8 +117,11 @@ export function useFirebaseCollection<
 	};
 
 	const update = async (id: string, item: Partial<TInput>): Promise<void> => {
+		const docRef = getDocRef(id);
+		if (!docRef) throw new Error("Invalid document reference");
+
 		try {
-			await updateDoc(getDocRef(id), item as DocumentData);
+			await updateDoc(docRef, item as DocumentData);
 		} catch (err) {
 			const error = err as Error;
 			setError(`Failed to update document: ${error.message}`);
@@ -112,8 +130,11 @@ export function useFirebaseCollection<
 	};
 
 	const remove = async (id: string): Promise<void> => {
+		const docRef = getDocRef(id);
+		if (!docRef) throw new Error("Invalid document reference");
+
 		try {
-			await deleteDoc(getDocRef(id));
+			await deleteDoc(docRef);
 		} catch (err) {
 			const error = err as Error;
 			setError(`Failed to delete document: ${error.message}`);
@@ -121,7 +142,17 @@ export function useFirebaseCollection<
 		}
 	};
 
-	setupListener();
+	// Setup effect to watch for path changes
+	createEffect(() => {
+		setupListener();
+	});
+
+	// Cleanup on unmount
+	onCleanup(() => {
+		if (unsubscribe) {
+			unsubscribe();
+		}
+	});
 
 	return {
 		data,

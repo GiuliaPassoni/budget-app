@@ -1,10 +1,4 @@
-import {
-	createEffect,
-	createMemo,
-	createSignal,
-	For,
-	onCleanup,
-} from "solid-js";
+import { createMemo, createSignal, For } from "solid-js";
 import { toast, Toaster } from "solid-toast";
 import {
 	addNewTransaction,
@@ -16,7 +10,6 @@ import CardWithIcon from "~/components/molecules/CardWithIcon";
 import { CategoryI, CategoryWithId, TransactionType } from "~/helpers/types";
 import { getCategories } from "~/helpers/categories_api_helpers";
 import { currentUser, db } from "~/firebase";
-import { collection, onSnapshot } from "firebase/firestore";
 import AddCategoryModal from "~/components/molecules/AddCategoryModal";
 import { iconMap } from "~/components/atoms/icons/helpers";
 import Modal from "~/components/molecules/Modal";
@@ -134,10 +127,13 @@ export default function AddTransactionModal(props: ModalProps) {
 	// const dummyTags = ["flights", "Lidl", "train", "coffee"];
 	// const [tags, setTags] = createSignal(dummyTags);
 
-	const { data: categories } = useFirebaseCollection<CategoryWithId, CategoryI>(
+	const { data: categories } = useFirebaseCollection<CategoryI, CategoryWithId>(
 		{
 			db,
-			collectionPath: [`users/${currentUser()}/categories`],
+			collectionPath: () => {
+				const userId = currentUser();
+				return userId ? [`users/${currentUser()}/categories`] : undefined;
+			},
 		},
 	);
 
@@ -222,7 +218,7 @@ export default function AddTransactionModal(props: ModalProps) {
 							title="More"
 							icon={iconMap["plus"]}
 							handleClick={() => {
-								showCategModal();
+								setShowCategModal(true);
 							}}
 						/>
 					</div>

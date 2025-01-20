@@ -20,6 +20,10 @@ export interface TransactionI {
 	tags?: string[];
 }
 
+export interface TransactionWithId extends TransactionI {
+	id: string;
+}
+
 // TODO add date to type and methods
 export interface TransactionPropsI {
 	transactionType: TransactionType;
