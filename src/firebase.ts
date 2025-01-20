@@ -4,9 +4,6 @@ import { getFirestore, collection, getDocs, addDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { createSignal } from "solid-js";
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -32,6 +29,7 @@ export { app, auth, db };
 
 export { currentUser, setCurrentUser };
 
+// todo this duplicates the auth store. Fix.
 onAuthStateChanged(auth, (firebaseUser) => {
 	if (firebaseUser !== null) {
 		console.debug("state changed", firebaseUser.uid);

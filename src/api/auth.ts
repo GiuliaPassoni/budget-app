@@ -5,73 +5,81 @@ import {
 } from "firebase/auth";
 import { toast } from "solid-toast";
 import { auth, db, setCurrentUser } from "~/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, doc, getDocs, setDoc, getDoc } from "firebase/firestore";
+import { AuthForm, RegisterForm } from "~/helpers/forms/formTypes";
+import { UserI } from "~/api/auth_types";
 
-export interface RegisterPropsI {
-	email: string;
-	password: string;
-}
-
-async function registerUser({ email, password }: RegisterPropsI) {
-	const userCredentials = await createUserWithEmailAndPassword(
+async function handleRegister(form: RegisterForm) {
+	const { user: registeredUser } = await createUserWithEmailAndPassword(
 		auth,
-		email,
-		password,
+		form.email,
+		form.password,
 	);
 	try {
-		const user = userCredentials.user;
+		// save user data to follow the UserI interface
+		const user: UserI = {
+			uid: registeredUser.uid,
+			name: form.name,
+			email: form.email,
+			password: form.password,
+			// avatar: form.avatar,
+			selected_currency: "",
+		};
+
+		// save user in db
+		await setDoc(doc(db, "users", registeredUser.uid), user);
+		await addUser({ user });
 		toast.success("User signed up successfully");
-		return user;
+		return registeredUser;
 	} catch (error: any) {
 		const errorCode = error.code;
 		const errorMessage = error.message;
 		toast.error(errorMessage, errorCode);
 	}
 	// then - catch !== async - await + try and catch
-	// .then((userCredential) => {
-
-	// 	toast.success("User signed up successfully");
-	// })
-	// .catch((error) => {
-
-	// });
 }
 
-export interface SignInProps {
-	email: string;
-	password: string;
+async function handleLogIn(form: AuthForm) {
+	console.debug("hi");
+	const { user: registeredUser } = await signInWithEmailAndPassword(
+		auth,
+		form.email,
+		form.password,
+	);
+	try {
+		toast.success(`User ${registeredUser.email} has signed in`);
+	} catch (error: any) {
+		const errorMessage = error.message;
+		toast.error(errorMessage);
+	}
 }
 
-function handleSignIn({ email, password }: SignInProps) {
-	signInWithEmailAndPassword(auth, email, password)
-		.then((userCredential) => {
-			const user = userCredential.user;
-			toast.success(`User ${user.email} has signed in`);
-		})
-		.catch((error) => {
-			const errorMessage = error.message;
-			toast.error(errorMessage);
-		});
+type PropsT = {
+	type: "signup" | "login";
+	form: AuthForm;
+};
+
+function handleAuthenticate({ form, type }: PropsT) {
+	return type === "login"
+		? handleLogIn(form)
+		: handleRegister(form as RegisterForm);
 }
 
-interface ILogOut {}
-
-function handleLogOut({}: ILogOut) {
-	auth
-		.signOut()
-		.then(() => {
-			toast.success("User logged out");
-			setCurrentUser(null);
-		})
-		.catch((error: Error) => {
-			const errorMessage = error.message;
-			toast.error(errorMessage);
-		});
+async function handleLogOut() {
+	await auth.signOut();
+	try {
+		toast.success("User logged out");
+		window.location.reload(); //todo check this
+		setCurrentUser(null);
+	} catch (error: any) {
+		const errorMessage = error.message;
+		toast.error(errorMessage);
+	}
 }
 
 function getUserInfo() {
 	return onAuthStateChanged(auth, (user) => {
-		if (user) {
+		if (!!user) {
 			// User is signed in, see docs for a list of available properties
 			// https://firebase.google.com/docs/reference/js/auth.user
 			const uid = user.uid;
@@ -84,11 +92,42 @@ function getUserInfo() {
 	});
 }
 
-export const getUsers = async () => {
+type Props = {
+	user: any;
+};
+
+export default async function addUser({ user }: Props) {
+	try {
+		await setDoc(doc(db, "users", user.uid), {
+			auth_uid: user.uid,
+			email: user.email,
+		});
+		toast.success("User added to db");
+	} catch (e) {
+		console.error("Error adding user: ", e);
+		toast.error("Error adding user to db");
+	}
+}
+
+const getUsers = async () => {
 	const usersCollec = collection(db, "users"),
 		userSnap = await getDocs(usersCollec),
 		usersList = userSnap.docs.map((doc) => doc.data());
 	return usersList;
 };
 
-export { registerUser, handleSignIn, handleLogOut, getUserInfo };
+const getUser = async (uid: string) => {
+	const userRef = doc(db, "users", uid);
+	const snapshot = await getDoc(userRef);
+	return snapshot.data() as UserI;
+};
+
+export {
+	handleRegister,
+	handleLogIn,
+	handleLogOut,
+	handleAuthenticate,
+	getUserInfo,
+	getUser,
+	getUsers,
+};
