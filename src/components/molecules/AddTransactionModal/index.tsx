@@ -44,7 +44,7 @@ export default function AddTransactionModal(props: ModalProps) {
 
 	const [date, setDate] = createSignal<Date>(new Date());
 	const [transaction, setTransaction] = createStore<Pick<TransactionI, any>>({
-		method: "expenses",
+		type: "expenses",
 		amount: 0,
 		currency: "EUR",
 		exchange: 1,
@@ -53,7 +53,7 @@ export default function AddTransactionModal(props: ModalProps) {
 	});
 	const [showCategModal, setShowCategModal] = createSignal<boolean>(false);
 	function handleTabClick(prop: TransactionType) {
-		setTransaction("method", prop);
+		setTransaction("type", prop); //todo is this necessary, since the db is already the type?
 		test();
 	}
 
@@ -94,26 +94,39 @@ export default function AddTransactionModal(props: ModalProps) {
 		return await getCategories();
 	}
 
+	// todo refactor method to be included in hook and use as below
+	// const { add: addTransaction } = useFirebaseCollection<
+	// 	TransactionI,
+	// 	TransactionWithId
+	// >({
+	// 	db,
+	// 	collectionPath: () => {
+	// 		const userId = currentUser();
+	// 		return userId ? [`users/${currentUser()}/transactions`] : undefined;
+	// 	},
+	// });
+
 	async function handleSubmit() {
 		// TODO refactor the below to be all props of one single signal-object
-		const { amount, currency, exchange, category, method } = transaction;
+		const { amount, currency, exchange, category, type, notes } = transaction;
 		if (amount && currency && exchange && category) {
 			const newTransaction = {
 				amount,
 				currency,
 				exchange_to_default: exchange,
-				notes: transaction.notes,
+				notes,
 				date: new Date(),
 				ctg_name: category,
+				type,
 			};
-			if (!method) {
+			if (!type) {
 				toast.error("Please specify transaction type");
 			} else {
 				if (props.onSubmit) {
 					props.onSubmit;
 				}
 				await addNewTransaction({
-					transactionType: method,
+					transactionType: type,
 					transaction: newTransaction,
 				});
 				props.handleClose();
