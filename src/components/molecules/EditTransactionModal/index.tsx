@@ -44,6 +44,9 @@ export default function EditTransactionModal(props: PropsI) {
 		return;
 	}
 
+	// todo implement below
+	// const {getItemByIdOrName, updateItem, deleteItem} = useFirebaseCollection()
+
 	onMount(async () => {
 		try {
 			// set date to be able to convert it and display it
