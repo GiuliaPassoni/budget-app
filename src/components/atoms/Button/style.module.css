@@ -1,5 +1,5 @@
 .buttonStyle{
-    /*@apply inline-flex items-center;*/
+    @apply inline-flex items-center gap-2;
     @apply px-2 py-2;
     @apply text-center;
     @apply rounded-lg;
@@ -15,6 +15,11 @@
 .secondary {
     @apply bg-gray-700 border border-gray-400;
     @apply hover:bg-gray-700;
+}
+
+.danger {
+    @apply bg-orange-500;
+    @apply hover:bg-orange-600;
 }
 
 .selected {
