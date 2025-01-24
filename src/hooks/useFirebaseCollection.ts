@@ -1,16 +1,40 @@
-import { createSignal, createEffect, onCleanup } from "solid-js";
+import { createEffect, createSignal, onCleanup } from "solid-js";
 import {
-	collection,
-	onSnapshot,
 	addDoc,
-	updateDoc,
+	collection,
+	CollectionReference,
 	deleteDoc,
 	doc,
 	DocumentData,
-	CollectionReference,
 	DocumentReference,
 	Firestore,
+	getDoc,
+	getDocs,
+	onSnapshot,
+	query,
+	updateDoc,
+	where,
 } from "firebase/firestore";
+import { currentUser } from "~/firebase";
+import { toast } from "solid-toast";
+import { CategoryI } from "~/helpers/types";
+
+interface getItemPropsI {
+	dbName: string;
+	id?: string | null;
+	name?: string;
+}
+
+interface updateItemPropsI {
+	dbName: string;
+	itemRef: string;
+	updatedValue: any;
+}
+
+interface DeleteItemPropsI {
+	dbName: string;
+	itemRef: string;
+}
 
 interface UseFirebaseCollectionProps<TInput, TOutput extends { id: string }> {
 	db: Firestore;
@@ -24,9 +48,20 @@ interface UseFirebaseCollectionReturn<TInput, TOutput> {
 	loading: () => boolean;
 	error: () => string | null;
 	add: (item: TInput) => Promise<string>;
-	update: (id: string, item: Partial<TInput>) => Promise<void>;
-	remove: (id: string) => Promise<void>;
+	getItemByIdOrName: ({ dbName, id, name }: getItemPropsI) => Promise<any>;
+	updateItem: ({
+		dbName,
+		itemRef,
+		updatedValue,
+	}: updateItemPropsI) => Promise<void>;
+	deleteItem: ({ dbName, itemRef }: DeleteItemPropsI) => Promise<void>;
 	refresh: () => void;
+	// getById: (id: string) => Promise<TOutput | null>;
+	// getByField: (field: keyof TInput, value: any) => Promise<TOutput[]>;
+	// listenToOne: (
+	// 	id: string,
+	// 	callback: (item: TOutput | null) => void,
+	// ) => () => void;
 }
 
 export function useFirebaseCollection<
@@ -102,6 +137,37 @@ export function useFirebaseCollection<
 		);
 	};
 
+	const getItemByIdOrName = async ({ dbName, id, name }: getItemPropsI) => {
+		const collectionRef = collection(db, "users", currentUser(), dbName);
+		if (name) {
+			// If we have a name, query by name field
+			const q = query(collectionRef, where("name", "==", name));
+			const snapshot = await getDocs(q);
+
+			console.debug(snapshot);
+			if (!snapshot.empty) {
+				const doc = snapshot.docs[0];
+				return {
+					data: doc.data() as CategoryI,
+					id: doc.id,
+				};
+			}
+		} else if (id && id !== "") {
+			// If we have a valid ID, get the document directly
+			const docRef = doc(db, dbName, id);
+			const snapshot = await getDoc(docRef);
+
+			if (snapshot.exists()) {
+				return {
+					data: snapshot.data() as CategoryI,
+					id: snapshot.id,
+				};
+			}
+		} else {
+			throw new Error("Either category id or name must be provided");
+		}
+	};
+
 	const add = async (item: TInput): Promise<string> => {
 		const collectionRef = getCollectionRef();
 		if (!collectionRef) throw new Error("Invalid collection reference");
@@ -116,28 +182,41 @@ export function useFirebaseCollection<
 		}
 	};
 
-	const update = async (id: string, item: Partial<TInput>): Promise<void> => {
-		const docRef = getDocRef(id);
-		if (!docRef) throw new Error("Invalid document reference");
+	const updateItem = async ({
+		dbName,
+		itemRef,
+		updatedValue,
+	}: updateItemPropsI): Promise<void> => {
+		// const docRef = getDocRef(id);
+		const reference = doc(db, "users", currentUser(), dbName, itemRef);
+		if (!itemRef) throw new Error("Invalid document reference");
 
 		try {
-			await updateDoc(docRef, item as DocumentData);
+			const update = await updateDoc(reference, updatedValue);
+			return update;
+			toast.success("Item update successfully");
 		} catch (err) {
 			const error = err as Error;
 			setError(`Failed to update document: ${error.message}`);
+			toast.error(`Failed to update document: ${error.message}`);
 			throw err;
 		}
 	};
 
-	const remove = async (id: string): Promise<void> => {
-		const docRef = getDocRef(id);
-		if (!docRef) throw new Error("Invalid document reference");
+	const deleteItem = async ({
+		dbName,
+		itemRef,
+	}: DeleteItemPropsI): Promise<void> => {
+		// const docRef = getDocRef(id);
+		if (!itemRef) throw new Error("Invalid document reference");
 
 		try {
-			await deleteDoc(docRef);
+			return await deleteDoc(doc(db, "users", currentUser(), dbName, itemRef));
+			toast.success("Item deleted successfully");
 		} catch (err) {
 			const error = err as Error;
 			setError(`Failed to delete document: ${error.message}`);
+			toast.error(`Error deleting document: ${error.message}`);
 			throw err;
 		}
 	};
@@ -159,8 +238,9 @@ export function useFirebaseCollection<
 		loading,
 		error,
 		add,
-		update,
-		remove,
+		getItemByIdOrName,
+		updateItem,
+		deleteItem,
 		refresh: setupListener,
 	};
 }
