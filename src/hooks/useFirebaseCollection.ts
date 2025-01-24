@@ -137,6 +137,7 @@ export function useFirebaseCollection<
 		);
 	};
 
+	// todo simplify hook and update implementation to be from hook instead of catg helpers
 	const getItemByIdOrName = async ({ dbName, id, name }: getItemPropsI) => {
 		const collectionRef = collection(db, "users", currentUser(), dbName);
 		if (name) {
