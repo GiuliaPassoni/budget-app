@@ -90,7 +90,9 @@ export default function OverviewPage() {
 					<div>
 						{loading() && <p>Loading...</p>}
 						{/*{error() && <p>Error: {error()}</p>}*/}
-						{!loading() && !error() && <Table array={transactions()} />}
+						{!loading() && !error() && (
+							<Table type={database()} array={transactions()} />
+						)}
 					</div>
 				</section>
 				<AddCategoryModal
@@ -113,8 +115,8 @@ export default function OverviewPage() {
 					message="this is a message"
 				/>
 				<PieChart
-					w={10}
-					h={10}
+					w={5}
+					h={5}
 					margin={1}
 					label="ctg_name"
 					data={transactions() ?? []}
