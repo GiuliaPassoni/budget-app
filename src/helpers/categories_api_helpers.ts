@@ -1,6 +1,7 @@
 import {
 	addDoc,
 	collection,
+	deleteDoc,
 	doc,
 	getDoc,
 	getDocs,
@@ -12,11 +13,11 @@ import { currentUser, db } from "~/firebase";
 import { toast } from "solid-toast";
 import { CategoryI } from "~/helpers/types";
 
-interface PropsI {
+interface addCategoryPropsI {
 	category: CategoryI;
 }
 
-export async function addNewCategory(props: PropsI) {
+export async function addNewCategory(props: addCategoryPropsI) {
 	try {
 		await addDoc(collection(db, "users", currentUser(), "categories"), {
 			...props.category,
@@ -48,13 +49,13 @@ export async function getCategories() {
 	}
 }
 
-type Props = {
+interface getItemPropsI {
 	dbName: string;
 	id?: string | null;
 	name?: string;
-};
+}
 
-export async function getItemByIdOrName({ dbName, id, name }: Props) {
+export async function getItemByIdOrName({ dbName, id, name }: getItemPropsI) {
 	const collectionRef = collection(db, "users", currentUser(), dbName);
 	if (name) {
 		// If we have a name, query by name field
@@ -85,28 +86,39 @@ export async function getItemByIdOrName({ dbName, id, name }: Props) {
 	}
 }
 
-interface PropsItem {
+interface updateItemPropsI {
 	dbName: string;
 	itemRef: string;
-	valueKey: string;
-	newValue: any;
+	updatedValue: any;
 }
 
 export async function updateItem({
 	dbName,
 	itemRef,
-	valueKey,
-	newValue,
-}: PropsItem) {
+	updatedValue,
+}: updateItemPropsI) {
 	const reference = doc(db, "users", currentUser(), dbName, itemRef);
 	try {
-		const update = await updateDoc(reference, {
-			[valueKey]: newValue,
-		});
+		const update = await updateDoc(reference, updatedValue);
 		return update;
 		toast.success("Item update successfully");
 	} catch (error: any) {
 		console.error("Error updating document: ", error);
 		toast.error("Error updating document: ", error.message);
+	}
+}
+
+interface DeleteItemPropsI {
+	dbName: string;
+	itemRef: string;
+}
+
+export async function deleteItem({ dbName, itemRef }: DeleteItemPropsI) {
+	try {
+		return await deleteDoc(doc(db, "users", currentUser(), dbName, itemRef));
+		toast.success("Item deleted successfully");
+	} catch (error: any) {
+		console.error("Error deleting document: ", error);
+		toast.error("Error deleting document: ", error.message);
 	}
 }
