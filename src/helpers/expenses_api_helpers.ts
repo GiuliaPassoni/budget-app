@@ -1,9 +1,9 @@
 import {
-	doc,
-	updateDoc,
 	addDoc,
 	collection,
+	doc,
 	getDocs,
+	updateDoc,
 } from "firebase/firestore";
 import { toast } from "solid-toast";
 import { currentUser, db } from "~/firebase";
@@ -18,6 +18,7 @@ export interface TransactionI {
 	date: any;
 	ctg_name: string;
 	tags?: string[];
+	type?: TransactionType; //todo maybe remove, since the db name is already the type
 }
 
 export interface TransactionWithId extends TransactionI {
