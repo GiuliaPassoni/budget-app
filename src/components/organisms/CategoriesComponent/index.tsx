@@ -34,6 +34,7 @@ export default function CategoriesComponent() {
 								icon={i.iconName ? iconMap[i.iconName]?.() : ""}
 								handleClick={() => {}}
 							/>
+							// 	todo update card with edit modal and option
 						)}
 					</For>
 					<CardWithIcon
