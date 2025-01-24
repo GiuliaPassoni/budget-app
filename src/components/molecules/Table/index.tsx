@@ -1,13 +1,16 @@
 import { TransactionI } from "~/helpers/expenses_api_helpers";
-import { For } from "solid-js";
+import { createSignal, For } from "solid-js";
 import { format } from "date-fns";
 
 import "./style.css";
 import Button from "~/components/atoms/Button";
 import EditIcon from "~/components/atoms/icons/EditIcon";
+import EditTransactionModal from "../EditTransactionModal";
+import { TransactionType } from "~/helpers/types";
 
 interface TableProps {
-	array: TransactionI[] | undefined; // Define the expected prop type
+	array: TransactionI[] | undefined;
+	type: TransactionType;
 }
 
 // todo these date functions are throwing random dates
@@ -30,6 +33,11 @@ export default function Table(props: TableProps) {
 		"Category",
 		"Notes",
 	];
+
+	const [showEditTransactionModal, setShowEditTransactionModal] =
+		createSignal(false);
+	const [selectedTransaction, setSelectedTransaction] =
+		createSignal<TransactionI | null>(null);
 
 	// todo add filtering
 
@@ -60,7 +68,11 @@ export default function Table(props: TableProps) {
 											<td class="actions-cell">
 												{/*todo add action*/}
 												<Button
-													onClick={() => {}}
+													onClick={() => {
+														setSelectedTransaction(transaction);
+														setShowEditTransactionModal(true);
+														console.debug(selectedTransaction());
+													}}
 													text={""}
 													leftIcon={<EditIcon />}
 													styleClass="secondary"
@@ -80,6 +92,14 @@ export default function Table(props: TableProps) {
 					</tbody>
 				</table>
 			</div>
+			{showEditTransactionModal() && selectedTransaction() && (
+				<EditTransactionModal
+					showModal={showEditTransactionModal()}
+					item={selectedTransaction()}
+					type={props.type}
+					handleClose={() => setShowEditTransactionModal(false)}
+				/>
+			)}
 		</div>
 	);
 }
