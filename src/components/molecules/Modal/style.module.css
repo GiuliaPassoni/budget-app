@@ -16,6 +16,8 @@
     @apply bg-gray-800 text-white;
     @apply border-gray-700;
     @apply rounded-2xl;
+    @apply shadow-xl shadow-gray-500/50;
+    /*@apply ring-2 ring-gray-500/50;*/
 }
 
 .headerContainer {
@@ -52,7 +54,7 @@
     @apply border-gray-400;
 }
 
-.modalContent button[type="submit"] {
+.modalContent button[type="submit"] :not[class="edit-submit"] {
     @apply my-3 ml-36;
 }
 
