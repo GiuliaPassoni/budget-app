@@ -9,6 +9,8 @@ import {
 } from "~/helpers/forms/validators";
 import FormError from "~/components/atoms/FormError";
 import useForm from "~/hooks/useForm";
+import { A } from "@solidjs/router";
+import Button from "~/components/atoms/Button";
 
 export default function SignUpComponent() {
 	const { form, handleInput, validate, handleSubmit, errors } =
@@ -19,9 +21,14 @@ export default function SignUpComponent() {
 			confirmPassword: "",
 		});
 
+	async function submitSignup() {
+		return await handleSubmit({ type: "signup" });
+	}
+
 	return (
 		<>
 			<form class="signup-form">
+				<h3 class="title">Sign up</h3>
 				<div class="entry">
 					<label for="name">Your name</label>
 					<input
@@ -78,19 +85,19 @@ export default function SignUpComponent() {
 					<FormError>{errors["confirmPassword"]}</FormError>
 				</div>
 				<div class="submit-buttons">
-					<button
+					<Button
 						type="submit"
-						onClick={(e) => handleSubmit({ e, type: "signup" })}
+						styleClass="primary px-3 text-lg"
+						onClick={submitSignup}
 					>
 						Sign up
-					</button>
-					{/*//todo only render if user already exists after validation checks*/}
-					<button
-						type="submit"
-						onClick={(e) => handleSubmit({ e, type: "login" })}
-					>
+					</Button>
+				</div>
+				<div class="link-container">
+					Already registered?{" "}
+					<A class="page-link" href="/login">
 						Log in
-					</button>
+					</A>
 				</div>
 			</form>
 			<Toaster />

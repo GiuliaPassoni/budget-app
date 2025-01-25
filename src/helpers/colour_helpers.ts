@@ -1,125 +1,169 @@
-import colors from "tailwindcss/colors";
-
-type colourType = {
+type ColorShade = "300" | "500" | "700";
+type ColorOption = {
 	name: string;
-	colourClass: string;
+	shades: Record<ColorShade, string>;
 };
 
-function getShades(shade: number | string) {
-	const container: colourType[] = [];
-	Object.entries(colors).forEach(([colourName, colourShade]) => {
-		container.push({
-			name: colourName,
-			colourClass: `bg-${colourName}-${shade}`,
-		});
-	});
-	return container;
-}
-
-// todo: fix the colour mess
-// todo maybe checkout colorspace library to mix coours, see example in https://www.youtube.com/watch?v=q1fsBWLpYW4
-const testColours = getShades(400);
-
-// Get all 400-grade colors -- the below is copy-pasted from logging testColours above
-export const pastelColors = [
-	{
-		name: "black",
-		colourClass: "bg-black",
-	},
-	{
-		name: "white",
-		colourClass: "bg-white",
-	},
+// Define all available colors with their shades
+export const colorOptions: ColorOption[] = [
+	// {
+	// 	name: "slate",
+	// 	shades: {
+	// 		"300": "bg-slate-300",
+	// 		"500": "bg-slate-500",
+	// 		"700": "bg-slate-700",
+	// 	},
+	// },
 	{
 		name: "gray",
-		colourClass: "bg-gray-400",
+		shades: {
+			"300": "bg-gray-300",
+			"500": "bg-gray-500",
+			"700": "bg-gray-700",
+		},
 	},
+	// { //doesn't render
+	// 	name: "zinc",
+	// 	shades: {
+	// 		"300": "bg-zinc-300",
+	// 		"500": "bg-zinc-500",
+	// 		"700": "bg-zinc-700",
+	// 	},
+	// },
 	{
 		name: "red",
-		colourClass: "bg-red-400",
+		shades: {
+			"300": "bg-red-300",
+			"500": "bg-red-500",
+			"700": "bg-red-700",
+		},
 	},
 	{
 		name: "orange",
-		colourClass: "bg-orange-400",
+		shades: {
+			"300": "bg-orange-300",
+			"500": "bg-orange-500",
+			"700": "bg-orange-700",
+		},
 	},
-	{
-		name: "amber",
-		colourClass: "bg-amber-400",
-	},
+	// {
+	// 	name: "amber",
+	// 	shades: {
+	// 		"300": "bg-amber-300",
+	// 		"500": "bg-amber-500",
+	// 		"700": "bg-amber-700",
+	// 	},
+	// },
 	{
 		name: "yellow",
-		colourClass: "bg-yellow-400",
+		shades: {
+			"300": "bg-yellow-300",
+			"500": "bg-yellow-500",
+			"700": "bg-yellow-700",
+		},
 	},
-	{
-		name: "lime",
-		colourClass: "bg-lime-400",
-	},
+	// {
+	// 	name: "lime",
+	// 	shades: {
+	// 		"300": "bg-lime-300",
+	// 		"500": "bg-lime-500",
+	// 		"700": "bg-lime-700",
+	// 	},
+	// },
 	{
 		name: "green",
-		colourClass: "bg-green-400",
+		shades: {
+			"300": "bg-green-300",
+			"500": "bg-green-500",
+			"700": "bg-green-700",
+		},
 	},
-	{
-		name: "emerald",
-		colourClass: "bg-emerald-400",
-	},
+	// {
+	// 	name: "emerald",
+	// 	shades: {
+	// 		"300": "bg-emerald-300",
+	// 		"500": "bg-emerald-500",
+	// 		"700": "bg-emerald-700",
+	// 	},
+	// },
 	{
 		name: "teal",
-		colourClass: "bg-teal-400",
+		shades: {
+			"300": "bg-teal-300",
+			"500": "bg-teal-500",
+			"700": "bg-teal-700",
+		},
 	},
-	{
-		name: "cyan",
-		colourClass: "bg-cyan-400",
-	},
-	{
-		name: "sky",
-		colourClass: "bg-sky-400",
-	},
+	// {
+	// 	name: "cyan",
+	// 	shades: {
+	// 		"300": "bg-cyan-300",
+	// 		"500": "bg-cyan-500",
+	// 		"700": "bg-cyan-700",
+	// 	},
+	// },
+	// {
+	// 	name: "sky",
+	// 	shades: {
+	// 		"300": "bg-sky-300",
+	// 		"500": "bg-sky-500",
+	// 		"700": "bg-sky-700",
+	// 	},
+	// },
 	{
 		name: "blue",
-		colourClass: "bg-blue-400",
+		shades: {
+			"300": "bg-blue-300",
+			"500": "bg-blue-500",
+			"700": "bg-blue-700",
+		},
 	},
 	{
 		name: "indigo",
-		colourClass: "bg-indigo-400",
+		shades: {
+			"300": "bg-indigo-300",
+			"500": "bg-indigo-500",
+			"700": "bg-indigo-700",
+		},
 	},
-	{
-		name: "violet",
-		colourClass: "bg-violet-400",
-	},
+	// {
+	// 	name: "violet",
+	// 	shades: {
+	// 		"300": "bg-violet-300",
+	// 		"500": "bg-violet-500",
+	// 		"700": "bg-violet-700",
+	// 	},
+	// },
 	{
 		name: "purple",
-		colourClass: "bg-purple-400",
+		shades: {
+			"300": "bg-purple-300",
+			"500": "bg-purple-500",
+			"700": "bg-purple-700",
+		},
 	},
-	{
-		name: "fuchsia",
-		colourClass: "bg-fuchsia-400",
-	},
+	// {
+	// 	name: "fuchsia",
+	// 	shades: {
+	// 		"300": "bg-fuchsia-300",
+	// 		"500": "bg-fuchsia-500",
+	// 		"700": "bg-fuchsia-700",
+	// 	},
+	// },
 	{
 		name: "pink",
-		colourClass: "bg-pink-400",
+		shades: {
+			"300": "bg-pink-300",
+			"500": "bg-pink-500",
+			"700": "bg-pink-700",
+		},
 	},
-	{
-		name: "rose",
-		colourClass: "bg-rose-400",
-	},
-	{
-		name: "lightBlue",
-		colourClass: "bg-lightBlue-400",
-	},
-	{
-		name: "warmGray",
-		colourClass: "bg-warmGray-400",
-	},
-	{
-		name: "trueGray",
-		colourClass: "bg-trueGray-400",
-	},
-	{
-		name: "coolGray",
-		colourClass: "bg-coolGray-400",
-	},
-	{
-		name: "blueGray",
-		colourClass: "bg-blueGray-400",
-	},
+	// {
+	// 	name: "rose",
+	// 	shades: {
+	// 		"300": "bg-rose-300",
+	// 		"500": "bg-rose-500",
+	// 		"700": "bg-rose-700",
+	// 	},
+	// },
 ];

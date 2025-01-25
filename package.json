@@ -11,6 +11,7 @@
 		"validateDev": "npm run format && npm run lint && npm run dev"
 	},
 	"dependencies": {
+		"@rnwonder/solid-date-picker": "^1.4.1",
 		"@solidjs/meta": "^0.29.3",
 		"@solidjs/router": "^0.13.2",
 		"@solidjs/start": "^1.0.0-rc.0",
@@ -24,7 +25,6 @@
 		"flowbite": "^2.3.0",
 		"husky": "^9.0.11",
 		"prettier": "^3.2.5",
-		"solid-bootstrap": "^1.0.19",
 		"solid-js": "^1.9.3",
 		"solid-toast": "^0.5.0",
 		"vinxi": "^0.4.3"

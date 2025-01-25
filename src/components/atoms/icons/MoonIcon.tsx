@@ -1,9 +1,10 @@
-export default function MoonIcon() {
+import "./style.css";
+import { IconPropsI } from "~/components/atoms/icons/helpers";
+
+export default function MoonIcon(props: IconPropsI = { style: "" }) {
 	return (
 		<svg
-			class="w-6 h-6 text-gray-800 dark:text-white"
-			aria-hidden="true"
-			xmlns="http://www.w3.org/2000/svg"
+			class={`icon-all ${props.style || ""}`}
 			width="24"
 			height="24"
 			fill="currentColor"

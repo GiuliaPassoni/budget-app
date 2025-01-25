@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.close-button {
+    @apply h-8 w-8 ms-auto p-1.5 -mx-1.5 -my-1.5;
+    @apply rounded-lg;
+    @apply focus:ring-2 focus:ring-gray-300;
+    @apply inline-flex items-center justify-center;
+    @apply text-gray-500 hover:text-white bg-gray-800 hover:bg-gray-700;
+}

@@ -1,0 +1,32 @@
+.cardWithIcon {
+    @apply col-span-3;
+    @apply flex flex-col align-middle text-center items-center;
+    @apply m-0.5 p-2;
+    @apply bg-transparent border-0;
+    @apply text-gray-300;
+    @apply transition-all;
+    max-width:12rem;
+}
+
+.iconContainer {
+    @apply hover:ring-2 hover:ring-offset-2;
+    @apply mx-auto rounded-lg p-3;
+}
+
+.description {
+    @apply max-w-24;
+    @apply my-1;
+    @apply hover:text-white hover:font-bold;
+}
+
+.children {
+    @apply mb-3 font-normal;
+}
+
+.selectedCard.iconContainer{
+    @apply ring-2 ring-offset-2 ring-gray-500;
+}
+
+.selectedCard.description{
+    @apply text-white font-bold;
+}

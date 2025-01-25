@@ -1,0 +1,14 @@
+.cardContainer {
+    @apply w-fit px-1;
+    @apply bg-gray-700;
+    @apply rounded-md shadow;
+    @apply tracking-tight;
+}
+
+.cardTitle {
+    @apply mb-2 text-2xl font-bold;
+}
+
+.cardChildren {
+    @apply my-1 text-sm;
+}

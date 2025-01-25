@@ -1,62 +1,76 @@
 import { createSignal } from "solid-js";
 import { Toaster } from "solid-toast";
-import { useNavigate } from "@solidjs/router";
-import { handleSignIn } from "~/helpers/auth_helpers";
+import { A, useNavigate } from "@solidjs/router";
+import { handleLogIn } from "~/api/auth";
 
 import "./style.css";
-import { DOMElement } from "solid-js/jsx-runtime";
-import { InputI } from "~/helpers/types";
-
+import { AuthForm, InputI, RegisterForm } from "~/helpers/forms/formTypes";
+import Button from "~/components/atoms/Button";
+import useForm from "~/hooks/useForm";
+import {
+	emailValidator,
+	inputLengthValidator,
+	requiredField,
+} from "~/helpers/forms/validators";
+import FormError from "~/components/atoms/FormError";
+// todo make smarter reusability btw this and signup component
 export default function LogInComponent() {
-	const [form, setForm] = createSignal({
-		email: "",
-		password: "",
-	});
+	const { form, handleInput, validate, handleSubmit, errors } =
+		useForm<AuthForm>({
+			email: "",
+			password: "",
+		});
 
-	const navigate = useNavigate();
-
-	function handleInput(e: InputI) {
-		setForm({ ...form(), [e.currentTarget.name]: e.currentTarget.value });
+	async function submitLogin() {
+		return await handleSubmit({ type: "login" });
 	}
 
 	return (
 		<>
 			<form class="signup-form">
+				<h3 class="title">Log in</h3>
 				<div class="entry">
 					<label for="email">Your email</label>
 					<input
+						use:validate={[requiredField, emailValidator]}
 						type="email"
 						name="email"
 						id="email"
-						placeholder="name@flowbite.com"
+						placeholder="name@budgetapp.com"
 						required
-						value={form().email}
 						onInput={handleInput}
 					/>
+					<FormError>{errors["email"]}</FormError>
 				</div>
 				<div class="entry">
 					<label for="password">Your password</label>
 					<input
+						use:validate={[
+							requiredField,
+							(el) => inputLengthValidator(el, 7, 16),
+						]}
 						type="password"
 						name="password"
 						id="password"
 						required
-						value={form().password}
 						onInput={handleInput}
 					/>
+					<FormError>{errors["password"]}</FormError>
 				</div>
-
+				<div class="link-container">
+					No account yet?{" "}
+					<A class="page-link" href="/signup">
+						Sign up
+					</A>
+				</div>
 				<div class="submit-buttons">
-					<button
+					<Button
 						type="submit"
-						onClick={(e) => {
-							e.preventDefault();
-							handleSignIn({ email: form().email, password: form().password });
-							navigate("/overview");
-						}}
+						styleClass="primary px-3 text-lg"
+						onClick={submitLogin}
 					>
 						Log in
-					</button>
+					</Button>
 				</div>
 			</form>
 			<Toaster />

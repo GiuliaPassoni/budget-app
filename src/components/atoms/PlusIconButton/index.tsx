@@ -43,7 +43,6 @@ export default function PlusIconButton({
 				<Show when={showIcon}>
 					<svg
 						class="w-6 h-6 text-white dark:text-white"
-						aria-hidden="true"
 						xmlns="http://www.w3.org/2000/svg"
 						width="24"
 						height="24"

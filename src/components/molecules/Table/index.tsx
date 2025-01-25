@@ -1,11 +1,16 @@
 import { TransactionI } from "~/helpers/expenses_api_helpers";
-import { For } from "solid-js";
+import { createSignal, For } from "solid-js";
 import { format } from "date-fns";
 
 import "./style.css";
+import Button from "~/components/atoms/Button";
+import EditIcon from "~/components/atoms/icons/EditIcon";
+import EditTransactionModal from "../EditTransactionModal";
+import { TransactionType } from "~/helpers/types";
 
 interface TableProps {
-	array: TransactionI[] | undefined; // Define the expected prop type
+	array: TransactionI[] | undefined;
+	type: TransactionType;
 }
 
 // todo these date functions are throwing random dates
@@ -21,60 +26,106 @@ function firestoreTimestampToDate(timestamp: {
 }
 
 export default function Table(props: TableProps) {
+	const headers = [
+		"Transaction amount",
+		"Currency",
+		"Date",
+		"Category",
+		"Notes",
+	];
+
+	const [showEditTransactionModal, setShowEditTransactionModal] =
+		createSignal(false);
+	const [selectedTransaction, setSelectedTransaction] =
+		createSignal<TransactionI | null>(null);
+
+	// todo add filtering
+
 	return (
-		<>
+		<div>
 			<div class="container">
 				<table>
-					<Header />
+					<Header headers={headers} />
 					<tbody>
 						{props.array?.length === 0 || !props.array ? (
-							<>
-								<tr>
-									<td colSpan={6} class="no-data">
-										No data available
-									</td>
-								</tr>
-							</>
+							<tr>
+								<td colSpan={6} class="no-data">
+									No data available
+								</td>
+							</tr>
 						) : (
-							<For each={props.array}>
-								{(transaction) => (
-									<tr>
-										<td>{transaction.amount}</td>
-										<td>{transaction.currency}</td>
-										<td>
-											{formatDate(firestoreTimestampToDate(transaction.date))}
-										</td>
-										<td>{transaction.ctg_name}</td>
-										<td>{transaction.notes}</td>
-									</tr>
-								)}
-							</For>
+							<>
+								<For each={props.array}>
+									{(transaction) => (
+										<tr>
+											<td>{transaction.amount}</td>
+											<td>{transaction.currency}</td>
+											<td>
+												{formatDate(firestoreTimestampToDate(transaction.date))}
+											</td>
+											<td>{transaction.ctg_name}</td>
+											<td>{transaction.notes}</td>
+											<td class="actions-cell">
+												{/*todo add action*/}
+												<Button
+													onClick={() => {
+														setSelectedTransaction(transaction);
+														setShowEditTransactionModal(true);
+														console.debug(selectedTransaction());
+													}}
+													text={""}
+													leftIcon={<EditIcon />}
+													styleClass="secondary"
+												/>
+											</td>
+										</tr>
+									)}
+								</For>
+								{/*todo add pagination in footer*/}
+								{/*<tr>*/}
+								{/*	<td colSpan={6} class="table-footer-group">*/}
+								{/*		Pagination*/}
+								{/*	</td>*/}
+								{/*</tr>*/}
+							</>
 						)}
 					</tbody>
 				</table>
 			</div>
-		</>
+			{showEditTransactionModal() && selectedTransaction() && (
+				<EditTransactionModal
+					showModal={showEditTransactionModal()}
+					item={selectedTransaction()}
+					type={props.type}
+					handleClose={() => setShowEditTransactionModal(false)}
+				/>
+			)}
+		</div>
 	);
 }
 
-function Header() {
+interface HeaderPropsI {
+	headers: string[];
+}
+
+function Header(props: HeaderPropsI) {
 	return (
-		<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+		<thead>
 			<tr>
-				<th scope="col" class="px-6 py-3">
+				{/*<For each={props.headers}>*/}
+				{/*	{(i) => <th scope="col">{i}</th>}*/}
+				{/*</For>*/}
+				<th scope="col" class="header-left">
 					Transaction amount
 				</th>
-				<th scope="col" class="px-6 py-3">
-					Currency
-				</th>
+				<th scope="col">Currency</th>
 				<th scope="col" class="px-6 py-3">
 					Date
 				</th>
-				<th scope="col" class="px-6 py-3">
-					Category
-				</th>
-				<th scope="col" class="px-6 py-3">
-					Notes
+				<th scope="col">Category</th>
+				<th scope="col">Notes</th>
+				<th scope="col" class="header-right">
+					Actions
 				</th>
 			</tr>
 		</thead>

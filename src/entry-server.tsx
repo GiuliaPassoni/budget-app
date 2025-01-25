@@ -5,6 +5,7 @@ export default createHandler(() => (
 	<StartServer
 		document={({ assets, children, scripts }) => (
 			<html lang="en">
+				{/*todo add title attribute?*/}
 				<head>
 					<meta charset="utf-8" />
 					<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -17,7 +18,8 @@ export default createHandler(() => (
 					<link rel="icon" href="/favicon.ico" />
 					{assets}
 				</head>
-				<body>
+				{/*add dark theme for date picker*/}
+				<body class="dark" data-theme="dark">
 					<div id="app">{children}</div>
 					{scripts}
 				</body>

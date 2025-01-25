@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.date-picker-input {
+    /*@apply bg-gray-700 rounded-sm max-w-xs w-1/4 text-white border-b-gray-300;*/
+}
+
+#custom-datepicker-input {
+    @apply hidden;
+}
+
+.date-picker-input-wrapper {
+    @apply w-fit inline-block mx-0;
+}

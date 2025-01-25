@@ -1,0 +1,27 @@
+.typeContainer {
+    @apply mx-auto px-4;
+}
+
+.amountDetailsContainer {
+    @apply w-full grid grid-cols-3 p-2 gap-1;
+}
+
+.amountDetailsContainer span{
+    @apply p-2;
+}
+
+.categoryContainer {}
+
+.categoryGrid{
+    @apply grid grid-cols-12 gap-0;
+    @apply max-h-52 overflow-y-scroll;
+}
+
+.dateButtonsContainer {
+    @apply text-sm;
+    @apply w-full flex justify-between items-center;
+}
+
+.tagsContainer{
+    @apply grid grid-cols-6;
+}

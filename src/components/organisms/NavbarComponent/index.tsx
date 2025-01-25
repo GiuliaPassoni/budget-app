@@ -21,30 +21,28 @@ export default function NavbarComponent() {
 
 	return (
 		<nav class="navbar">
-			<div class="container" id="navbar-user">
-				<ul>
-					<li>
-						<A
-							href="/#"
-							// aria-current="page"
-						>
-							Home
-						</A>
-					</li>
-					<li>
-						<A href="/auth/overview">Overview</A>
-					</li>
-					<li>
-						<A href="/auth/categories">Your Categories</A>
-					</li>
-				</ul>
-				<div id="auth-button-container">
-					<Show when={!currentUser()} fallback={<SignOutButton />}>
-						<A href="/signup" id="auth-button">
-							{loginLink()}
-						</A>
-					</Show>
-				</div>
+			<ul>
+				<li>
+					<A
+						href="/#"
+						// aria-current="page"
+					>
+						Home
+					</A>
+				</li>
+				<li>
+					<A href="/auth/overview">Overview</A>
+				</li>
+				<li>
+					<A href="/auth/categories">Your Categories</A>
+				</li>
+			</ul>
+			<div id="auth-button-container">
+				<Show when={!currentUser()} fallback={<SignOutButton />}>
+					<A href="/signup" id="auth-button">
+						{loginLink()}
+					</A>
+				</Show>
 			</div>
 		</nav>
 	);
