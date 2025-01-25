@@ -9,7 +9,7 @@
 
 .navbar ul {
     @apply flex flex-row justify-start gap-3;
-    @apply w-3/4 p-4 rounded-lg;
+    @apply p-4 rounded-lg;
     @apply font-medium;
     @apply p-4;
     @apply dark:bg-gray-800 dark:border-gray-700;

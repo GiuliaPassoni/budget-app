@@ -31,6 +31,7 @@ export default function Button(props: IProps) {
 	return (
 		<>
 			<button
+				// data-dropdown-toggle={`dropdown-${id() ?? ""}`}
 				data-tooltip-target={`tooltip-${id() ?? ""}`}
 				id={id() ?? ""}
 				type={type() ?? undefined}
@@ -41,18 +42,14 @@ export default function Button(props: IProps) {
 				class={`${styles.buttonStyle} ${classParser}`}
 				disabled={disabled()}
 			>
-				<Show when={leftIcon()}>
-					{/*	i.iconName ? iconMap[i.iconName]?.() : ""*/}
-					{leftIcon()}
-				</Show>
+				<Show when={leftIcon()}>{leftIcon()}</Show>
 				{text() ? text() : null}
 				{children() ? children() : null}
 			</button>
-			{/*todo fix tooltip*/}
 			<div
 				id={`tooltip-${id() ?? ""}`}
 				role="tooltip"
-				class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+				class="absolute z-10 inline-block px-3 py-2 text-smtransition-opacity duration-300 bg-gray-700 rounded-lg shadow-sm tooltip"
 			>
 				{tooltipContent()}
 				<div class="tooltip-arrow" data-popper-arrow></div>
