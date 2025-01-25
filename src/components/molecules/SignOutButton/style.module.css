@@ -1,11 +1,23 @@
-.dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 1000;
-    display: none;
+.userMenuContainer {
+    @apply relative;
+    @apply flex justify-end;
+    /*width: 20rem;*/
 }
 
-.show-dropdown .dropdown-menu {
-    display: block;
+.dropdownMenu {
+    @apply flex justify-end;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 1000;
+    width: 8rem;
+}
+
+.dropdownList {
+    @apply flex flex-col !important;
+    @apply w-full gap-0 p-0;
+}
+
+.dropdownList li {
+    @apply w-full m-0;
 }
