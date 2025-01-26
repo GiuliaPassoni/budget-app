@@ -8,6 +8,7 @@ import { CategoryI, CategoryWithId } from "~/helpers/types";
 import { currentUser, db } from "~/firebase";
 import { iconMap } from "~/components/atoms/icons/helpers";
 import styles from "./style.module.css";
+import { createStore } from "solid-js/store";
 
 export default function CategoriesComponent() {
 	const [showModal, setShowModal] = createSignal(false);
@@ -22,6 +23,9 @@ export default function CategoriesComponent() {
 		},
 	);
 
+	const [showEditModal, setShowEditModal] = createSignal<boolean>(false);
+	const [editCategory, setEditCategory] = createStore<any>(); //todo fix type
+
 	return (
 		<MainLayout title="Categories">
 			<div class={styles.container}>
@@ -32,14 +36,16 @@ export default function CategoriesComponent() {
 								colour={i.colour}
 								title={i.name}
 								icon={i.iconName ? iconMap[i.iconName]?.() : ""}
-								handleClick={() => {}}
+								handleClick={() => {
+									setEditCategory({ ...i, id: i.id });
+									setShowEditModal(true);
+								}}
 							/>
-							// 	todo update card with edit modal and option
 						)}
 					</For>
 					<CardWithIcon
 						colour="gray"
-						title="More"
+						title="Add category"
 						icon={iconMap["plus"]}
 						handleClick={() => {
 							setShowModal(true);
@@ -48,9 +54,17 @@ export default function CategoriesComponent() {
 				</div>
 			</div>
 			<AddCategoryModal
+				isEditCategoryModal={false}
 				showModal={showModal()}
 				handleClose={() => setShowModal(false)}
 				onSubmit={() => setShowModal(false)}
+			/>
+			<AddCategoryModal
+				isEditCategoryModal={showEditModal()}
+				showModal={showEditModal()}
+				categoryToEdit={editCategory}
+				handleClose={() => setShowEditModal(false)}
+				onSubmit={() => setShowEditModal(false)}
 			/>
 			<Toaster />
 		</MainLayout>
