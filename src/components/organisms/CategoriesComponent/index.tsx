@@ -29,8 +29,9 @@ export default function CategoriesComponent() {
 	return (
 		<MainLayout title="Categories">
 			<div class={styles.container}>
-				<div class={`${styles.categoryGrid}`}>
-					<For each={categories()}>
+				<h3>Expenses</h3>
+				<div class={`${styles.categoryGrid} ${styles.expensesCategories}`}>
+					<For each={categories().filter((i) => i.type === "expenses")}>
 						{(i) => (
 							<CardWithIcon
 								colour={i.colour}
@@ -43,15 +44,47 @@ export default function CategoriesComponent() {
 							/>
 						)}
 					</For>
-					<CardWithIcon
-						colour="gray"
-						title="Add category"
-						icon={iconMap["plus"]}
-						handleClick={() => {
-							setShowModal(true);
-						}}
-					/>
 				</div>
+				<h3>Income</h3>
+				<div class={`${styles.categoryGrid} ${styles.incomeCategories}`}>
+					<For each={categories().filter((i) => i.type === "income")}>
+						{(i) => (
+							<CardWithIcon
+								colour={i.colour}
+								title={i.name}
+								icon={i.iconName ? iconMap[i.iconName]?.() : ""}
+								handleClick={() => {
+									setEditCategory({ ...i, id: i.id });
+									setShowEditModal(true);
+								}}
+							/>
+						)}
+					</For>
+				</div>
+				<h3>Investing</h3>
+				<div class={`${styles.categoryGrid} ${styles.investingCategories}`}>
+					<For each={categories().filter((i) => i.type === "investments")}>
+						{(i) => (
+							<CardWithIcon
+								colour={i.colour}
+								title={i.name}
+								icon={i.iconName ? iconMap[i.iconName]?.() : ""}
+								handleClick={() => {
+									setEditCategory({ ...i, id: i.id });
+									setShowEditModal(true);
+								}}
+							/>
+						)}
+					</For>
+				</div>
+				<CardWithIcon
+					colour="gray"
+					title="Add category"
+					icon={iconMap["plus"]}
+					handleClick={() => {
+						setShowModal(true);
+					}}
+				/>
 			</div>
 			<AddCategoryModal
 				isEditCategoryModal={false}
