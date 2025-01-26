@@ -1,4 +1,4 @@
-import { JSX, onMount } from "solid-js";
+import { createEffect, JSX } from "solid-js";
 
 import "./style.css";
 import { useAuthState } from "~/services/provider/auth";
@@ -13,11 +13,12 @@ export default function MainLayout(props: PropsI) {
 	const authState = useAuthState();
 	const navigate = useNavigate();
 
-	// onMount(() => {
-	if (!authState?.isAuthenticated) {
-		navigate("/signup", { replace: true });
-	}
-	// });
+	createEffect(() => {
+		if (authState.loading) return; // Wait for auth initialization
+		if (!authState?.isAuthenticated) {
+			navigate("/login", { replace: true });
+		}
+	});
 
 	return (
 		<div class="main-layout">
