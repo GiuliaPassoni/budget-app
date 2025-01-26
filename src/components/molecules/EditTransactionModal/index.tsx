@@ -205,7 +205,10 @@ export default function EditTransactionModal(props: PropsI) {
 					styleClass="primary edit-submit mx-auto"
 					leftIcon={<PlusIcon />}
 					type="submit"
-					onClick={handleEdit}
+					onClick={async () => {
+						await handleEdit();
+						props.handleClose();
+					}}
 					text="Save edit"
 				/>
 
