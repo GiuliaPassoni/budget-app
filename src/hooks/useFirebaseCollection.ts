@@ -138,8 +138,9 @@ export function useFirebaseCollection<
 	};
 
 	// todo simplify hook and update implementation to be from hook instead of catg helpers
-	const getItemByIdOrName = async ({ dbName, id, name }: getItemPropsI) => {
+	async function getItemByIdOrName({ dbName, id, name }: getItemPropsI) {
 		const collectionRef = collection(db, "users", currentUser(), dbName);
+
 		if (name) {
 			// If we have a name, query by name field
 			const q = query(collectionRef, where("name", "==", name));
@@ -155,19 +156,18 @@ export function useFirebaseCollection<
 			}
 		} else if (id && id !== "") {
 			// If we have a valid ID, get the document directly
-			const docRef = doc(db, dbName, id);
+			const docRef = doc(collectionRef, id);
 			const snapshot = await getDoc(docRef);
-
 			if (snapshot.exists()) {
 				return {
-					data: snapshot.data() as CategoryI,
 					id: snapshot.id,
+					data: snapshot.data() as CategoryI,
 				};
 			}
 		} else {
 			throw new Error("Either category id or name must be provided");
 		}
-	};
+	}
 
 	const add = async (item: TInput): Promise<string> => {
 		const collectionRef = getCollectionRef();

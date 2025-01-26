@@ -57,6 +57,7 @@ interface getItemPropsI {
 
 export async function getItemByIdOrName({ dbName, id, name }: getItemPropsI) {
 	const collectionRef = collection(db, "users", currentUser(), dbName);
+
 	if (name) {
 		// If we have a name, query by name field
 		const q = query(collectionRef, where("name", "==", name));
@@ -72,13 +73,12 @@ export async function getItemByIdOrName({ dbName, id, name }: getItemPropsI) {
 		}
 	} else if (id && id !== "") {
 		// If we have a valid ID, get the document directly
-		const docRef = doc(db, dbName, id);
+		const docRef = doc(collectionRef, id);
 		const snapshot = await getDoc(docRef);
-
 		if (snapshot.exists()) {
 			return {
-				data: snapshot.data() as CategoryI,
 				id: snapshot.id,
+				data: snapshot.data() as CategoryI,
 			};
 		}
 	} else {
