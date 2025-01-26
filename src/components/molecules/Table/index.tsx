@@ -71,7 +71,6 @@ export default function Table(props: TableProps) {
 													onClick={() => {
 														setSelectedTransaction(transaction);
 														setShowEditTransactionModal(true);
-														console.debug(selectedTransaction());
 													}}
 													text={""}
 													leftIcon={<EditIcon />}

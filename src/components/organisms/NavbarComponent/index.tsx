@@ -1,9 +1,8 @@
 import "./style.css";
 
 // the component itself can't have the same name as the bootstrap <NavbarComponent> component
-import { onAuthStateChanged } from "firebase/auth";
 import { createEffect, createSignal, Show } from "solid-js";
-import { currentUser, setCurrentUser } from "~/firebase";
+import { currentUser } from "~/firebase";
 import SignOutButton from "~/components/molecules/SignOutButton";
 import { A } from "@solidjs/router";
 
@@ -11,7 +10,6 @@ export default function NavbarComponent() {
 	const [loginLink, setLoginLink] = createSignal("Log In");
 
 	createEffect(() => {
-		console.debug(currentUser());
 		if (currentUser()) {
 			console.debug("User logged in");
 		} else {
@@ -23,12 +21,7 @@ export default function NavbarComponent() {
 		<nav class="navbar">
 			<ul>
 				<li>
-					<A
-						href="/#"
-						// aria-current="page"
-					>
-						Home
-					</A>
+					<A href="/#">Home</A>
 				</li>
 				<li>
 					<A href="/auth/overview">Overview</A>

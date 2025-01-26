@@ -1,10 +1,8 @@
-import { createSignal } from "solid-js";
 import { Toaster } from "solid-toast";
-import { A, useNavigate } from "@solidjs/router";
-import { handleLogIn } from "~/api/auth";
+import { A } from "@solidjs/router";
 
 import "./style.css";
-import { AuthForm, InputI, RegisterForm } from "~/helpers/forms/formTypes";
+import { AuthForm } from "~/helpers/forms/formTypes";
 import Button from "~/components/atoms/Button";
 import useForm from "~/hooks/useForm";
 import {

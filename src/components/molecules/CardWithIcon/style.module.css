@@ -5,6 +5,7 @@
     @apply bg-transparent border-0;
     @apply text-gray-300;
     @apply transition-all;
+    @apply relative;
     max-width:12rem;
 }
 

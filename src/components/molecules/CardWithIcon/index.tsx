@@ -11,8 +11,8 @@ interface IProps {
 }
 
 export default function CardWithIcon(props: IProps) {
-	const colour = () => props.colour;
 	const icon = () => props.icon;
+	const colour = () => props.colour;
 	const title = () => props.title;
 	const children = () => props.children;
 	// syntax for optional prop fn and there are no props. If there were props, then it would be simply
