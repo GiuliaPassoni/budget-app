@@ -1,48 +1,118 @@
-import { createSignal, For } from "solid-js";
-import PlusIconButton from "~/components/atoms/PlusIconButton";
-import { TransactionType } from "~/helpers/types";
+import { createEffect, createSignal, For, Show } from "solid-js";
+import { CategoryI, TransactionType } from "~/helpers/types";
 import { toast, Toaster } from "solid-toast";
-import { addNewCategory } from "~/helpers/categories_api_helpers";
+import {
+	addNewCategory,
+	deleteItem,
+	getItemByIdOrName,
+	updateItem,
+} from "~/helpers/categories_api_helpers";
 import { colorOptions } from "~/helpers/colour_helpers";
 import { iconKeys, iconMap } from "~/components/atoms/icons/helpers";
 import Modal from "~/components/molecules/Modal";
 import "./style.css";
+import { createStore } from "solid-js/store";
+import Button from "~/components/atoms/Button";
+import PlusIcon from "~/components/atoms/icons/PlusIcon";
+import BinIcon from "~/components/atoms/icons/BinIcon";
 
 interface ModalProps {
 	showModal: boolean;
+	isEditCategoryModal: boolean;
+	categoryToEdit?: CategoryI;
 	handleClose: () => void;
 	onSubmit: () => void;
 }
 
 export default function AddCategoryModal(props: ModalProps) {
 	const showModal = () => props.showModal;
+	const isEditCategoryModal = () => props.isEditCategoryModal;
+	const [categoryToEdit, setCategoryToEdit] = createSignal<
+		CategoryI | undefined
+	>(props.categoryToEdit);
 
-	const [name, setName] = createSignal("");
-	const [type, setType] = createSignal<TransactionType>("expenses");
-	const [iconName, setIconName] = createSignal("");
-	const [selectedColour, setSelectedColour] = createSignal("");
+	const [category, setCategory] = createStore<CategoryI>({
+		name: "",
+		type: "expenses",
+		iconName: "",
+		colour: "",
+	});
+
+	createEffect(() => {
+		if (isEditCategoryModal() && props.categoryToEdit) {
+			setCategory(props.categoryToEdit);
+		} else {
+			// Reset to default values for "Add" mode
+			setCategory({
+				name: "",
+				type: "expenses",
+				iconName: "",
+				colour: "",
+			});
+		}
+	});
 
 	const types = ["expenses", "income", "investments"];
 
 	async function handleSubmit() {
-		if (name() && selectedColour() && iconName() && type()) {
-			const category = {
-				name: name(),
-				colour: selectedColour(),
-				iconName: iconName(),
-				type: type(),
-			};
-			return await addNewCategory({ category: category });
+		if (category && !isEditCategoryModal()) {
+			return await addNewCategory({
+				category: {
+					name: category.name,
+					colour: category.colour,
+					iconName: category.iconName,
+					type: category.type,
+				},
+			});
+		} else if (category && isEditCategoryModal()) {
 		} else {
 			toast.error("Missing input");
 		}
+	}
+
+	async function handleEdit() {
+		try {
+			// Step 1: Fetch the existing category
+			const existingCategory = await getItemByIdOrName({
+				dbName: "categories",
+				id: category.id, //todo add id
+			});
+
+			if (!existingCategory) {
+				throw new Error("Category not found");
+			}
+
+			// Step 2: Update the category
+			const updatedCategory = await updateItem({
+				dbName: "categories",
+				itemRef: existingCategory.id,
+				updatedValue: category,
+			});
+
+			console.debug("Updated category:", updatedCategory);
+			return updatedCategory;
+		} catch (error) {
+			console.error("Error in handleEdit:", error);
+			throw error; // Re-throw the error to handle it in the calling function
+		}
+	}
+
+	async function handleDelete() {
+		const existingCategory = await getItemByIdOrName({
+			dbName: "categories",
+			name: category.name,
+		});
+		return await deleteItem({
+			dbName: "categories",
+			itemRef: existingCategory.id,
+		});
 	}
 
 	return (
 		<div>
 			<Modal
 				showModal={showModal()}
-				headerTitle="Add Category"
+				headerTitle={`${isEditCategoryModal() ? "Edit" : "Add"} Category`}
 				handleClose={props.handleClose}
 			>
 				<div class="inputsContainer">
@@ -55,18 +125,20 @@ export default function AddCategoryModal(props: ModalProps) {
 								id="category-name"
 								class="formElements"
 								placeholder="Category Name"
+								value={isEditCategoryModal() ? category.name : ""}
 								required={true}
 								onBlur={(e) => {
 									e.preventDefault();
-									setName(e.target.value);
+									setCategory("name", e.target.value);
 								}}
 							/>
 						</span>
 						<span>
 							<label for="type">Type</label>
 							<select
+								value={isEditCategoryModal() ? category.type : ""}
 								onChange={(e) => {
-									setType(e.target.value as TransactionType);
+									setCategory("type", e.target.value as TransactionType);
 								}}
 								required={true}
 								id="category"
@@ -86,11 +158,11 @@ export default function AddCategoryModal(props: ModalProps) {
 											{([shade, bgClass]) => (
 												<button
 													class={`grid-button ${bgClass} hover:ring-${color.name}-500 transition-all
-														${selectedColour() === `${color.name}-${shade}` ? `ring-2 ring-offset-2 ring-${color.name}-500` : ""}
+														${category.colour === `${color.name}-${shade}` ? `ring-2 ring-offset-2 ring-${color.name}-500` : ""}
 														`}
 													onClick={(e) => {
 														e.preventDefault();
-														setSelectedColour(`${color.name}-${shade}`);
+														setCategory("colour", `${color.name}-${shade}`);
 													}}
 													title={`${color.name}-${shade}`}
 												/>
@@ -111,11 +183,11 @@ export default function AddCategoryModal(props: ModalProps) {
 											id="inline-radio"
 											class={`
 												grid-button border-1 border-gray-300 flex items-center justify-center
-												${iconName() === `${icon}` ? `ring-2 ring-offset-2 ring-gray-500` : ""}
+												${category.iconName === `${icon}` ? `ring-2 ring-offset-2 ring-gray-500` : ""}
 											`}
 											onClick={(e) => {
 												e.preventDefault();
-												setIconName(icon);
+												setCategory("iconName", icon);
 											}}
 										>
 											{icon ? iconMap[icon]?.() : ""}
@@ -127,16 +199,46 @@ export default function AddCategoryModal(props: ModalProps) {
 					</div>
 				</div>
 				{/*tooltip doesn't work, may be hiding behind modal*/}
-				<PlusIconButton
-					type="submit"
-					variant="secondary"
-					handleClick={async (e: Event) => {
-						e.preventDefault();
-						await handleSubmit();
-						props.handleClose();
-					}}
-					title="Add new category"
-				/>
+				<Show
+					when={isEditCategoryModal()}
+					fallback={
+						<Button
+							leftIcon={<PlusIcon />}
+							type="submit"
+							styleClass="primary"
+							onClick={async () => {
+								await handleSubmit();
+								props.handleClose();
+							}}
+							text="Add new category"
+						/>
+					}
+				>
+					<div class="grid grid-cols-2 gap-10 mt-8">
+						<Button
+							styleClass="primary edit-submit mx-auto"
+							leftIcon={<PlusIcon />}
+							type="submit"
+							onClick={async () => {
+								await handleEdit();
+								props.handleClose();
+							}}
+							text="Save edit"
+						/>
+
+						<Button
+							leftIcon={<BinIcon />}
+							type="submit"
+							styleClass="danger mx-auto"
+							onClick={async () => {
+								await handleDelete();
+								props.handleClose();
+							}}
+						>
+							Delete Category
+						</Button>
+					</div>
+				</Show>
 			</Modal>
 			<Toaster />
 		</div>
