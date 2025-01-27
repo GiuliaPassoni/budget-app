@@ -5,8 +5,8 @@ import { format } from "date-fns";
 import "./style.css";
 import Button from "~/components/atoms/Button";
 import EditIcon from "~/components/atoms/icons/EditIcon";
-import EditTransactionModal from "../EditTransactionModal";
 import { TransactionType } from "~/helpers/types";
+import AddTransactionModal from "~/components/molecules/AddTransactionModal";
 
 interface TableProps {
 	array: TransactionI[] | undefined;
@@ -36,8 +36,9 @@ export default function Table(props: TableProps) {
 
 	const [showEditTransactionModal, setShowEditTransactionModal] =
 		createSignal(false);
-	const [selectedTransaction, setSelectedTransaction] =
-		createSignal<TransactionI | null>(null);
+	const [selectedTransaction, setSelectedTransaction] = createSignal<
+		TransactionI | undefined
+	>(undefined);
 
 	// todo add filtering
 
@@ -92,11 +93,12 @@ export default function Table(props: TableProps) {
 				</table>
 			</div>
 			{showEditTransactionModal() && selectedTransaction() && (
-				<EditTransactionModal
+				<AddTransactionModal
 					showModal={showEditTransactionModal()}
-					item={selectedTransaction()}
-					type={props.type}
+					isEditTransactionModal={true}
+					transactionToEdit={selectedTransaction()}
 					handleClose={() => setShowEditTransactionModal(false)}
+					onSubmit={() => setShowEditTransactionModal(false)}
 				/>
 			)}
 		</div>
