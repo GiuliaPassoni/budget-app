@@ -7,7 +7,6 @@ import {
 	doc,
 	DocumentData,
 	DocumentReference,
-	Firestore,
 	getDoc,
 	getDocs,
 	onSnapshot,
@@ -15,7 +14,7 @@ import {
 	updateDoc,
 	where,
 } from "firebase/firestore";
-import { currentUser } from "~/firebase";
+import { currentUser, db } from "~/firebase";
 import { toast } from "solid-toast";
 import { CategoryI } from "~/helpers/types";
 
@@ -37,7 +36,6 @@ interface DeleteItemPropsI {
 }
 
 interface UseFirebaseCollectionProps<TInput, TOutput extends { id: string }> {
-	db: Firestore;
 	collectionPath: () => string[] | undefined; // Now accepts a function that returns path segments
 	requireAuth?: boolean;
 	transform?: (data: DocumentData & { id: string }) => TOutput;
@@ -68,7 +66,6 @@ export function useFirebaseCollection<
 	TInput extends Omit<TOutput, "id">,
 	TOutput extends { id: string },
 >({
-	db,
 	collectionPath,
 	requireAuth = true,
 	transform = (data) => ({ ...data }) as TOutput,
