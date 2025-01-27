@@ -1,4 +1,4 @@
-import { createEffect, createSignal, For, Show } from "solid-js";
+import { createEffect, For, Show } from "solid-js";
 import { CategoryI, TransactionType } from "~/helpers/types";
 import { toast, Toaster } from "solid-toast";
 import {
@@ -27,9 +27,6 @@ interface ModalProps {
 export default function AddCategoryModal(props: ModalProps) {
 	const showModal = () => props.showModal;
 	const isEditCategoryModal = () => props.isEditCategoryModal;
-	const [categoryToEdit, setCategoryToEdit] = createSignal<
-		CategoryI | undefined
-	>(props.categoryToEdit);
 
 	const [category, setCategory] = createStore<CategoryI>({
 		name: "",
