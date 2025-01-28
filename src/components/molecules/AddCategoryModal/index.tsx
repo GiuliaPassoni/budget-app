@@ -1,11 +1,9 @@
-import { createEffect, For, Show } from "solid-js";
-import { CategoryI, TransactionType } from "~/helpers/types";
+import { createEffect, createSignal, For, Show } from "solid-js";
+import { CategoryI, CategoryWithId, TransactionType } from "~/helpers/types";
 import { toast, Toaster } from "solid-toast";
 import {
-	addNewCategory,
 	deleteItem,
 	getItemByIdOrName,
-	updateItem,
 } from "~/helpers/categories_api_helpers";
 import { colorOptions } from "~/helpers/colour_helpers";
 import { iconKeys, iconMap } from "~/components/atoms/icons/helpers";
@@ -15,6 +13,8 @@ import { createStore } from "solid-js/store";
 import Button from "~/components/atoms/Button";
 import PlusIcon from "~/components/atoms/icons/PlusIcon";
 import BinIcon from "~/components/atoms/icons/BinIcon";
+import { useFirebaseCollection } from "~/hooks/useFirebaseCollection";
+import { currentUser } from "~/firebase";
 
 interface ModalProps {
 	showModal: boolean;
@@ -27,41 +27,50 @@ interface ModalProps {
 export default function AddCategoryModal(props: ModalProps) {
 	const showModal = () => props.showModal;
 	const isEditCategoryModal = () => props.isEditCategoryModal;
-
-	const [category, setCategory] = createStore<CategoryI>({
+	const emptyCategory: CategoryI = {
 		name: "",
 		type: "expenses",
 		iconName: "",
 		colour: "",
-	});
+	};
+
+	const [category, setCategory] = createStore<CategoryI>(emptyCategory);
+	const [nameError, setNameError] = createSignal(false);
+	// todo add field validation for empty fields. Consider updating or reusing existing validator checks.
 
 	createEffect(() => {
 		if (isEditCategoryModal() && props.categoryToEdit) {
 			setCategory(props.categoryToEdit);
 		} else {
-			// Reset to default values for "Add" mode
-			setCategory({
-				name: "",
-				type: "expenses",
-				iconName: "",
-				colour: "",
-			});
+			setCategory(emptyCategory);
 		}
 	});
 
 	const types = ["expenses", "income", "investments"];
 
+	const {
+		add: addCategory,
+		updateItem: updateCategory,
+		data: existingCategories,
+	} = useFirebaseCollection<CategoryI, CategoryWithId>({
+		collectionPath: () => [`users/${currentUser()}/categories`],
+	});
+
+	const isCategoryNameDuplicate = (name: string) => {
+		const categories = existingCategories();
+		return categories.some((category) => category.name === name);
+	};
+
 	async function handleSubmit() {
 		if (category && !isEditCategoryModal()) {
-			return await addNewCategory({
-				category: {
-					name: category.name,
-					colour: category.colour,
-					iconName: category.iconName,
-					type: category.type,
-				},
+			return await addCategory({
+				name: category.name,
+				colour: category.colour,
+				iconName: category.iconName,
+				type: category.type,
 			});
 		} else if (category && isEditCategoryModal()) {
+			return await handleEdit();
 		} else {
 			toast.error("Missing input");
 		}
@@ -80,13 +89,12 @@ export default function AddCategoryModal(props: ModalProps) {
 			}
 
 			// Step 2: Update the category
-			const updatedCategory = await updateItem({
+			const updatedCategory = await updateCategory({
 				dbName: "categories",
 				itemRef: existingCategory.id,
 				updatedValue: category,
 			});
 
-			console.debug("Updated category:", updatedCategory);
 			return updatedCategory;
 		} catch (error) {
 			console.error("Error in handleEdit:", error);
@@ -99,9 +107,12 @@ export default function AddCategoryModal(props: ModalProps) {
 			dbName: "categories",
 			name: category.name,
 		});
+		if (!existingCategory) {
+			throw new Error("Category not found");
+		}
 		return await deleteItem({
 			dbName: "categories",
-			itemRef: existingCategory.id,
+			itemRef: existingCategory!.id,
 		});
 	}
 
@@ -120,15 +131,27 @@ export default function AddCategoryModal(props: ModalProps) {
 								type="text"
 								name="name"
 								id="category-name"
-								class="formElements"
+								class={`formElements`}
 								placeholder="Category Name"
 								value={isEditCategoryModal() ? category.name : ""}
 								required={true}
 								onBlur={(e) => {
 									e.preventDefault();
-									setCategory("name", e.target.value);
+									const isDuplicate = isCategoryNameDuplicate(e.target.value);
+									if (!isDuplicate) {
+										setNameError(false);
+										setCategory("name", e.target.value);
+									} else {
+										setNameError(true);
+										return;
+									}
 								}}
 							/>
+							<Show when={nameError()}>
+								<p class="text-red-600 text-small">
+									"Category name already exists"
+								</p>
+							</Show>
 						</span>
 						<span>
 							<label for="type">Type</label>
@@ -200,9 +223,10 @@ export default function AddCategoryModal(props: ModalProps) {
 					when={isEditCategoryModal()}
 					fallback={
 						<Button
+							disabled={nameError()}
 							leftIcon={<PlusIcon />}
 							type="submit"
-							styleClass="primary"
+							styleClass="primary mt-6"
 							onClick={async () => {
 								await handleSubmit();
 								props.handleClose();
@@ -213,11 +237,12 @@ export default function AddCategoryModal(props: ModalProps) {
 				>
 					<div class="grid grid-cols-2 gap-10 mt-8">
 						<Button
+							disabled={nameError()}
 							styleClass="primary edit-submit mx-auto"
 							leftIcon={<PlusIcon />}
 							type="submit"
 							onClick={async () => {
-								await handleEdit();
+								await handleSubmit();
 								props.handleClose();
 							}}
 							text="Save edit"

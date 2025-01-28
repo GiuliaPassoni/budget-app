@@ -39,7 +39,7 @@ export default function Button(props: IProps) {
 					e.preventDefault();
 					props.onClick();
 				}}
-				class={`${styles.buttonStyle} ${classParser}`}
+				class={`${styles.buttonStyle} ${classParser} ${disabled() ? styles.disabled : ""}`}
 				disabled={disabled()}
 			>
 				<Show when={leftIcon()}>{leftIcon()}</Show>
