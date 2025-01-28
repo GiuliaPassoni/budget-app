@@ -69,6 +69,8 @@ export default function AddTransactionModal(props: ModalProps) {
 		if (isEditTransactionModal() && props.transactionToEdit) {
 			setIsLoading(true);
 			setTransaction(props.transactionToEdit);
+			// Set the date signal to the transaction's date
+			setDate(props.transactionToEdit.date.toDate());
 			try {
 				const ctgName = transaction.ctg_name;
 				const categ = await getItemByIdOrName({
@@ -95,6 +97,7 @@ export default function AddTransactionModal(props: ModalProps) {
 				ctg_name: "",
 				notes: "",
 			});
+			setDate(new Date());
 		}
 	});
 
@@ -144,7 +147,7 @@ export default function AddTransactionModal(props: ModalProps) {
 				currency,
 				exchange_to_default,
 				notes,
-				date: new Date(),
+				date: date(),
 				ctg_name,
 				type,
 			};
@@ -152,7 +155,7 @@ export default function AddTransactionModal(props: ModalProps) {
 				toast.error("Please specify transaction type");
 			}
 			try {
-				const newTransactionId = await addTransaction(newTransaction);
+				const newTransactionId = await addTransaction(newTransaction); //todo return this
 				if (props.onSubmit) {
 					props.onSubmit();
 				}
@@ -180,7 +183,7 @@ export default function AddTransactionModal(props: ModalProps) {
 		return await updateItem({
 			dbName: transaction.type,
 			itemRef: transaction.id,
-			updatedValue: transaction,
+			updatedValue: { ...transaction, date: date() },
 		});
 	}
 
@@ -256,6 +259,7 @@ export default function AddTransactionModal(props: ModalProps) {
 					<label for="category">Category</label>
 					<Show when={!loading()} fallback={<LoadingSpinner />}>
 						<div class={`${styles.categoryGrid} scrollbar-always`}>
+							{/*todo fix the selection filtering below - ux isn't great*/}
 							<For
 								each={
 									isEditTransactionModal()
@@ -284,7 +288,6 @@ export default function AddTransactionModal(props: ModalProps) {
 									/>
 								)}
 							</For>
-							{/*todo connect category modal, or handle the flow otherwise*/}
 							<CardWithIcon
 								colour="gray"
 								title="Add new category"
