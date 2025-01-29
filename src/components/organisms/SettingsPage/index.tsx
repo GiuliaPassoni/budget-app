@@ -1,14 +1,65 @@
 import "./style.css";
 import MainLayout from "~/components/organisms/MainLayout";
-import { createSignal, For } from "solid-js";
+import { createSignal, For, onMount, Show } from "solid-js";
 import allCurrencies from "~/helpers/mock_values_helpers";
+import { useFirebaseCollection } from "~/hooks/useFirebaseCollection";
+import { currentUser } from "~/firebase";
+import SpinnerIcon from "~/components/atoms/icons/SpinnerIcon";
 
 export default function SettingsPage() {
-	console.debug("Settings Page");
 	const [currency, setCurrency] = createSignal("EUR"); //todo should be store?
+
+	// todo move to their own store/context
+	const { fetchTotalAmountEver, fetchAmountByPeriod } = useFirebaseCollection({
+		collectionPath: () => [`users/${currentUser()}/expenses`], //todo this isn't currently used
+	});
+
+	const [totalIncome, setTotalIncome] = createSignal(0);
+	const [totalExpenses, setTotalExpenses] = createSignal(0);
+	const [monthlyExpenses, setMonthlyExpenses] = createSignal(0);
+	const [totalInvestment, setTotalInvestment] = createSignal(0);
+
+	onMount(async () => {
+		const expenses = await fetchTotalAmountEver({ type: "expenses" }),
+			income = await fetchTotalAmountEver({ type: "income" }),
+			investments = await fetchTotalAmountEver({ type: "investments" });
+		setTotalExpenses(expenses);
+		setTotalIncome(income);
+		setTotalInvestment(investments);
+
+		const monthlyExp = await fetchAmountByPeriod({
+			type: "expenses",
+			periodType: "monthly",
+		});
+		setMonthlyExpenses(monthlyExp);
+	});
 
 	return (
 		<MainLayout title="Settings">
+			<div>
+				Expenses:
+				<Show when={totalExpenses()} fallback={<SpinnerIcon />}>
+					{totalExpenses()}
+				</Show>
+			</div>
+			<div>
+				Income:
+				<Show when={totalIncome()} fallback={<SpinnerIcon />}>
+					{totalIncome()}
+				</Show>
+			</div>
+			<div>
+				Invested:
+				<Show when={totalInvestment()} fallback={<SpinnerIcon />}>
+					{totalInvestment()}
+				</Show>
+			</div>
+			<div>
+				Monthly Expenses:
+				<Show when={monthlyExpenses()} fallback={<SpinnerIcon />}>
+					{monthlyExpenses()}
+				</Show>
+			</div>
 			<form>
 				<div>
 					<div class="col-span-4 sm:col-span-1 mx-3 p-2">
