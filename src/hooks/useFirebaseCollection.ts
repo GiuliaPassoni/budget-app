@@ -16,7 +16,22 @@ import {
 } from "firebase/firestore";
 import { currentUser, db } from "~/firebase";
 import { toast } from "solid-toast";
-import { CategoryI } from "~/helpers/types";
+import { CategoryI, TransactionType } from "~/helpers/types";
+import firebase from "firebase/compat/app";
+import "firebase/compat/firestore";
+import {
+	getEndOfDay,
+	getEndOfMonth,
+	getEndOfWeek,
+	getEndOfYear,
+	getStartOfDay,
+	getStartOfMonth,
+	getStartOfWeek,
+	getStartOfYear,
+} from "~/helpers/dateHelpers";
+import { calculateTransactionTotal } from "~/helpers/computations";
+
+type Timestamp = firebase.firestore.Timestamp;
 
 interface getItemPropsI {
 	dbName: string;
@@ -33,6 +48,13 @@ interface updateItemPropsI {
 interface DeleteItemPropsI {
 	dbName: string;
 	itemRef: string;
+}
+
+interface FetchAmountPropsI {
+	type: "income" | "expenses";
+	periodType: "daily" | "weekly" | "monthly" | "yearly" | "custom";
+	startDate?: Date; // For custom period
+	endDate?: Date; // For custom period
 }
 
 interface UseFirebaseCollectionProps<TInput, TOutput extends { id: string }> {
@@ -54,6 +76,17 @@ interface UseFirebaseCollectionReturn<TInput, TOutput> {
 	}: updateItemPropsI) => Promise<void>;
 	deleteItem: ({ dbName, itemRef }: DeleteItemPropsI) => Promise<void>;
 	refresh: () => void;
+	fetchAmountByPeriod: ({
+		type,
+		periodType,
+		startDate,
+		endDate,
+	}: FetchAmountPropsI) => Promise<number>;
+	fetchTotalAmountEver: ({
+		type,
+	}: {
+		type: TransactionType;
+	}) => Promise<number>;
 	// getById: (id: string) => Promise<TOutput | null>;
 	// getByField: (field: keyof TInput, value: any) => Promise<TOutput[]>;
 	// listenToOne: (
@@ -136,7 +169,7 @@ export function useFirebaseCollection<
 
 	// todo simplify hook and update implementation to be from hook instead of catg helpers
 	async function getItemByIdOrName({ dbName, id, name }: getItemPropsI) {
-		const collectionRef = collection(db, "users", currentUser(), dbName);
+		const collectionRef = collection(db, "users", currentUser(), dbName); //todo replace
 
 		if (name) {
 			// If we have a name, query by name field
@@ -185,7 +218,7 @@ export function useFirebaseCollection<
 		itemRef,
 		updatedValue,
 	}: updateItemPropsI): Promise<void> => {
-		// const docRef = getDocRef(id);
+		// const docRef = getDocRef(itemRef); //todo fix
 		const reference = doc(db, "users", currentUser(), dbName, itemRef);
 		if (!itemRef) throw new Error("Invalid document reference");
 
@@ -219,6 +252,69 @@ export function useFirebaseCollection<
 		}
 	};
 
+	const fetchAmountByPeriod = async ({
+		type,
+		periodType,
+		...props
+	}: FetchAmountPropsI) => {
+		let startTimestamp: Timestamp;
+		let endTimestamp: Timestamp;
+
+		const now = new Date(); // Current date for non-custom periods
+
+		switch (periodType) {
+			case "daily":
+				startTimestamp = getStartOfDay(now);
+				endTimestamp = getEndOfDay(now);
+				break;
+			case "weekly":
+				startTimestamp = getStartOfWeek(now);
+				endTimestamp = getEndOfWeek(now);
+				break;
+			case "monthly":
+				startTimestamp = getStartOfMonth(now);
+				endTimestamp = getEndOfMonth(now);
+				break;
+			case "yearly":
+				startTimestamp = getStartOfYear(now);
+				endTimestamp = getEndOfYear(now);
+				break;
+			case "custom":
+				if (!props.startDate || !props.endDate) {
+					throw new Error(
+						"Start and end dates are required for custom periods.",
+					);
+				}
+				startTimestamp = firebase.firestore.Timestamp.fromDate(props.startDate);
+				endTimestamp = firebase.firestore.Timestamp.fromDate(props.endDate);
+				break;
+			default:
+				throw new Error("Invalid period type.");
+		}
+
+		// const transactionsRef = getCollectionRef();
+		const transactionsRef = collection(db, "users", currentUser(), type); //todo replace with existing fn
+		const q = query(
+			transactionsRef,
+			where("date", ">=", startTimestamp),
+			where("date", "<=", endTimestamp),
+		);
+		const querySnapshot = await getDocs(q);
+		const mapper = querySnapshot.docs.map((doc) => doc.data());
+		const totalOverPeriod = calculateTransactionTotal(mapper);
+		return totalOverPeriod;
+	};
+
+	const fetchTotalAmountEver = async ({ type }: { type: TransactionType }) => {
+		// const collectionRef = getCollectionRef(); //todo fix this
+		const querySnapshot = await getDocs(
+			collection(db, `users/${currentUser()}/${type}`),
+		);
+		const allTransactions = querySnapshot.docs.map((doc) => doc.data());
+		const totalEver = calculateTransactionTotal(allTransactions);
+		return totalEver;
+	};
+
 	// Setup effect to watch for path changes
 	createEffect(() => {
 		setupListener();
@@ -239,6 +335,8 @@ export function useFirebaseCollection<
 		getItemByIdOrName,
 		updateItem,
 		deleteItem,
+		fetchAmountByPeriod,
+		fetchTotalAmountEver,
 		refresh: setupListener,
 	};
 }
