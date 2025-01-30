@@ -5,14 +5,24 @@ import allCurrencies from "~/helpers/mock_values_helpers";
 import { useFirebaseCollection } from "~/hooks/useFirebaseCollection";
 import { currentUser } from "~/firebase";
 import SpinnerIcon from "~/components/atoms/icons/SpinnerIcon";
+import { getExchange } from "~/helpers/currency";
+import { useAuthState } from "~/services/provider/auth";
 
 export default function SettingsPage() {
-	const [currency, setCurrency] = createSignal("EUR"); //todo should be store?
+	const { user, updateUser } = useAuthState();
+
+	const handleCurrencyChange = (newCurrency: string) => {
+		if (user) {
+			updateUser({ selected_currency: newCurrency });
+		}
+	};
 
 	// todo move to their own store/context
 	const { fetchTotalAmountEver, fetchAmountByPeriod } = useFirebaseCollection({
 		collectionPath: () => [`users/${currentUser()}/expenses`], //todo this isn't currently used
 	});
+
+	const [test, setTest] = createSignal<any>();
 
 	const [totalIncome, setTotalIncome] = createSignal(0);
 	const [totalExpenses, setTotalExpenses] = createSignal(0);
@@ -32,6 +42,13 @@ export default function SettingsPage() {
 			periodType: "monthly",
 		});
 		setMonthlyExpenses(monthlyExp);
+
+		try {
+			const res = await getExchange({ fromCurrency: "EUR", toCurrency: "USD" });
+			setTest(res.rate["EUR"]);
+		} catch {
+			throw new Error("error");
+		}
 	});
 
 	return (
@@ -60,6 +77,12 @@ export default function SettingsPage() {
 					{monthlyExpenses()}
 				</Show>
 			</div>
+			<div>
+				test:
+				<Show when={test()} fallback={<SpinnerIcon />}>
+					{test()}
+				</Show>
+			</div>
 			<form>
 				<div>
 					<div class="col-span-4 sm:col-span-1 mx-3 p-2">
@@ -71,7 +94,8 @@ export default function SettingsPage() {
 						</label>
 						<select
 							onChange={(e) => {
-								setCurrency(e.target.value);
+								handleCurrencyChange(e.target.value);
+								console.debug(user?.selected_currency);
 							}}
 							required={true}
 							id="category"

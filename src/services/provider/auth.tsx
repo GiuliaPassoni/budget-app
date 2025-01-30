@@ -17,6 +17,7 @@ interface AuthStateContextI {
 	isAuthenticated: boolean;
 	loading: boolean;
 	user: UserI | null;
+	updateUser: (updatedProperties: Partial<UserI>) => void;
 }
 
 let AuthStateContext = createContext<AuthStateContextI>();
@@ -37,6 +38,12 @@ export default function AuthProvider(props: { children: JSXElement }) {
 		isAuthenticated: false,
 		loading: true,
 		user: null,
+		updateUser: (updatedProperties: Partial<UserI>) => {
+			setStore("user", (prevUser) => ({
+				...prevUser,
+				...updatedProperties,
+			}));
+		},
 	});
 
 	onMount(async () => {

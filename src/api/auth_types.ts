@@ -5,4 +5,7 @@ export interface UserI {
 	password: string;
 	avatar?: string;
 	selected_currency: string;
+	totalExpenses?: number;
+	totalIncome?: number;
+	totalInvestments?: number;
 }
