@@ -10,7 +10,7 @@ import {
 	TransactionI,
 	TransactionWithId,
 } from "~/helpers/expenses_api_helpers";
-import { currentUser, db } from "~/firebase";
+import { currentUser } from "~/firebase";
 import MainLayout from "~/components/organisms/MainLayout";
 import PieChart from "~/components/atoms/PieChart";
 import Toast from "~/components/molecules/Toast";
@@ -27,7 +27,6 @@ export default function OverviewPage() {
 		loading,
 		error,
 	} = useFirebaseCollection<TransactionI, TransactionWithId>({
-		db,
 		collectionPath: () => {
 			const userId = currentUser();
 			return userId ? ["users", userId, database()] : undefined;
