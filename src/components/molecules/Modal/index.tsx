@@ -16,8 +16,8 @@ export default function Modal(props: PropsI) {
 
 	return (
 		<div class={`${showModal() ? "flex" : "hidden"}`}>
-			<div class={styles.overlay}>
-				<div class={styles.modalContainer}>
+			<div class={styles.overlay} onClick={() => props.handleClose()}>
+				<div class={styles.modalContainer} onClick={(e) => e.stopPropagation()}>
 					{/*Modal content*/}
 					<div class={styles.modalContent}>
 						{/*Modal header*/}
