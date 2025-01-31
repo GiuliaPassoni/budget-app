@@ -12,7 +12,7 @@ interface TableProps {
 	array: TransactionI[] | undefined;
 	type: TransactionType;
 }
-
+// todo add skeleton table while data loads (from usefirebasehook loading state)
 // todo these date functions are throwing random dates
 export function formatDate(date: Date | string) {
 	return format(typeof date === "string" ? new Date(date) : date, "dd-MM-yyyy");
