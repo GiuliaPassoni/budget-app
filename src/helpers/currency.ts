@@ -12,6 +12,11 @@ export async function getExchange({
 	fromCurrency: string;
 	toCurrency: string;
 }) {
+	if (!fromCurrency || !toCurrency) {
+		throw new Error(
+			`${!fromCurrency ? "Default" : "Exchange"} currency must be provided.`,
+		);
+	}
 	const url = `${baseUrl}&symbols=${fromCurrency},${toCurrency}`;
 	try {
 		const { data } = await axios.get(url);
