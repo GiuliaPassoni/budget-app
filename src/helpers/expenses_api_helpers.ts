@@ -14,6 +14,7 @@ export interface TransactionI {
 	amount: number;
 	currency: string;
 	exchange_to_default: number;
+	exchange_on_date?: string | Date;
 	notes?: string;
 	date: any;
 	ctg_name: string;
