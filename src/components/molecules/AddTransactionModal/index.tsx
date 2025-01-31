@@ -1,4 +1,11 @@
-import { createMemo, createSignal, For, onMount, Show } from "solid-js";
+import {
+	createEffect,
+	createMemo,
+	createSignal,
+	For,
+	onMount,
+	Show,
+} from "solid-js";
 import { toast, Toaster } from "solid-toast";
 import {
 	TransactionI,
@@ -26,6 +33,14 @@ import { useFirebaseCollection } from "~/hooks/useFirebaseCollection";
 import PlusIcon from "~/components/atoms/icons/PlusIcon";
 import BinIcon from "~/components/atoms/icons/BinIcon";
 import LoadingSpinner from "~/components/atoms/LoadingSpinner";
+import {
+	isSameDay,
+	today,
+	twoDaysAgo,
+	yesterday,
+} from "~/components/molecules/AddTransactionModal/datepickerHelpers";
+import { useAuthState } from "~/services/provider/auth";
+import { getExchange } from "~/helpers/currency";
 
 interface ModalProps {
 	showModal: boolean;
@@ -36,22 +51,13 @@ interface ModalProps {
 }
 // todo what about using the <dialog> feature for modals? Do some research
 
-const today = new Date();
-const yesterday = new Date(new Date().setDate(new Date().getDate() - 1));
-const twoDaysAgo = new Date(new Date().setDate(new Date().getDate() - 2));
-
-const isSameDay = (date1: Date, date2: Date) => {
-	return (
-		date1.getFullYear() === date2.getFullYear() &&
-		date1.getMonth() === date2.getMonth() &&
-		date1.getDate() === date2.getDate()
-	);
-};
-
 export default function AddTransactionModal(props: ModalProps) {
 	const showModal = () => props.showModal;
-	const [loading, setIsLoading] = createSignal<boolean>(false);
 	const isEditTransactionModal = () => props.isEditTransactionModal;
+
+	const { user, loading: userLoading } = useAuthState();
+
+	const [loading, setIsLoading] = createSignal<boolean>(false);
 	const [showCategModal, setShowCategModal] = createSignal<boolean>(false);
 	const [date, setDate] = createSignal<Date>(new Date());
 	const [transaction, setTransaction] = createStore<Pick<TransactionI, any>>({
@@ -65,7 +71,138 @@ export default function AddTransactionModal(props: ModalProps) {
 	});
 	const [editCategory, setEditCategory] = createSignal<CategoryI>();
 
+	const { add: addTransaction } = useFirebaseCollection<
+		TransactionI,
+		TransactionWithId
+	>({ collectionPath: () => [`users/${currentUser()}/${transaction.type}`] });
+
+	const { data: categories } = useFirebaseCollection<CategoryI, CategoryWithId>(
+		{ collectionPath: () => [`users/${currentUser()}/categories`] },
+	);
+
+	function handleTabClick(prop: TransactionType) {
+		setTransaction("type", prop); //todo replace with separate signal?
+	}
+
+	const dates = createMemo(() => {
+		// If selected date is not today or yesterday, show it in the third slot
+		const selectedDate = date();
+		const isSelectedTodayOrYesterday =
+			isSameDay(selectedDate, today) || isSameDay(selectedDate, yesterday);
+		const thirdDate = isSelectedTodayOrYesterday ? twoDaysAgo : selectedDate;
+		const thirdLabel = isSelectedTodayOrYesterday ? "2 days ago" : "selected";
+
+		return [
+			{ label: "today", date: today },
+			{ label: "yesterday", date: yesterday },
+			{ label: thirdLabel, date: thirdDate },
+		];
+	});
+
+	function isButtonSelected(buttonDate: Date) {
+		const selectedDate = date();
+		const today = new Date();
+		const yesterday = new Date(new Date().setDate(new Date().getDate() - 1));
+
+		// If date is today or yesterday, only those buttons can be selected
+		if (isSameDay(selectedDate, today) || isSameDay(selectedDate, yesterday)) {
+			return isSameDay(selectedDate, buttonDate);
+		}
+
+		// Otherwise, only the third button can be selected
+		return (
+			isSameDay(selectedDate, buttonDate) &&
+			!isSameDay(buttonDate, today) &&
+			!isSameDay(buttonDate, yesterday)
+		);
+	}
+
+	async function handleSubmit() {
+		const { amount, currency, exchange_to_default, ctg_name, type, notes } =
+			transaction;
+		if (transaction) {
+			if (currency !== user?.selectedCurrency) {
+				// fixme currency not available
+				try {
+					console.debug("b4 trans", amount, currency, exchange_to_default);
+					const res = await getExchange({
+						fromCurrency: user?.selectedCurrency ?? "EUR", //todo fix conditional
+						toCurrency: currency,
+					});
+					console.debug("exch", res);
+
+					setTransaction(
+						"exchange_to_default",
+						res?.rate[user?.selectedCurrency || "EUR"],
+					);
+					setTransaction("exchange_on_day", res?.date);
+					setTransaction(
+						"amount",
+						transaction.amount * transaction.exchange_to_default,
+					);
+					console.debug("after", amount, currency, exchange_to_default);
+				} catch (error) {
+					throw new Error(error);
+				}
+			}
+
+			const newTransaction = {
+				amount,
+				currency,
+				exchange_to_default,
+				notes,
+				date: date(),
+				ctg_name,
+				type,
+			};
+			if (!type) {
+				toast.error("Please specify transaction type");
+			}
+			try {
+				console.debug(newTransaction);
+				await addTransaction(newTransaction);
+				if (props.onSubmit) {
+					props.onSubmit();
+				}
+				props.handleClose();
+			} catch (error: any) {
+				toast.error(`Failed to add transaction: ${error.message}`);
+			}
+		} else {
+			toast.error("Missing input");
+		}
+	}
+
+	async function handleEdit() {
+		return await updateItem({
+			dbName: transaction.type,
+			itemRef: transaction.id,
+			updatedValue: { ...transaction, date: date() },
+		});
+	}
+
+	async function handleDelete() {
+		return await deleteItem({
+			dbName: transaction.type,
+			itemRef: transaction.id,
+		});
+	}
+
+	createEffect(() => {
+		console.debug("user", user);
+		// todo fix
+		if (user && user.selectedCurrency) {
+			console.log("User currency:", user.selectedCurrency);
+			// Perform other actions here
+		}
+	});
+
 	onMount(async () => {
+		if (!user && userLoading) {
+			setIsLoading(true);
+		} else {
+			setIsLoading(false);
+		}
 		if (isEditTransactionModal() && props.transactionToEdit) {
 			setIsLoading(true);
 			setTransaction(props.transactionToEdit);
@@ -92,7 +229,7 @@ export default function AddTransactionModal(props: ModalProps) {
 			setTransaction({
 				type: "expenses",
 				amount: 0,
-				currency: "EUR",
+				currency: user ? user?.selectedCurrency : "EUR",
 				exchange_to_default: 1,
 				ctg_name: "",
 				notes: "",
@@ -100,99 +237,6 @@ export default function AddTransactionModal(props: ModalProps) {
 			setDate(new Date());
 		}
 	});
-
-	function handleTabClick(prop: TransactionType) {
-		setTransaction("type", prop); //todo replace with separate signal?
-	}
-
-	const dates = createMemo(() => {
-		// If selected date is not today or yesterday, show it in the third slot
-		const selectedDate = date();
-		const isSelectedTodayOrYesterday =
-			isSameDay(selectedDate, today) || isSameDay(selectedDate, yesterday);
-		const thirdDate = isSelectedTodayOrYesterday ? twoDaysAgo : selectedDate;
-		const thirdLabel = isSelectedTodayOrYesterday ? "2 days ago" : "selected";
-
-		return [
-			{ label: "today", date: today },
-			{ label: "yesterday", date: yesterday },
-			{ label: thirdLabel, date: thirdDate },
-		];
-	});
-
-	const isButtonSelected = (buttonDate: Date) => {
-		const selectedDate = date();
-		const today = new Date();
-		const yesterday = new Date(new Date().setDate(new Date().getDate() - 1));
-
-		// If date is today or yesterday, only those buttons can be selected
-		if (isSameDay(selectedDate, today) || isSameDay(selectedDate, yesterday)) {
-			return isSameDay(selectedDate, buttonDate);
-		}
-
-		// Otherwise, only the third button can be selected
-		return (
-			isSameDay(selectedDate, buttonDate) &&
-			!isSameDay(buttonDate, today) &&
-			!isSameDay(buttonDate, yesterday)
-		);
-	};
-
-	async function handleSubmit() {
-		const { amount, currency, exchange_to_default, ctg_name, type, notes } =
-			transaction;
-		if (transaction) {
-			const newTransaction = {
-				amount,
-				currency,
-				exchange_to_default,
-				notes,
-				date: date(),
-				ctg_name,
-				type,
-			};
-			if (!type) {
-				toast.error("Please specify transaction type");
-			}
-			try {
-				const newTransactionId = await addTransaction(newTransaction); //todo return this
-				if (props.onSubmit) {
-					props.onSubmit();
-				}
-				props.handleClose();
-			} catch (error) {
-				toast.error(`Failed to add transaction: ${error.message}`);
-			}
-		} else {
-			toast.error("Missing input");
-		}
-	}
-
-	const { add: addTransaction } = useFirebaseCollection<
-		TransactionI,
-		TransactionWithId
-	>({ collectionPath: () => [`users/${currentUser()}/${transaction.type}`] });
-
-	const { data: categories } = useFirebaseCollection<CategoryI, CategoryWithId>(
-		{
-			collectionPath: () => [`users/${currentUser()}/categories`],
-		},
-	);
-
-	async function handleEdit() {
-		return await updateItem({
-			dbName: transaction.type,
-			itemRef: transaction.id,
-			updatedValue: { ...transaction, date: date() },
-		});
-	}
-
-	async function handleDelete() {
-		return await deleteItem({
-			dbName: transaction.type,
-			itemRef: transaction.id,
-		});
-	}
 
 	return (
 		<div>
@@ -235,7 +279,6 @@ export default function AddTransactionModal(props: ModalProps) {
 					</span>
 					<span>
 						<label for="currency">Currency</label>
-						{/*todo add exchange api*/}
 						<select
 							onChange={(e) => {
 								setTransaction("currency", e.target.value);
@@ -243,7 +286,7 @@ export default function AddTransactionModal(props: ModalProps) {
 							required={true}
 							id="currencySelect"
 							class={styles.formElements}
-							value={transaction.currency ?? "EUR"} //TODO fix default currency to user's
+							value={transaction.currency ?? user?.selectedCurrency}
 						>
 							<For each={allCurrencies}>
 								{(i) => (
@@ -322,24 +365,6 @@ export default function AddTransactionModal(props: ModalProps) {
 						<Datepicker date={date} setDate={setDate} />
 					</div>
 				</div>
-				{/*<div>*/}
-				{/*	<label for="tags">Tags</label>*/}
-				{/*	<div class={styles.tagsContainer}>*/}
-				{/*		<For each={tags()}>*/}
-				{/*			{(i) => (*/}
-				{/*				<Button styleClass="secondary" onClick={() => setTags(i)}>*/}
-				{/*					#{i}*/}
-				{/*				</Button>*/}
-				{/*			)}*/}
-				{/*		</For>*/}
-				{/*		<Button*/}
-				{/*			onClick={(e) => dummyTags.push(e.target.value)}*/}
-				{/*			leftIcon={<PlusIcon />}*/}
-				{/*		>*/}
-				{/*			Add me*/}
-				{/*		</Button>*/}
-				{/*	</div>*/}
-				{/*</div>*/}
 				<div>
 					<label for="description">Transaction Notes</label>
 					<textarea
