@@ -110,8 +110,7 @@ export default function SignUpComponent() {
 					<Button
 						type="submit"
 						styleClass="primary px-3 text-lg"
-						onClick={() => console.debug(form)}
-						// onClick={submitSignup}
+						onClick={submitSignup}
 					>
 						Sign up
 					</Button>
