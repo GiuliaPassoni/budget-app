@@ -29,10 +29,10 @@ if (import.meta.hot) {
 
 export default function App() {
 	return (
-		<Router
-			root={(props) => (
-				<MetaProvider>
-					<AuthProvider>
+		<AuthProvider>
+			<Router
+				root={(props) => (
+					<MetaProvider>
 						<NavbarComponent />
 						<Suspense>{props.children}</Suspense>
 						<Footer />
@@ -44,11 +44,11 @@ export default function App() {
 						>
 							<div class="hmr-loading-indicator">Updating components...</div>
 						</Show>
-					</AuthProvider>
-				</MetaProvider>
-			)}
-		>
-			<FileRoutes />
-		</Router>
+					</MetaProvider>
+				)}
+			>
+				<FileRoutes />
+			</Router>
+		</AuthProvider>
 	);
 }
