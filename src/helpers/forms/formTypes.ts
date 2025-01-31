@@ -11,6 +11,7 @@ export type RegisterForm = {
 	name: string;
 	avatar?: string;
 	confirmPassword: string;
+	selectedCurrency: string;
 } & AuthForm;
 
 export type SubmitCallback<T extends FormDataType> = (f: T) => void;

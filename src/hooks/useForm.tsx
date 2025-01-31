@@ -1,16 +1,14 @@
 import { createStore, produce } from "solid-js/store";
 import { useNavigate } from "@solidjs/router";
-import { handleAuthenticate, handleLogIn, handleRegister } from "~/api/auth";
-import addUser from "~/api/auth";
+import { handleAuthenticate } from "~/api/auth";
 import {
-	InputI,
-	FormDataType,
-	SubmitCallback,
-	FormErrors,
-	ValidatorType,
-	ValidatorFieldConfig,
-	RegisterForm,
 	AuthForm,
+	FormDataType,
+	FormErrors,
+	RegisterForm,
+	SubmitCallback,
+	ValidatorFieldConfig,
+	ValidatorType,
 } from "~/helpers/forms/formTypes";
 import JSX from "solid-js";
 
@@ -47,7 +45,7 @@ export default function useForm<T extends FormDataType>(initialForm: T) {
 		});
 	}
 
-	function handleInput(e: InputI) {
+	function handleInput(e: any) {
 		const { name, value } = e.currentTarget;
 		setForm(name as any, value as any);
 	}

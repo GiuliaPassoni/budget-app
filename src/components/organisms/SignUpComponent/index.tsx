@@ -11,6 +11,8 @@ import FormError from "~/components/atoms/FormError";
 import useForm from "~/hooks/useForm";
 import { A } from "@solidjs/router";
 import Button from "~/components/atoms/Button";
+import { For } from "solid-js";
+import allCurrencies from "~/helpers/mock_values_helpers";
 
 export default function SignUpComponent() {
 	const { form, handleInput, validate, handleSubmit, errors } =
@@ -19,6 +21,7 @@ export default function SignUpComponent() {
 			email: "",
 			password: "",
 			confirmPassword: "",
+			selectedCurrency: "EUR",
 		});
 
 	async function submitSignup() {
@@ -84,11 +87,31 @@ export default function SignUpComponent() {
 					/>
 					<FormError>{errors["confirmPassword"]}</FormError>
 				</div>
+				<div>
+					<div class="entry">
+						<label for="category">Default Currency</label>
+						<select
+							name="selectedCurrency"
+							onChange={handleInput}
+							onClick={handleInput}
+							use:validate={[requiredField]}
+						>
+							<For each={allCurrencies}>
+								{(i) => (
+									<option value={i.currency_code}>
+										{i.currency_code} ({i.country})
+									</option>
+								)}
+							</For>
+						</select>
+					</div>
+				</div>
 				<div class="submit-buttons">
 					<Button
 						type="submit"
 						styleClass="primary px-3 text-lg"
-						onClick={submitSignup}
+						onClick={() => console.debug(form)}
+						// onClick={submitSignup}
 					>
 						Sign up
 					</Button>
