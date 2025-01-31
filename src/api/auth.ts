@@ -1,11 +1,18 @@
 import {
 	createUserWithEmailAndPassword,
-	signInWithEmailAndPassword,
 	onAuthStateChanged,
+	signInWithEmailAndPassword,
 } from "firebase/auth";
 import { toast } from "solid-toast";
 import { auth, db, setCurrentUser } from "~/firebase";
-import { collection, doc, getDocs, setDoc, getDoc } from "firebase/firestore";
+import {
+	collection,
+	doc,
+	getDoc,
+	getDocs,
+	setDoc,
+	updateDoc,
+} from "firebase/firestore";
 import { AuthForm, RegisterForm } from "~/helpers/forms/formTypes";
 import { UserI } from "~/api/auth_types";
 
@@ -23,13 +30,31 @@ async function handleRegister(form: RegisterForm) {
 			email: form.email,
 			password: form.password,
 			// avatar: form.avatar,
-			selected_currency: "",
+			selectedCurrency: "EUR",
 		};
 
 		// save user in db
 		await setDoc(doc(db, "users", registeredUser.uid), user);
 		await addUser({ user });
 		setCurrentUser(user);
+
+		// initialise dbs
+		await setDoc(
+			doc(db, "users", registeredUser.uid, "expenses"),
+			{ test: "" },
+			{ merge: true },
+		);
+		await setDoc(
+			doc(db, "users", registeredUser.uid, "income"),
+			{ test: "" },
+			{ merge: true },
+		);
+		await setDoc(
+			doc(db, "users", registeredUser.uid, "investments"),
+			{ test: "" },
+			{ merge: true },
+		);
+
 		toast.success("User signed up successfully");
 		return registeredUser;
 	} catch (error: any) {
@@ -37,7 +62,6 @@ async function handleRegister(form: RegisterForm) {
 		const errorMessage = error.message;
 		toast.error(errorMessage, errorCode);
 	}
-	// then - catch !== async - await + try and catch
 }
 
 async function handleLogIn(form: AuthForm) {
@@ -96,13 +120,10 @@ function getUserInfo() {
 type Props = {
 	user: any;
 };
-
+// todo handle existing user
 export default async function addUser({ user }: Props) {
 	try {
-		await setDoc(doc(db, "users", user.uid), {
-			auth_uid: user.uid,
-			email: user.email,
-		});
+		await setDoc(doc(db, "users", user.uid), user);
 		toast.success("User added to db");
 	} catch (e) {
 		console.error("Error adding user: ", e);
@@ -123,6 +144,18 @@ const getUser = async (uid: string) => {
 	return snapshot.data() as UserI;
 };
 
+const updateUserData = async (
+	userId: string,
+	updatedProperties: Partial<UserI>,
+) => {
+	const userRef = doc(db, "users", userId);
+	try {
+		await updateDoc(userRef, updatedProperties);
+	} catch (error) {
+		console.error("updateUserData error:", error);
+	}
+};
+
 export {
 	handleRegister,
 	handleLogIn,
@@ -131,4 +164,5 @@ export {
 	getUserInfo,
 	getUser,
 	getUsers,
+	updateUserData,
 };

@@ -10,7 +10,7 @@ import { createStore } from "solid-js/store";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "~/firebase";
 import { UserI } from "~/api/auth_types";
-import { getUser } from "~/api/auth";
+import { getUser, updateUserData } from "~/api/auth";
 import LoadingSpinner from "~/components/atoms/LoadingSpinner";
 
 interface AuthStateContextI {
@@ -38,11 +38,21 @@ export default function AuthProvider(props: { children: JSXElement }) {
 		isAuthenticated: false,
 		loading: true,
 		user: null,
-		updateUser: (updatedProperties: Partial<UserI>) => {
-			setStore("user", (prevUser) => ({
-				...prevUser,
-				...updatedProperties,
-			}));
+		updateUser: async (updatedProperties: Partial<UserI>) => {
+			if (store.user) {
+				try {
+					// Update the backend
+					await updateUserData(store.user.uid, updatedProperties);
+
+					// Update the local state
+					setStore("user", (prevUser) => ({
+						...prevUser,
+						...updatedProperties,
+					}));
+				} catch (error) {
+					console.error("Failed to update user data:", error);
+				}
+			}
 		},
 	});
 
