@@ -1,54 +1,69 @@
 import "./style.css";
 import MainLayout from "~/components/organisms/MainLayout";
-import { createSignal, For, onMount, Show } from "solid-js";
+import { createEffect, createSignal, For, onMount, Show } from "solid-js";
 import allCurrencies from "~/helpers/mock_values_helpers";
 import { useFirebaseCollection } from "~/hooks/useFirebaseCollection";
 import { currentUser } from "~/firebase";
 import SpinnerIcon from "~/components/atoms/icons/SpinnerIcon";
-import { getExchange } from "~/helpers/currency";
 import { useAuthState } from "~/services/provider/auth";
+import BarChart from "~/components/atoms/BarChart";
 
 export default function SettingsPage() {
 	const { user, updateUser } = useAuthState();
 
+	const [currency, setCurrency] = createSignal("EUR");
+
 	const handleCurrencyChange = (newCurrency: string) => {
 		if (user) {
-			updateUser({ selected_currency: newCurrency });
+			updateUser({ selectedCurrency: newCurrency });
 		}
 	};
 
+	const mockData = [
+		{
+			date: "01-12-2024",
+			expenses: 1000,
+			income: 1003,
+			investments: 800,
+			delta: 3,
+		},
+		{
+			date: "01-01-2025",
+			expenses: 2000,
+			income: 1003,
+			investments: 950,
+			delta: -997,
+		},
+	];
+
 	// todo move to their own store/context
-	const { fetchTotalAmountEver, fetchAmountByPeriod } = useFirebaseCollection({
+	const { fetchTotalAmountEver } = useFirebaseCollection({
 		collectionPath: () => [`users/${currentUser()}/expenses`], //todo this isn't currently used
 	});
 
-	const [test, setTest] = createSignal<any>();
-
 	const [totalIncome, setTotalIncome] = createSignal(0);
 	const [totalExpenses, setTotalExpenses] = createSignal(0);
-	const [monthlyExpenses, setMonthlyExpenses] = createSignal(0);
 	const [totalInvestment, setTotalInvestment] = createSignal(0);
 
+	createEffect(() => {
+		console.debug("user createffect", user, user?.selectedCurrency);
+	});
+
 	onMount(async () => {
+		console.debug("user onmount", user, user?.selectedCurrency);
+		if (user) {
+			setCurrency(user.selectedCurrency);
+			if (currency()) {
+				updateUser({ selectedCurrency: currency() });
+			}
+		}
+		console.debug("user cur", user?.selectedCurrency);
 		const expenses = await fetchTotalAmountEver({ type: "expenses" }),
 			income = await fetchTotalAmountEver({ type: "income" }),
 			investments = await fetchTotalAmountEver({ type: "investments" });
 		setTotalExpenses(expenses);
 		setTotalIncome(income);
 		setTotalInvestment(investments);
-
-		const monthlyExp = await fetchAmountByPeriod({
-			type: "expenses",
-			periodType: "monthly",
-		});
-		setMonthlyExpenses(monthlyExp);
-
-		try {
-			const res = await getExchange({ fromCurrency: "EUR", toCurrency: "USD" });
-			setTest(res.rate["EUR"]);
-		} catch {
-			throw new Error("error");
-		}
 	});
 
 	return (
@@ -56,50 +71,46 @@ export default function SettingsPage() {
 			<div>
 				Expenses:
 				<Show when={totalExpenses()} fallback={<SpinnerIcon />}>
-					{totalExpenses()}
+					{" "}
+					{totalExpenses().toFixed(2) ?? 0} {currency()}
 				</Show>
 			</div>
 			<div>
 				Income:
 				<Show when={totalIncome()} fallback={<SpinnerIcon />}>
-					{totalIncome()}
+					{" "}
+					{totalIncome().toFixed(2) ?? 0} {currency()}
 				</Show>
 			</div>
 			<div>
 				Invested:
 				<Show when={totalInvestment()} fallback={<SpinnerIcon />}>
-					{totalInvestment()}
+					{" "}
+					{totalInvestment().toFixed(2) ?? 0} {currency()}
 				</Show>
 			</div>
 			<div>
-				Monthly Expenses:
-				<Show when={monthlyExpenses()} fallback={<SpinnerIcon />}>
-					{monthlyExpenses()}
-				</Show>
-			</div>
-			<div>
-				test:
-				<Show when={test()} fallback={<SpinnerIcon />}>
-					{test()}
+				Current currency:
+				<Show when={user} fallback={<SpinnerIcon />}>
+					{" "}
+					{user?.selectedCurrency}
 				</Show>
 			</div>
 			<form>
 				<div>
-					<div class="col-span-4 sm:col-span-1 mx-3 p-2">
-						<label
-							for="category"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-						>
+					<div>
+						<label for="category" class="block mb-2 text-sm font-medium">
 							Default Currency
 						</label>
 						<select
 							onChange={(e) => {
+								setCurrency(e.target.value);
 								handleCurrencyChange(e.target.value);
-								console.debug(user?.selected_currency);
 							}}
+							value={currency()}
 							required={true}
 							id="category"
-							class="bg-transparent border-none text-left text-gray-500 text-sm focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-800 rounded-lg border-none text-left text-sm focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
 						>
 							<For each={allCurrencies}>
 								{(i) => (
@@ -112,6 +123,9 @@ export default function SettingsPage() {
 					</div>
 				</div>
 			</form>
+			<div class="w-1/2">
+				<BarChart data={mockData} w={500} h={500} label={"Chart"} />
+			</div>
 		</MainLayout>
 	);
 }
