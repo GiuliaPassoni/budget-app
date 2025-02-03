@@ -67,6 +67,7 @@ export default function AddTransactionModal(props: ModalProps) {
 		exchange_to_default: 1,
 		ctg_name: "",
 		notes: "",
+		converted_amount: 0,
 		// 	date is separate due to datepicker config
 	});
 	const [editCategory, setEditCategory] = createSignal<CategoryI>();
@@ -170,6 +171,27 @@ export default function AddTransactionModal(props: ModalProps) {
 			}
 		} else {
 			toast.error("Missing input");
+		}
+	}
+
+	async function handleExchange({ exchangeCurrency: string }) {
+		try {
+			console.debug("b4 trans");
+			const res = await getExchange({
+				fromCurrency: user?.selectedCurrency ?? "EUR", //todo fix conditional
+				toCurrency: transaction.currency,
+			});
+			setTransaction(
+				"exchange_to_default",
+				res?.rate[user?.selectedCurrency || "EUR"],
+			);
+			setTransaction("exchange_on_day", res?.date);
+			setTransaction(
+				"converted_amount",
+				transaction.amount * transaction.exchange_to_default,
+			);
+		} catch (error) {
+			throw new Error(error);
 		}
 	}
 
@@ -280,8 +302,11 @@ export default function AddTransactionModal(props: ModalProps) {
 					<span>
 						<label for="currency">Currency</label>
 						<select
-							onChange={(e) => {
+							onChange={async (e) => {
 								setTransaction("currency", e.target.value);
+								if (transaction.currency !== user?.selectedCurrency) {
+									await handleExchange(transaction.currency);
+								}
 							}}
 							required={true}
 							id="currencySelect"
@@ -298,6 +323,13 @@ export default function AddTransactionModal(props: ModalProps) {
 						</select>
 					</span>
 				</div>
+				<Show when={transaction.currency !== user?.selectedCurrency}>
+					<div>
+						{(transaction.amount * transaction.exchange_to_default).toFixed(2)}{" "}
+						{user?.selectedCurrency} ( 1 {user?.selectedCurrency} ={" "}
+						{transaction.exchange_to_default} {transaction.currency})
+					</div>
+				</Show>
 				<div class={styles.categoryContainer}>
 					<label for="category">Category</label>
 					<Show when={!loading()} fallback={<LoadingSpinner />}>
@@ -316,7 +348,9 @@ export default function AddTransactionModal(props: ModalProps) {
 													(cat) => cat.name !== transaction.ctg_name,
 												),
 											]
-										: categories() // Use the original list if not in edit mode
+										: categories().filter(
+												(cat) => cat.type !== transaction.type, //fixme doesn't work
+											) // Use the original list if not in edit mode
 								}
 							>
 								{(i) => (
