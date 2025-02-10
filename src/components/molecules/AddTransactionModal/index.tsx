@@ -349,8 +349,8 @@ export default function AddTransactionModal(props: ModalProps) {
 												),
 											]
 										: categories().filter(
-												(cat) => cat.type !== transaction.type, //fixme doesn't work
-											) // Use the original list if not in edit mode
+												(cat) => cat.type === transaction.type,
+											)
 								}
 							>
 								{(i) => (
