@@ -6,7 +6,23 @@ import { useFirebaseCollection } from "~/hooks/useFirebaseCollection";
 import { currentUser } from "~/firebase";
 import SpinnerIcon from "~/components/atoms/icons/SpinnerIcon";
 import { useAuthState } from "~/services/provider/auth";
-import BarChart from "~/components/atoms/BarChart";
+
+export const mockData = [
+	{
+		date: "01-12-2024",
+		expenses: 1000,
+		income: 1003,
+		investments: 800,
+		delta: 3,
+	},
+	{
+		date: "01-01-2025",
+		expenses: 2000,
+		income: 1003,
+		investments: 950,
+		delta: -997,
+	},
+];
 
 export default function SettingsPage() {
 	const { user, updateUser } = useAuthState();
@@ -18,23 +34,6 @@ export default function SettingsPage() {
 			updateUser({ selectedCurrency: newCurrency });
 		}
 	};
-
-	const mockData = [
-		{
-			date: "01-12-2024",
-			expenses: 1000,
-			income: 1003,
-			investments: 800,
-			delta: 3,
-		},
-		{
-			date: "01-01-2025",
-			expenses: 2000,
-			income: 1003,
-			investments: 950,
-			delta: -997,
-		},
-	];
 
 	// todo move to their own store/context
 	const { fetchTotalAmountEver } = useFirebaseCollection({
@@ -69,27 +68,6 @@ export default function SettingsPage() {
 	return (
 		<MainLayout title="Settings">
 			<div>
-				Expenses:
-				<Show when={totalExpenses()} fallback={<SpinnerIcon />}>
-					{" "}
-					{totalExpenses().toFixed(2) ?? 0} {currency()}
-				</Show>
-			</div>
-			<div>
-				Income:
-				<Show when={totalIncome()} fallback={<SpinnerIcon />}>
-					{" "}
-					{totalIncome().toFixed(2) ?? 0} {currency()}
-				</Show>
-			</div>
-			<div>
-				Invested:
-				<Show when={totalInvestment()} fallback={<SpinnerIcon />}>
-					{" "}
-					{totalInvestment().toFixed(2) ?? 0} {currency()}
-				</Show>
-			</div>
-			<div>
 				Current currency:
 				<Show when={user} fallback={<SpinnerIcon />}>
 					{" "}
@@ -123,9 +101,6 @@ export default function SettingsPage() {
 					</div>
 				</div>
 			</form>
-			<div class="w-1/2">
-				<BarChart data={mockData} w={500} h={500} label={"Chart"} />
-			</div>
 		</MainLayout>
 	);
 }
