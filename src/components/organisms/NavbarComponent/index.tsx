@@ -21,9 +21,6 @@ export default function NavbarComponent() {
 		<nav class="navbar">
 			<ul>
 				<li>
-					<A href="/#">Home</A>
-				</li>
-				<li>
 					<A href="/auth/overview">Overview</A>
 				</li>
 				<li>
