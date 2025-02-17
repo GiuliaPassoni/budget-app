@@ -9,7 +9,6 @@
 table {
     @apply w-full text-sm text-left rtl:text-right text-gray-300;
 }
-
 thead {
     @apply px-6 py-3;
     @apply text-xs uppercase;
@@ -33,6 +32,7 @@ thead th {
     @apply px-6 py-3;
 }
 
+/*todo fix hover*/
 tr {
     @apply border-b;
     @apply hover:bg-gray-700;
@@ -45,4 +45,41 @@ td {
 
 .no-data{
     @apply w-full text-center;
+}
+
+.paginationContainer{
+    @apply flex justify-between pt-4;
+}
+
+.paginationLHS {
+    @apply text-sm font-normal text-gray-400 mb-4;
+}
+
+.paginationLHS .highlight {
+    @apply font-semibold text-white;
+}
+
+.paginationButtonsContainer {
+    @apply inline-flex -space-x-px rtl:space-x-reverse text-sm h-8;
+}
+
+.paginationButton {
+    @apply flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 border border-gray-300;
+    @apply bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-white;
+}
+
+.currentPageButton {
+    @apply text-white bg-gray-700;
+}
+
+.otherPageButton {
+    @apply border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-white;
+}
+
+#previous {
+    @apply rounded-s-lg  text-gray-500;
+}
+
+#next {
+    @apply rounded-e-lg  text-gray-500;
 }
