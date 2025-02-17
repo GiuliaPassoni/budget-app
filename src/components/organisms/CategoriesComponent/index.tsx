@@ -4,18 +4,58 @@ import AddCategoryModal from "~/components/molecules/AddCategoryModal";
 import { Toaster } from "solid-toast";
 import MainLayout from "~/components/organisms/MainLayout";
 import { useFirebaseCollection } from "~/hooks/useFirebaseCollection";
-import { CategoryI, CategoryWithId } from "~/helpers/types";
-import { currentUser, db } from "~/firebase";
+import { CategoryI, CategoryWithId, TransactionType } from "~/helpers/types";
+import { currentUser } from "~/firebase";
 import { iconMap } from "~/components/atoms/icons/helpers";
 import styles from "./style.module.css";
 import { createStore } from "solid-js/store";
+import Tabs from "~/components/molecules/Tabs";
+
+type CategoryType = "expenses" | "income" | "investments";
+
+interface CategoryGridProps {
+	type: CategoryType;
+	categories: CategoryWithId[];
+	onEditCategory: (category: CategoryWithId) => void;
+	onAddCategory: () => void;
+}
+
+const CategoryGrid = (props: CategoryGridProps) => {
+	const gridStyles = {
+		expenses: styles.expensesCategories,
+		income: styles.incomeCategories,
+		investments: styles.investingCategories,
+	};
+
+	return (
+		<div class={`${styles.categoryGrid} ${gridStyles[props.type]}`}>
+			<For each={props.categories.filter((i) => i.type === props.type)}>
+				{(category) => (
+					<CardWithIcon
+						colour={category.colour}
+						title={category.name}
+						icon={category.iconName ? iconMap[category.iconName]?.() : ""}
+						handleClick={() => props.onEditCategory(category)}
+					/>
+				)}
+			</For>
+			<CardWithIcon
+				colour="gray"
+				title="Add category"
+				icon={iconMap["plus"]}
+				handleClick={props.onAddCategory}
+			/>
+		</div>
+	);
+};
 
 export default function CategoriesComponent() {
 	const [showModal, setShowModal] = createSignal(false);
+	const [showEditModal, setShowEditModal] = createSignal<boolean>(false);
+	const [editCategory, setEditCategory] = createStore<any>(); //todo fix type
 
 	const { data: categories } = useFirebaseCollection<CategoryI, CategoryWithId>(
 		{
-			db,
 			collectionPath: () => {
 				const userId = currentUser();
 				return userId ? [`users/${currentUser()}/categories`] : undefined;
@@ -23,75 +63,40 @@ export default function CategoriesComponent() {
 		},
 	);
 
-	const [showEditModal, setShowEditModal] = createSignal<boolean>(false);
-	const [editCategory, setEditCategory] = createStore<any>(); //todo fix type
+	const handleEditCategory = (category: CategoryWithId) => {
+		setEditCategory({ ...category, id: category.id });
+		setShowEditModal(true);
+	};
+
+	const transactionTypes: TransactionType[] = [
+		"expenses",
+		"income",
+		"investments",
+	];
+
+	const tabs = transactionTypes.map((type) => ({
+		name: type,
+		content: (
+			<CategoryGrid
+				type={type}
+				categories={categories()}
+				onEditCategory={handleEditCategory}
+				onAddCategory={() => setShowModal(true)}
+			/>
+		),
+	}));
 
 	return (
 		<MainLayout title="Categories">
-			<div class={styles.container}>
-				<h3>Expenses</h3>
-				<div class={`${styles.categoryGrid} ${styles.expensesCategories}`}>
-					<For each={categories().filter((i) => i.type === "expenses")}>
-						{(i) => (
-							<CardWithIcon
-								colour={i.colour}
-								title={i.name}
-								icon={i.iconName ? iconMap[i.iconName]?.() : ""}
-								handleClick={() => {
-									setEditCategory({ ...i, id: i.id });
-									setShowEditModal(true);
-								}}
-							/>
-						)}
-					</For>
-				</div>
-				<h3>Income</h3>
-				<div class={`${styles.categoryGrid} ${styles.incomeCategories}`}>
-					<For each={categories().filter((i) => i.type === "income")}>
-						{(i) => (
-							<CardWithIcon
-								colour={i.colour}
-								title={i.name}
-								icon={i.iconName ? iconMap[i.iconName]?.() : ""}
-								handleClick={() => {
-									setEditCategory({ ...i, id: i.id });
-									setShowEditModal(true);
-								}}
-							/>
-						)}
-					</For>
-				</div>
-				<h3>Investing</h3>
-				<div class={`${styles.categoryGrid} ${styles.investingCategories}`}>
-					<For each={categories().filter((i) => i.type === "investments")}>
-						{(i) => (
-							<CardWithIcon
-								colour={i.colour}
-								title={i.name}
-								icon={i.iconName ? iconMap[i.iconName]?.() : ""}
-								handleClick={() => {
-									setEditCategory({ ...i, id: i.id });
-									setShowEditModal(true);
-								}}
-							/>
-						)}
-					</For>
-				</div>
-				<CardWithIcon
-					colour="gray"
-					title="Add category"
-					icon={iconMap["plus"]}
-					handleClick={() => {
-						setShowModal(true);
-					}}
-				/>
-			</div>
+			<Tabs tabs={tabs} />
+
 			<AddCategoryModal
 				isEditCategoryModal={false}
 				showModal={showModal()}
 				handleClose={() => setShowModal(false)}
 				onSubmit={() => setShowModal(false)}
 			/>
+
 			<AddCategoryModal
 				isEditCategoryModal={showEditModal()}
 				showModal={showEditModal()}
@@ -99,6 +104,7 @@ export default function CategoriesComponent() {
 				handleClose={() => setShowEditModal(false)}
 				onSubmit={() => setShowEditModal(false)}
 			/>
+
 			<Toaster />
 		</MainLayout>
 	);
