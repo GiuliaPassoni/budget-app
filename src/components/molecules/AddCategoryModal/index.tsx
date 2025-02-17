@@ -143,7 +143,6 @@ export default function AddCategoryModal(props: ModalProps) {
 										setCategory("name", e.target.value);
 									} else {
 										setNameError(true);
-										return;
 									}
 								}}
 							/>
@@ -156,7 +155,7 @@ export default function AddCategoryModal(props: ModalProps) {
 						<span>
 							<label for="type">Type</label>
 							<select
-								value={isEditCategoryModal() ? category.type : ""}
+								value={isEditCategoryModal() ? category.type : "expenses"}
 								onChange={(e) => {
 									setCategory("type", e.target.value as TransactionType);
 								}}
