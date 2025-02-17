@@ -25,8 +25,10 @@ export default function MainLayout(props: PropsI) {
 	return (
 		<Switch>
 			<Match when={loading}>
-				<LoadingSpinner />
-				<div>Loading...</div>
+				<div class="w-screen h-screen grid place-items-center">
+					<LoadingSpinner />
+					<div>Loading...</div>
+				</div>
 			</Match>
 			<Match when={!loading && !user}>
 				<div>Please log in to continue.</div>
