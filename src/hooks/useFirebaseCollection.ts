@@ -10,6 +10,7 @@ import {
 	getDoc,
 	getDocs,
 	onSnapshot,
+	orderBy,
 	query,
 	updateDoc,
 	where,
@@ -33,13 +34,13 @@ import { calculateTransactionTotal } from "~/helpers/computations";
 
 type Timestamp = firebase.firestore.Timestamp;
 
-interface getItemPropsI {
+interface GetItemPropsI {
 	dbName: string;
 	id?: string | null;
 	name?: string;
 }
 
-interface updateItemPropsI {
+interface UpdateItemPropsI {
 	dbName: string;
 	itemRef: string;
 	updatedValue: any;
@@ -51,7 +52,7 @@ interface DeleteItemPropsI {
 }
 
 interface FetchAmountPropsI {
-	type: "income" | "expenses";
+	type: "income" | "expenses" | "investments";
 	periodType: "daily" | "weekly" | "monthly" | "yearly" | "custom";
 	startDate?: Date; // For custom period
 	endDate?: Date; // For custom period
@@ -63,17 +64,26 @@ interface UseFirebaseCollectionProps<TInput, TOutput extends { id: string }> {
 	transform?: (data: DocumentData & { id: string }) => TOutput;
 }
 
+interface fetchItemByPeriodReturnI {
+	totalOverPeriod: number;
+	periodLabel: {
+		periodType: "daily" | "weekly" | "monthly" | "yearly" | "custom";
+		startTimestamp: Timestamp;
+		endTimestamp: Timestamp;
+	};
+}
+
 interface UseFirebaseCollectionReturn<TInput, TOutput> {
 	data: () => TOutput[];
 	loading: () => boolean;
 	error: () => string | null;
 	add: (item: TInput) => Promise<string>;
-	getItemByIdOrName: ({ dbName, id, name }: getItemPropsI) => Promise<any>;
+	getItemByIdOrName: ({ dbName, id, name }: GetItemPropsI) => Promise<any>;
 	updateItem: ({
 		dbName,
 		itemRef,
 		updatedValue,
-	}: updateItemPropsI) => Promise<void>;
+	}: UpdateItemPropsI) => Promise<void>;
 	deleteItem: ({ dbName, itemRef }: DeleteItemPropsI) => Promise<void>;
 	refresh: () => void;
 	fetchAmountByPeriod: ({
@@ -81,18 +91,22 @@ interface UseFirebaseCollectionReturn<TInput, TOutput> {
 		periodType,
 		startDate,
 		endDate,
-	}: FetchAmountPropsI) => Promise<number>;
+	}: FetchAmountPropsI) => Promise<fetchItemByPeriodReturnI>;
+	fetchDataForMultiplePeriods: (
+		props: FetchAmountPropsI & { numberOfPeriods: number },
+	) => Promise<any>; //todo fix
 	fetchTotalAmountEver: ({
 		type,
 	}: {
 		type: TransactionType;
-	}) => Promise<number>;
-	// getById: (id: string) => Promise<TOutput | null>;
-	// getByField: (field: keyof TInput, value: any) => Promise<TOutput[]>;
-	// listenToOne: (
-	// 	id: string,
-	// 	callback: (item: TOutput | null) => void,
-	// ) => () => void;
+	}) => Promise<string>;
+	sortedFetch: ({
+		orderByItem,
+		orderDirection,
+	}: {
+		orderByItem: string;
+		orderDirection: "asc" | "desc";
+	}) => Promise<any>; //fixme type
 }
 
 export function useFirebaseCollection<
@@ -168,7 +182,7 @@ export function useFirebaseCollection<
 	};
 
 	// todo simplify hook and update implementation to be from hook instead of catg helpers
-	async function getItemByIdOrName({ dbName, id, name }: getItemPropsI) {
+	async function getItemByIdOrName({ dbName, id, name }: GetItemPropsI) {
 		const collectionRef = collection(db, "users", currentUser(), dbName); //todo replace
 
 		if (name) {
@@ -176,7 +190,6 @@ export function useFirebaseCollection<
 			const q = query(collectionRef, where("name", "==", name));
 			const snapshot = await getDocs(q);
 
-			console.debug(snapshot);
 			if (!snapshot.empty) {
 				const doc = snapshot.docs[0];
 				return {
@@ -217,7 +230,7 @@ export function useFirebaseCollection<
 		dbName,
 		itemRef,
 		updatedValue,
-	}: updateItemPropsI): Promise<void> => {
+	}: UpdateItemPropsI): Promise<void> => {
 		// const docRef = getDocRef(itemRef); //todo fix
 		const reference = doc(db, "users", currentUser(), dbName, itemRef);
 		if (!itemRef) throw new Error("Invalid document reference");
@@ -302,7 +315,59 @@ export function useFirebaseCollection<
 		const querySnapshot = await getDocs(q);
 		const mapper = querySnapshot.docs.map((doc) => doc.data());
 		const totalOverPeriod = calculateTransactionTotal(mapper);
-		return totalOverPeriod;
+		return {
+			totalOverPeriod,
+			periodLabel: { periodType, startTimestamp, endTimestamp },
+		};
+	};
+
+	const fetchDataForMultiplePeriods = async ({
+		type,
+		periodType,
+		numberOfPeriods,
+	}: FetchAmountPropsI & { numberOfPeriods: number }) => {
+		const results = [];
+
+		for (let i = 0; i < numberOfPeriods; i++) {
+			const now = new Date();
+			let startDate: Date;
+			let endDate: Date;
+
+			switch (periodType) {
+				case "monthly":
+					startDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+					endDate = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+					break;
+				case "weekly":
+					startDate = new Date(now.setDate(now.getDate() - 7 * i));
+					endDate = new Date(now.setDate(now.getDate() - 7 * (i - 1)));
+					break;
+				case "yearly":
+					startDate = new Date(now.getFullYear() - i, 0, 1);
+					endDate = new Date(now.getFullYear() - i, 11, 31);
+					break;
+				default:
+					throw new Error("Unsupported period type.");
+			}
+
+			const data = await fetchAmountByPeriod({
+				type,
+				periodType,
+				startDate,
+				endDate,
+			});
+
+			results.push({
+				...data,
+				periodLabel: {
+					...data.periodLabel,
+					startDate: startDate.toISOString().split("T")[0], // Format date for display
+					endDate: endDate.toISOString().split("T")[0],
+				},
+			});
+		}
+
+		return results;
 	};
 
 	const fetchTotalAmountEver = async ({ type }: { type: TransactionType }) => {
@@ -312,7 +377,29 @@ export function useFirebaseCollection<
 		);
 		const allTransactions = querySnapshot.docs.map((doc) => doc.data());
 		const totalEver = calculateTransactionTotal(allTransactions);
-		return totalEver;
+		return totalEver.toFixed(2);
+	};
+
+	const sortedFetch = async ({
+		orderByItem,
+		orderDirection,
+	}: {
+		orderByItem: string;
+		orderDirection: "asc" | "desc";
+	}) => {
+		const collectionRef = collection(
+			db,
+			"users",
+			currentUser(),
+			"transactions",
+		); //fixme getCollectionRef doesn't work?
+		const q = query(collectionRef, orderBy(orderByItem, orderDirection)); // Sort descending by date
+		const querySnapshot = await getDocs(q);
+
+		return querySnapshot.docs.map((doc) => ({
+			id: doc.id,
+			...doc.data(),
+		}));
 	};
 
 	// Setup effect to watch for path changes
@@ -336,7 +423,9 @@ export function useFirebaseCollection<
 		updateItem,
 		deleteItem,
 		fetchAmountByPeriod,
+		fetchDataForMultiplePeriods,
 		fetchTotalAmountEver,
 		refresh: setupListener,
+		sortedFetch,
 	};
 }

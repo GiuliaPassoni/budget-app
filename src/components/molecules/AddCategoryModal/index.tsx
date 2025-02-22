@@ -1,10 +1,6 @@
 import { createEffect, createSignal, For, Show } from "solid-js";
 import { CategoryI, CategoryWithId, TransactionType } from "~/helpers/types";
 import { toast, Toaster } from "solid-toast";
-import {
-	deleteItem,
-	getItemByIdOrName,
-} from "~/helpers/categories_api_helpers";
 import { colorOptions } from "~/helpers/colour_helpers";
 import { iconKeys, iconMap } from "~/components/atoms/icons/helpers";
 import Modal from "~/components/molecules/Modal";
@@ -52,6 +48,8 @@ export default function AddCategoryModal(props: ModalProps) {
 		add: addCategory,
 		updateItem: updateCategory,
 		data: existingCategories,
+		getItemByIdOrName,
+		deleteItem,
 	} = useFirebaseCollection<CategoryI, CategoryWithId>({
 		collectionPath: () => [`users/${currentUser()}/categories`],
 	});
