@@ -1,86 +1,10 @@
-import { createEffect, For } from "solid-js";
-import { axisBottom, axisLeft, ScaleBand, ScaleLinear, select } from "d3";
+import { AxisBottomProps } from "~/components/molecules/BarChart/AxisBottom";
+import { AxisLeftProps } from "~/components/molecules/BarChart/AxisLeft";
+import { ScaleBand } from "d3";
+import { For } from "solid-js";
+import { getColorForKey } from "~/components/molecules/BarChart/helpers";
 
-type MarginType = {
-	top?: number;
-	bottom?: number;
-	left?: number;
-	right?: number;
-};
-
-interface AxisBottomProps {
-	scale: ScaleBand<string>;
-	transform: string;
-}
-
-export function AxisBottom(props: AxisBottomProps) {
-	let ref: SVGGElement | undefined;
-
-	createEffect(() => {
-		if (ref) {
-			select(ref).call(axisBottom(props.scale));
-		}
-	});
-
-	return <g ref={ref} transform={props.transform} />;
-}
-
-interface AxisLeftProps {
-	scale: ScaleLinear<number, number, never>;
-	transform: string;
-}
-
-export function AxisLeft(props: AxisLeftProps) {
-	let ref: SVGGElement | undefined;
-
-	createEffect(() => {
-		if (ref) {
-			const yAxis = axisLeft(props.scale)
-				.ticks(6)
-				.tickFormat((d) => d.toLocaleString())
-				.tickSize(-4);
-
-			select(ref)
-				.call(yAxis)
-				.style("color", "white") // Make the axis and ticks visible
-				.call((g) => g.select(".domain").attr("stroke", "white")) // Make axis line visible
-				.call((g) => g.selectAll(".tick line").attr("stroke", "white")) // Make tick lines visible
-				.call((g) =>
-					g
-						.selectAll(".tick text")
-						.attr("fill", "white") // Make tick text visible
-						.style("font-size", "12px")
-						.attr("dx", "-0.5em"),
-				);
-		}
-	});
-
-	return <g ref={ref} transform={props.transform} />;
-}
-
-interface TooltipPropsI {
-	x?: number;
-	y?: number;
-	content?: string;
-}
-
-export function Tooltip({ x, y, content }: TooltipPropsI) {
-	return (
-		<div
-			class="fixed pointer-events-none bg-gray-900 text-white px-2 py-1 rounded shadow-lg text-sm"
-			style={{
-				left: `${x}px`,
-				top: `${y - 40}px`, // Position above the cursor
-				transform: "translateX(-50%)", // Center horizontally
-				border: "1px solid rgba(255,255,255,0.2)",
-			}}
-		>
-			{content}
-		</div>
-	);
-}
-
-type DataType = {
+export type DataType = {
 	expenses: number;
 	income: number;
 	investments: number;
@@ -97,22 +21,7 @@ interface BarsProps {
 	onHover: (tooltip: { x: number; y: number; content: string } | null) => void;
 }
 
-function getColorForKey(key: string): string {
-	switch (key) {
-		case "expenses":
-			return "#28AFB0";
-		case "income":
-			return "#A2FAA3";
-		case "investments":
-			return "#E6C229";
-		case "profitLoss":
-			return "#D8315B";
-		default:
-			return "gray";
-	}
-}
-
-function Bars(props: BarsProps) {
+export function Bars(props: BarsProps) {
 	return (
 		<For each={props.data}>
 			{(entry) => (
@@ -169,7 +78,7 @@ function Bars(props: BarsProps) {
 							}
 							return (
 								<path
-									key={`bar-${entry.period}-${key}`}
+									// key={`bar-${entry.period}-${key}`}
 									d={path}
 									fill={getColorForKey(key)}
 									class="transition-opacity duration-200 hover:opacity-80"
