@@ -98,6 +98,7 @@ export default function useForm<T extends FormDataType>(initialForm: T) {
 			// } else {
 			// 	await handleLogIn(form as unknown as AuthForm);
 			// }
+			// todo redirect doesn't work
 			navigate("/auth/overview");
 		}
 	}
