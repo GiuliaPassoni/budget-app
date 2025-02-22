@@ -24,6 +24,9 @@ export default function NavbarComponent() {
 					<A href="/auth/overview">Overview</A>
 				</li>
 				<li>
+					<A href="/auth/transactions">Your Transactions</A>
+				</li>
+				<li>
 					<A href="/auth/categories">Your Categories</A>
 				</li>
 			</ul>

@@ -1,5 +1,4 @@
 import PlusIconButton from "~/components/atoms/PlusIconButton";
-import Button from "~/components/atoms/Button";
 import Table from "~/components/molecules/Table";
 import AddCategoryModal from "~/components/molecules/AddCategoryModal";
 import AddTransactionModal from "~/components/molecules/AddTransactionModal";
@@ -15,8 +14,13 @@ import MainLayout from "~/components/organisms/MainLayout";
 import PieChart from "~/components/atoms/PieChart";
 import Toast from "~/components/molecules/Toast";
 import { useFirebaseCollection } from "~/hooks/useFirebaseCollection";
+import Tabs from "~/components/molecules/Tabs";
 
-export default function OverviewPage() {
+function capitalizeFirstLetter(val: string): string {
+	return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+}
+
+export default function TransactionsPage() {
 	const [showTransactionModal, setShowTransactionModal] = createSignal(false);
 	const [showCategModal, setShowCategModal] = createSignal(false);
 	const [showToaster, setShowToaster] = createSignal(false);
@@ -33,18 +37,50 @@ export default function OverviewPage() {
 		},
 	});
 
+	const transactionTypes: TransactionType[] = [
+		"expenses",
+		"income",
+		"investments",
+	];
+
+	const tabs = transactionTypes.map((type) => ({
+		name: capitalizeFirstLetter(type),
+		onClick: () => {
+			setDatabase(type);
+		},
+		content: (
+			<>
+				<div>
+					{loading() && <p>Loading...</p>}
+					{/*{error() && <p>Error: {error()}</p>}*/}
+					{!loading() && !error() && (
+						<div class="w-full flex flex-row gap-4">
+							<div class="w-3/4 p-6 border rounded-lg shadow-sm bg-gray-800 border-gray-700">
+								<Table type={database()} array={transactions()} />
+							</div>
+							<div class="w-1/4 flex flex-col justify-between">
+								<div class="p-6 border rounded-lg shadow-sm bg-gray-800 border-gray-700">
+									<PieChart
+										w={5}
+										h={5}
+										margin={1}
+										label="ctg_name"
+										data={transactions() ?? []}
+										value={(d) => d.amount}
+									/>
+								</div>
+							</div>
+						</div>
+					)}
+				</div>
+			</>
+		),
+	}));
+
 	return (
-		<MainLayout title="Overview">
+		<MainLayout title="Transactions">
 			<section class="w-full h-full mx-auto">
 				<div class="flex flex-row justify-center">
-					<button
-						onClick={() => {
-							setShowToaster(true);
-							console.debug("click", showToaster());
-						}}
-					>
-						Toaster
-					</button>
 					<PlusIconButton
 						type="button"
 						variant="primary"
@@ -62,49 +98,19 @@ export default function OverviewPage() {
 						}}
 					/>
 				</div>
-				<section>
-					<div class="flex flex-row w-1/2 mx-auto justify-between">
-						<Button
-							text="Show Expenses"
-							onClick={() => {
-								setDatabase("expenses");
-							}}
-						></Button>
-						<Button
-							text="Show Income"
-							onClick={() => {
-								setDatabase("income");
-							}}
-						></Button>
-						<Button
-							text="Show Investments"
-							onClick={() => {
-								setDatabase("investments");
-							}}
-						></Button>
-					</div>
-					<div class="w-full my-3 text-center font-bold text-xl">
-						{database().toUpperCase()}
-					</div>
-					<div>
-						{loading() && <p>Loading...</p>}
-						{/*{error() && <p>Error: {error()}</p>}*/}
-						{!loading() && !error() && (
-							<Table type={database()} array={transactions()} />
-						)}
-					</div>
-				</section>
+				<Tabs tabs={tabs} />
 				<AddCategoryModal
 					showModal={showCategModal()}
 					handleClose={() => setShowCategModal(false)}
 					onSubmit={() => setShowCategModal(false)}
+					isEditCategoryModal={false}
 				/>
 				<AddTransactionModal
+					isEditTransactionModal={false}
 					showModal={showTransactionModal()}
 					handleClose={() => setShowTransactionModal(false)}
 					onSubmit={() => {
 						setShowTransactionModal(false);
-						// useAddTransaction(); TODO to be able to pass this, we need a context or a store to be able to retrieve the transaction data from the modal
 					}}
 				/>
 				<Toast
@@ -112,14 +118,6 @@ export default function OverviewPage() {
 					handleClose={() => setShowToaster(false)}
 					type="success"
 					message="this is a message"
-				/>
-				<PieChart
-					w={5}
-					h={5}
-					margin={1}
-					label="ctg_name"
-					data={transactions() ?? []}
-					value={(d) => d.amount}
 				/>
 			</section>
 			<Toaster />
