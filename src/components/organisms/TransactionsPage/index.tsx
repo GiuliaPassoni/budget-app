@@ -1,4 +1,3 @@
-import PlusIconButton from "~/components/atoms/PlusIconButton";
 import Table from "~/components/molecules/Table";
 import AddCategoryModal from "~/components/molecules/AddCategoryModal";
 import AddTransactionModal from "~/components/molecules/AddTransactionModal";
@@ -15,6 +14,8 @@ import PieChart from "~/components/atoms/PieChart";
 import Toast from "~/components/molecules/Toast";
 import { useFirebaseCollection } from "~/hooks/useFirebaseCollection";
 import Tabs from "~/components/molecules/Tabs";
+import PlusIcon from "~/components/atoms/icons/PlusIcon";
+import Button from "~/components/atoms/Button";
 
 function capitalizeFirstLetter(val: string): string {
 	return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -80,22 +81,25 @@ export default function TransactionsPage() {
 	return (
 		<MainLayout title="Transactions">
 			<section class="w-full h-full mx-auto">
-				<div class="flex flex-row justify-center">
-					<PlusIconButton
+				{/*<IconSelector />*/}
+				<div class="flex flex-row justify-center gap-2.5">
+					<Button
+						styleClass="primary"
+						leftIcon={<PlusIcon />}
 						type="button"
-						variant="primary"
-						title="Record transaction"
-						handleClick={() => {
+						onClick={() => {
 							setShowTransactionModal(true);
 						}}
+						text="Record transaction"
 					/>
-					<PlusIconButton
-						variant="secondary"
+					<Button
+						styleClass="primary"
+						leftIcon={<PlusIcon />}
 						type="button"
-						title="Add category"
-						handleClick={() => {
+						onClick={() => {
 							setShowCategModal(true);
 						}}
+						text="Add category"
 					/>
 				</div>
 				<Tabs tabs={tabs} />
