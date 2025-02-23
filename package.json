@@ -25,6 +25,7 @@
 		"firebase": "^10.12.2",
 		"flowbite": "^2.3.0",
 		"husky": "^9.0.11",
+		"lucide-solid": "^0.475.0",
 		"prettier": "^3.2.5",
 		"solid-js": "^1.9.3",
 		"solid-toast": "^0.5.0",
