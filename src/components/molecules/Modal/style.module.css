@@ -55,7 +55,7 @@
 }
 
 .modalContent button[type="submit"] :not[class="edit-submit"] {
-    @apply my-3 ml-36;
+    @apply my-3 mx-auto;
 }
 
 .modalContent textarea {

@@ -199,7 +199,7 @@ export default function AddCategoryModal(props: ModalProps) {
 										<button
 											id="inline-radio"
 											class={`
-												grid-button border-1 border-gray-300 flex items-center justify-center
+												grid-button icons border-1 border-gray-300 flex items-center justify-center
 												${category.iconName === `${icon}` ? `ring-2 ring-offset-2 ring-gray-500` : ""}
 											`}
 											onClick={(e) => {

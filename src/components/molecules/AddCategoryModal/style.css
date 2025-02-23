@@ -36,3 +36,7 @@
     @apply hover:ring-2 hover:ring-offset-2;
     @apply flex items-center justify-center;
 }
+
+.grid-button.icons {
+    @apply w-10 h-10 rounded-full m-1;
+}

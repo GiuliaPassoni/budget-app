@@ -22,6 +22,3 @@
     @apply w-full flex justify-between items-center;
 }
 
-.tagsContainer{
-    @apply grid grid-cols-6;
-}
