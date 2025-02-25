@@ -18,6 +18,7 @@ type PropsT<T extends Record<string, any>> = {
 	data: T[];
 	label: keyof T;
 	value: (d: T) => number;
+	userCurrency: string;
 };
 
 type Arc<T> = {
@@ -33,6 +34,7 @@ export default function PieChart<T extends Record<string, any>>(
 		height = () => props.h,
 		margin = () => props.margin,
 		label = () => props.label,
+		userCurrency = () => props.userCurrency,
 		data = () => props.data;
 
 	const [arcs, setArcs] = createSignal<Arc<T>[]>([]);
@@ -44,6 +46,16 @@ export default function PieChart<T extends Record<string, any>>(
 
 	const handleMouseOut = () => {
 		setHovered(null);
+	};
+
+	const totalAmount = () => {
+		return data().reduce((sum, d) => sum + props.value(d), 0);
+	};
+
+	const calculateFontSize = () => {
+		const radius = Math.min(width(), height()) / 2 - margin();
+		return ".5"; //todo update this if necessary, for now the constant works
+		// return Math.max(8, radius * 0.1); // Adjust the multiplier for desired scaling
 	};
 
 	createEffect(() => {
@@ -83,23 +95,48 @@ export default function PieChart<T extends Record<string, any>>(
 							/>
 						)}
 					</For>
+					<text
+						text-anchor="middle"
+						dominant-baseline="middle"
+						font-size={`${calculateFontSize()}px`}
+						font-weight="bold"
+						fill="white"
+					>
+						{`${userCurrency()} ${totalAmount().toLocaleString(undefined, {
+							minimumFractionDigits: 2,
+							maximumFractionDigits: 2,
+						})}`}
+					</text>
 				</g>
 			</svg>
-			<Show when={hovered()}>
-				{(item) => (
-					<div class="w-fit m-auto flex items-center gap-2 p-3">
-						<div
-							class="rounded-md w-5 aspect-square"
-							style={{
-								"background-color": item().color,
-							}}
-						/>
-						<span>
-							{item().data[label()]} Amount: {props.value(item().data)}
-						</span>
-					</div>
-				)}
+			<Show when={hovered()} fallback={<div class="height-16" />}>
+				{(item) => {
+					const transactionCurrency = item().data.currency; // Access currency directly from data
+					const defaultCurrency = userCurrency();
+					const exchangeRate = item().data.exchange_to_default; // Access exchange rate directly from data
+					const convertedAmount = props.value(item().data); // Use the value function to get the converted amount
+
+					// Determine the tooltip text based on the currency
+					const tooltipText =
+						transactionCurrency === defaultCurrency
+							? `${item().data[label()]}: ${defaultCurrency} ${convertedAmount.toFixed(2)}`
+							: `${item().data[label()]}: ${defaultCurrency} ${convertedAmount.toFixed(2)} (1 ${transactionCurrency} = ${exchangeRate} ${defaultCurrency})`;
+
+					return (
+						<div class="w-fit m-auto flex items-center gap-2 p-3">
+							<div
+								class="rounded-md w-5 aspect-square"
+								style={{
+									"background-color": item().color,
+								}}
+							/>
+							<span>{tooltipText}</span>
+						</div>
+					);
+				}}
 			</Show>
 		</div>
 	);
 }
+
+//todo what happens when currency is converted?

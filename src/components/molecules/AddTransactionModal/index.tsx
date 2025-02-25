@@ -12,14 +12,8 @@ import {
 	TransactionWithId,
 } from "~/helpers/expenses_api_helpers";
 import allCurrencies from "~/helpers/mock_values_helpers";
-import PlusIconButton from "~/components/atoms/PlusIconButton";
 import CardWithIcon from "~/components/molecules/CardWithIcon";
 import { CategoryI, CategoryWithId, TransactionType } from "~/helpers/types";
-import {
-	deleteItem,
-	getItemByIdOrName,
-	updateItem,
-} from "~/helpers/categories_api_helpers";
 import { currentUser } from "~/firebase";
 import AddCategoryModal from "~/components/molecules/AddCategoryModal";
 import { iconMap } from "~/components/atoms/icons/helpers";
@@ -49,7 +43,6 @@ interface ModalProps {
 	handleClose: () => void;
 	onSubmit: () => void;
 }
-// todo what about using the <dialog> feature for modals? Do some research
 
 export default function AddTransactionModal(props: ModalProps) {
 	const showModal = () => props.showModal;
@@ -57,33 +50,62 @@ export default function AddTransactionModal(props: ModalProps) {
 
 	const { user, loading: userLoading } = useAuthState();
 
-	const [loading, setIsLoading] = createSignal<boolean>(false);
+	const [pageLoading, setPageLoading] = createSignal<boolean>(false);
+	const [exchangeLoading, setExchangeLoading] = createSignal<boolean>(false);
 	const [showCategModal, setShowCategModal] = createSignal<boolean>(false);
 	const [date, setDate] = createSignal<Date>(new Date());
-	const [transaction, setTransaction] = createStore<Pick<TransactionI, any>>({
-		type: "expenses",
-		amount: 0,
-		currency: "EUR",
-		exchange_to_default: 1,
-		ctg_name: "",
-		notes: "",
-		converted_amount: 0,
-		// 	date is separate due to datepicker config
+
+	const initialTransaction = createMemo(() => {
+		if (props.isEditTransactionModal && props.transactionToEdit) {
+			// Edit mode
+			return {
+				...props.transactionToEdit,
+				type: props.transactionToEdit.type,
+				amount: props.transactionToEdit.amount,
+				currency: props.transactionToEdit.currency,
+				ctg_name: props.transactionToEdit.ctg_name,
+				notes: props.transactionToEdit.notes,
+			};
+		}
+
+		// Else, add transaction mode
+		return {
+			type: "expenses",
+			amount: 0,
+			currency: user ? user?.selectedCurrency : "EUR",
+			exchange_to_default: 1,
+			exchange_on_date: new Date().toISOString(), //only to record historical exchange rate
+			ctg_name: "",
+			ctg_colour: "",
+			notes: "",
+			converted_amount: 0,
+		};
 	});
-	const [editCategory, setEditCategory] = createSignal<CategoryI>();
 
-	const { add: addTransaction } = useFirebaseCollection<
-		TransactionI,
-		TransactionWithId
-	>({ collectionPath: () => [`users/${currentUser()}/${transaction.type}`] });
+	const [transaction, setTransaction] =
+		createStore<Pick<TransactionI, any>>(initialTransaction());
 
-	const { data: categories } = useFirebaseCollection<CategoryI, CategoryWithId>(
-		{ collectionPath: () => [`users/${currentUser()}/categories`] },
-	);
+	// Date must be handled separately due to datepicker config
+	createEffect(() => {
+		if (props.isEditTransactionModal && props.transactionToEdit) {
+			setDate(props.transactionToEdit.date.toDate());
+		} else {
+			setDate(new Date());
+		}
+	});
 
-	function handleTabClick(prop: TransactionType) {
-		setTransaction("type", prop); //todo replace with separate signal?
-	}
+	const {
+		add: addTransaction,
+		deleteItem,
+		updateItem,
+	} = useFirebaseCollection<TransactionI, TransactionWithId>({
+		collectionPath: () => [`users/${currentUser()}/${transaction.type}`],
+	});
+
+	const { data: categories, loading: loadingCategories } =
+		useFirebaseCollection<CategoryI, CategoryWithId>({
+			collectionPath: () => [`users/${currentUser()}/categories`],
+		});
 
 	const dates = createMemo(() => {
 		// If selected date is not today or yesterday, show it in the third slot
@@ -119,48 +141,39 @@ export default function AddTransactionModal(props: ModalProps) {
 	}
 
 	async function handleSubmit() {
-		const { amount, currency, exchange_to_default, ctg_name, type, notes } =
-			transaction;
+		const {
+			amount,
+			currency,
+			exchange_to_default,
+			exchange_on_date,
+			ctg_name,
+			ctg_colour,
+			type,
+			notes,
+		} = transaction;
 		if (transaction) {
 			if (currency !== user?.selectedCurrency) {
-				// fixme currency not available
 				try {
-					console.debug("b4 trans", amount, currency, exchange_to_default);
-					const res = await getExchange({
-						fromCurrency: user?.selectedCurrency ?? "EUR", //todo fix conditional
-						toCurrency: currency,
-					});
-					console.debug("exch", res);
-
-					setTransaction(
-						"exchange_to_default",
-						res?.rate[user?.selectedCurrency || "EUR"],
-					);
-					setTransaction("exchange_on_day", res?.date);
-					setTransaction(
-						"amount",
-						transaction.amount * transaction.exchange_to_default,
-					);
-					console.debug("after", amount, currency, exchange_to_default);
+					await handleExchange(currency);
 				} catch (error) {
 					throw new Error(error);
 				}
 			}
-
 			const newTransaction = {
 				amount,
 				currency,
 				exchange_to_default,
+				exchange_on_date,
 				notes,
 				date: date(),
 				ctg_name,
+				ctg_colour,
 				type,
 			};
 			if (!type) {
 				toast.error("Please specify transaction type");
 			}
 			try {
-				console.debug(newTransaction);
 				await addTransaction(newTransaction);
 				if (props.onSubmit) {
 					props.onSubmit();
@@ -170,15 +183,16 @@ export default function AddTransactionModal(props: ModalProps) {
 				toast.error(`Failed to add transaction: ${error.message}`);
 			}
 		} else {
+			//fixme toast or error ux signals
 			toast.error("Missing input");
 		}
 	}
 
-	async function handleExchange({ exchangeCurrency: string }) {
+	async function handleExchange() {
 		try {
-			console.debug("b4 trans");
+			setExchangeLoading(true);
 			const res = await getExchange({
-				fromCurrency: user?.selectedCurrency ?? "EUR", //todo fix conditional
+				fromCurrency: user?.selectedCurrency ?? "EUR",
 				toCurrency: transaction.currency,
 			});
 			setTransaction(
@@ -186,82 +200,44 @@ export default function AddTransactionModal(props: ModalProps) {
 				res?.rate[user?.selectedCurrency || "EUR"],
 			);
 			setTransaction("exchange_on_day", res?.date);
-			setTransaction(
-				"converted_amount",
-				transaction.amount * transaction.exchange_to_default,
-			);
 		} catch (error) {
+			setExchangeLoading(false);
 			throw new Error(error);
+		} finally {
+			setExchangeLoading(false);
 		}
 	}
 
 	async function handleEdit() {
-		return await updateItem({
+		await updateItem({
 			dbName: transaction.type,
 			itemRef: transaction.id,
 			updatedValue: { ...transaction, date: date() },
 		});
+
+		props.handleClose();
 	}
 
 	async function handleDelete() {
-		return await deleteItem({
+		await deleteItem({
 			dbName: transaction.type,
 			itemRef: transaction.id,
 		});
+
+		props.handleClose();
 	}
 
-	createEffect(() => {
-		console.debug("user", user);
-		// todo fix
-		if (user && user.selectedCurrency) {
-			console.log("User currency:", user.selectedCurrency);
-			// Perform other actions here
-		}
-	});
-
-	onMount(async () => {
+	onMount(() => {
 		if (!user && userLoading) {
-			setIsLoading(true);
+			setPageLoading(true);
 		} else {
-			setIsLoading(false);
-		}
-		if (isEditTransactionModal() && props.transactionToEdit) {
-			setIsLoading(true);
-			setTransaction(props.transactionToEdit);
-			// Set the date signal to the transaction's date
-			setDate(props.transactionToEdit.date.toDate());
-			try {
-				const ctgName = transaction.ctg_name;
-				const categ = await getItemByIdOrName({
-					dbName: "categories",
-					name: ctgName,
-				});
-				if (categ) {
-					setEditCategory(categ.data);
-				} else {
-					console.warn("No category found");
-				}
-			} catch (err) {
-				console.error("Failed to load category:", err);
-			} finally {
-				setIsLoading(false);
-			}
-		} else {
-			// Reset to default values for "Add" mode
-			setTransaction({
-				type: "expenses",
-				amount: 0,
-				currency: user ? user?.selectedCurrency : "EUR",
-				exchange_to_default: 1,
-				ctg_name: "",
-				notes: "",
-			});
-			setDate(new Date());
+			setPageLoading(false);
 		}
 	});
 
 	return (
 		<div>
+			{/*todo add required fields => can't submit if e.g. no category selected*/}
 			<Modal
 				showModal={showModal()}
 				headerTitle="Add Transaction"
@@ -272,7 +248,7 @@ export default function AddTransactionModal(props: ModalProps) {
 						<label for="type">Type</label>
 						<select
 							onChange={(e) => {
-								handleTabClick(e.target.value as TransactionType);
+								setTransaction("type", e.target.value as TransactionType);
 							}}
 							required={true}
 							id="typeSelect"
@@ -303,9 +279,10 @@ export default function AddTransactionModal(props: ModalProps) {
 						<label for="currency">Currency</label>
 						<select
 							onChange={async (e) => {
-								setTransaction("currency", e.target.value);
+								const currency = e.target.value;
+								setTransaction("currency", currency);
 								if (transaction.currency !== user?.selectedCurrency) {
-									await handleExchange(transaction.currency);
+									await handleExchange();
 								}
 							}}
 							required={true}
@@ -323,16 +300,21 @@ export default function AddTransactionModal(props: ModalProps) {
 						</select>
 					</span>
 				</div>
-				<Show when={transaction.currency !== user?.selectedCurrency}>
-					<div>
-						{(transaction.amount * transaction.exchange_to_default).toFixed(2)}{" "}
-						{user?.selectedCurrency} ( 1 {user?.selectedCurrency} ={" "}
-						{transaction.exchange_to_default} {transaction.currency})
-					</div>
+				<Show when={!exchangeLoading()} fallback={<LoadingSpinner />}>
+					<Show when={transaction.currency !== user?.selectedCurrency}>
+						<div class="text-center italic text-md">
+							→{" "}
+							{(transaction.amount * transaction.exchange_to_default).toFixed(
+								2,
+							)}{" "}
+							{user?.selectedCurrency} ( 1 {user?.selectedCurrency} ={" "}
+							{transaction.exchange_to_default} {transaction.currency})
+						</div>
+					</Show>
 				</Show>
 				<div class={styles.categoryContainer}>
 					<label for="category">Category</label>
-					<Show when={!loading()} fallback={<LoadingSpinner />}>
+					<Show when={!loadingCategories()} fallback={<LoadingSpinner />}>
 						<div class={`${styles.categoryGrid} scrollbar-always`}>
 							{/*todo fix the selection filtering below - ux isn't great*/}
 							<For
@@ -361,6 +343,7 @@ export default function AddTransactionModal(props: ModalProps) {
 										icon={i.iconName ? iconMap[i.iconName]?.() : ""}
 										handleClick={() => {
 											setTransaction("ctg_name", i.name);
+											setTransaction("ctg_colour", i.colour);
 										}}
 									/>
 								)}
@@ -402,6 +385,7 @@ export default function AddTransactionModal(props: ModalProps) {
 				<div>
 					<label for="description">Transaction Notes</label>
 					<textarea
+						value={isEditTransactionModal() ? transaction?.notes : ""}
 						class={styles.formElements}
 						id="description"
 						rows="1"
@@ -409,18 +393,23 @@ export default function AddTransactionModal(props: ModalProps) {
 						onBlur={(e) => setTransaction("notes", e.target.value)}
 					></textarea>
 				</div>
-				{/*tooltip doesn't work, may be hiding behind modal*/}
+				{/*fixme tooltip doesn't work, may be hiding behind modal*/}
+				{/*fixme add debounce*/}
 				<Show
 					when={isEditTransactionModal()}
 					fallback={
-						<PlusIconButton
+						<Button
+							disabled={
+								pageLoading() || exchangeLoading() || loadingCategories()
+							}
+							leftIcon={<PlusIcon />}
 							type="submit"
-							variant="primary"
-							handleClick={async (e: Event) => {
-								e.preventDefault();
+							styleClass="primary mt-6"
+							onClick={async () => {
 								await handleSubmit();
+								props.handleClose();
 							}}
-							title="Add new transaction"
+							text="Add new transaction"
 						/>
 					}
 				>
@@ -431,7 +420,6 @@ export default function AddTransactionModal(props: ModalProps) {
 							type="submit"
 							onClick={async () => {
 								await handleEdit();
-								props.handleClose();
 							}}
 							text="Save edit"
 						/>
@@ -442,7 +430,6 @@ export default function AddTransactionModal(props: ModalProps) {
 							styleClass="danger mx-auto"
 							onClick={async () => {
 								await handleDelete();
-								props.handleClose();
 							}}
 						>
 							Delete Transaction
@@ -450,14 +437,12 @@ export default function AddTransactionModal(props: ModalProps) {
 					</div>
 				</Show>
 			</Modal>
-			{/*todo try to pass the mutation as a prop from here, since scope is available here - hopefully it maintains the reference */}
 			<AddCategoryModal
 				isEditCategoryModal={false}
 				showModal={showCategModal()}
 				handleClose={() => setShowCategModal(false)}
 				onSubmit={() => setShowCategModal(false)}
 			/>
-			{/*todo update code and publish in repo, then send to Cam for him to play around with*/}
 			<Toaster />
 		</div>
 	);

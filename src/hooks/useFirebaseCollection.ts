@@ -306,7 +306,7 @@ export function useFirebaseCollection<
 		}
 
 		// const transactionsRef = getCollectionRef();
-		const transactionsRef = collection(db, "users", currentUser(), type); //todo replace with existing fn
+		const transactionsRef = collection(db, "users", currentUser(), type);
 		const q = query(
 			transactionsRef,
 			where("date", ">=", startTimestamp),

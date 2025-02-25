@@ -2,7 +2,7 @@ import Table from "~/components/molecules/Table";
 import AddCategoryModal from "~/components/molecules/AddCategoryModal";
 import AddTransactionModal from "~/components/molecules/AddTransactionModal";
 import { Toaster } from "solid-toast";
-import { createSignal } from "solid-js";
+import { createSignal, onMount } from "solid-js";
 import { TransactionType } from "~/helpers/types";
 import {
 	TransactionI,
@@ -16,6 +16,7 @@ import { useFirebaseCollection } from "~/hooks/useFirebaseCollection";
 import Tabs from "~/components/molecules/Tabs";
 import PlusIcon from "~/components/atoms/icons/PlusIcon";
 import Button from "~/components/atoms/Button";
+import { useAuthState } from "~/services/provider/auth";
 
 function capitalizeFirstLetter(val: string): string {
 	return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -25,6 +26,9 @@ export default function TransactionsPage() {
 	const [showTransactionModal, setShowTransactionModal] = createSignal(false);
 	const [showCategModal, setShowCategModal] = createSignal(false);
 	const [showToaster, setShowToaster] = createSignal(false);
+
+	const { user } = useAuthState();
+	const [currency, setCurrency] = createSignal("EUR");
 
 	const [database, setDatabase] = createSignal<TransactionType>("expenses");
 	const {
@@ -44,6 +48,12 @@ export default function TransactionsPage() {
 		"investments",
 	];
 
+	onMount(async () => {
+		if (user) {
+			setCurrency(user.selectedCurrency);
+		}
+	});
+
 	const tabs = transactionTypes.map((type) => ({
 		name: capitalizeFirstLetter(type),
 		onClick: () => {
@@ -59,15 +69,22 @@ export default function TransactionsPage() {
 							<div class="w-3/4 p-6 border rounded-lg shadow-sm bg-gray-800 border-gray-700">
 								<Table type={database()} array={transactions()} />
 							</div>
-							<div class="w-1/4 flex flex-col justify-between">
+							<div class="w-1/4 mx-auto flex flex-col justify-between">
 								<div class="p-6 border rounded-lg shadow-sm bg-gray-800 border-gray-700">
 									<PieChart
-										w={5}
-										h={5}
-										margin={1}
+										w={8}
+										h={8}
+										margin={0.5}
 										label="ctg_name"
+										userCurrency={currency()}
 										data={transactions() ?? []}
-										value={(d) => d.amount}
+										value={(d) => {
+											if (d.exchange_to_default === 1) {
+												return d.amount;
+											} else {
+												return d.amount * d.exchange_to_default;
+											}
+										}}
 									/>
 								</div>
 							</div>
@@ -81,7 +98,6 @@ export default function TransactionsPage() {
 	return (
 		<MainLayout title="Transactions">
 			<section class="w-full h-full mx-auto">
-				{/*<IconSelector />*/}
 				<div class="flex flex-row justify-center gap-2.5">
 					<Button
 						styleClass="primary"
