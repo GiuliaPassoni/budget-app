@@ -154,9 +154,9 @@ export default function AddTransactionModal(props: ModalProps) {
 		if (transaction) {
 			if (currency !== user?.selectedCurrency) {
 				try {
-					await handleExchange(currency);
+					await handleExchange();
 				} catch (error) {
-					throw new Error(error);
+					throw new Error();
 				}
 			}
 			const newTransaction = {
