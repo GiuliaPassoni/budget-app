@@ -33,7 +33,7 @@ export default function Table(props: TableProps) {
 		return [...array].sort((a, b) => {
 			const dateA = firestoreTimestampToDate(a.date).getTime();
 			const dateB = firestoreTimestampToDate(b.date).getTime();
-			return dateB - dateA;
+			return sortOrder() === "asc" ? dateA - dateB : dateB - dateA;
 		});
 	});
 	const [selectedTransaction, setSelectedTransaction] = createSignal<
@@ -73,14 +73,7 @@ export default function Table(props: TableProps) {
 
 	// date sorting
 	const sortByDate = () => {
-		const newSortOrder = sortOrder() === "asc" ? "desc" : "asc";
-		setSortOrder(newSortOrder);
-
-		const sorted = [...sortedArray()].sort((a, b) => {
-			const dateA = firestoreTimestampToDate(a.date).getTime();
-			const dateB = firestoreTimestampToDate(b.date).getTime();
-			return newSortOrder === "asc" ? dateA - dateB : dateB - dateA;
-		});
+		setSortOrder(sortOrder() === "asc" ? "desc" : "asc");
 	};
 
 	const headers: Header[] = [
@@ -226,7 +219,11 @@ function Header(props: HeaderPropsI) {
 					{(i) => (
 						<th scope="col" class={i.styleClass ?? ""}>
 							{i.headerName}{" "}
-							{i.isSortable ? <SortIcon onClick={i.sortFn} /> : ""}
+							{i.isSortable && i.sortFn ? (
+								<SortIcon onClick={() => i.sortFn()} />
+							) : (
+								""
+							)}
 						</th>
 					)}
 				</For>
