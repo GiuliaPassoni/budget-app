@@ -78,7 +78,7 @@ export default function Table(props: TableProps) {
 
 	const headers: Header[] = [
 		{
-			headerName: "Transaction amount",
+			headerName: "Amount",
 			styleClass: "header-left",
 		},
 		{ headerName: "Currency" },
