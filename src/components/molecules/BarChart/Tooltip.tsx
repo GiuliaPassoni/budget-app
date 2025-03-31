@@ -1,4 +1,4 @@
-import { capitalise } from "~/components/molecules/Toast";
+import { capitalise } from "~/helpers/general";
 
 interface TooltipPropsI {
 	x?: number;

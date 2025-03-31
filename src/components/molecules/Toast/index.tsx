@@ -5,16 +5,13 @@ import CloseModalIconButton from "~/components/atoms/CloseModalIconButton";
 import InfoIcon from "~/components/atoms/icons/InfoIcon";
 import WarningIcon from "~/components/atoms/icons/WarningIcon";
 import XCircleErrorIcon from "~/components/atoms/icons/XCircleErrorIcon";
+import { capitalise } from "~/helpers/general";
 
 interface PropsI {
 	type: "success" | "error" | "warning" | "info";
 	message: string;
 	showModal: boolean;
 	handleClose: () => void;
-}
-
-function capitalise(string: string) {
-	return string[0].toUpperCase() + string.slice(1).toLowerCase();
 }
 
 export default function Toast(props: PropsI) {
