@@ -29,7 +29,7 @@ export default function Button(props: IProps) {
 	const tooltipContent = () => props.tooltipContent;
 	// const handleClick = props.onClick;
 	return (
-		<div>
+		<>
 			<button
 				// data-dropdown-toggle={`dropdown-${id() ?? ""}`}
 				data-tooltip-target={`tooltip-${id() ?? ""}`}
@@ -54,6 +54,6 @@ export default function Button(props: IProps) {
 				{tooltipContent()}
 				<div class="tooltip-arrow" data-popper-arrow></div>
 			</div>
-		</div>
+		</>
 	);
 }
